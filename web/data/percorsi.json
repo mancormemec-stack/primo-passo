@@ -77,7 +77,7 @@
         { "id": "r5", "testo": "Vai in Questura alla data indicata per le impronte, poi torna a ritirare il permesso quando ti avvisano.", "verificato": false, "fonte": "DA_COMPILARE", "verificato_il": null }
       ],
       "scadenze": [
-        { "id": "presenta_rinnovo", "testo": "Presenta la domanda di rinnovo prima della scadenza del permesso (verificare il termine esatto).", "giorni_prima_evento": 60, "evento": "scadenza del permesso", "verificato": false, "fonte": "D.Lgs. 286/1998 art. 5 (verificare)", "verificato_il": null },
+        { "id": "presenta_rinnovo", "testo": "Presenta la domanda di rinnovo almeno 90 giorni prima della scadenza del permesso (termine in vigore dal 22 maggio 2026; molte pagine ufficiali più vecchie indicano ancora 60 giorni).", "giorni_prima_evento": 90, "evento": "scadenza del permesso", "verificato": true, "controllo": "automatico", "fonte": "https://www.gazzettaufficiale.it/eli/gu/2026/05/20/115/sg/pdf ; https://integrazionemigranti.gov.it/it-it/Ricerca-news/Dettaglio-news/id/4766/Permesso-unico-di-lavoro-in-vigore-le-nuove-regole", "verificato_il": "2026-11-13" },
         { "id": "aggiorna_anagrafe", "testo": "Dopo il rinnovo, aggiorna l'Anagrafe entro 60 giorni.", "giorni_dopo_evento": 60, "evento": "data del rinnovo del permesso", "verificato": false, "fonte": "D.P.R. 223/1989 art. 7 c. 3", "verificato_il": null }
       ],
       "ufficio": "questura"
