@@ -106,7 +106,7 @@ Ordine di prova, 2-3 prove di fila per ciascuna:
 4. **Arabo** e **spagnolo** (Perù, Ecuador).
 5. Cinese e hindi, se c'è tempo.
 
-Il menu della pagina ha altre 28 lingue (gruppo "Altre lingue (da testare)"). Per usarle a voce vanno abilitate anche nell'agente: pannello ElevenLabs, Agent, Additional languages (l'opzione All ne abilita 31). Urdu, persiano, nepalese, punjabi, thai, georgiano, serbo, swahili, somalo, yoruba e hausa, come il bengalese, ci sono solo nei modelli vocali v3 e v4, non in Flash v2.5. Il singalese (Sri Lanka) non risulta nelle liste di ElevenLabs.
+Il menu della pagina ha 89 lingue: le 7 principali e, nel gruppo "Altre lingue (non ancora provate a voce)", quelle che ElevenLabs elenca per i modelli v4 (`eleven_v4` e `eleven_v4_turbo`), in ordine alfabetico. Nell'agente ne sono abilitate 88 (`language_presets`, tutte con primo messaggio vuoto: il saluto lo scrive l'LLM). Mancano fula, lingala, cebuano e kamba, i cui codici ElevenLabs rifiuta, e albanese e singalese, che non risultano nelle liste. In testo ho provato, per esempio, spagnolo, urdu, curdo sorani, wolof e cantonese; a voce nessuna lingua nuova è stata provata. Una lingua nuova va aggiunta sia nel menu (`web/index.html`) sia nell'agente, e serve un modello vocale v3 o v4: Flash v2.5 e Multilingual v2 non coprono, per esempio, bengalese, urdu, persiano o swahili.
 
 Per ogni lingua controllate: l'agente fa la domanda sulla cittadinanza UE una sola volta, il `NON VERIFICATO` viene detto, il foglio tradotto contiene tutti i documenti e tutti i passi.
 
