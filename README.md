@@ -42,7 +42,9 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
 2. Copiate l'ID dell'agente in `web/app.js` (costante `AGENT_ID`), oppure aprite la pagina con `?agent=ID` nell'URL.
 3. Avviate la pagina in locale con `npm start` e aprite http://localhost:8080.
 4. Lanciate i test con `npm test`. Verificano i tool sui dati, senza chiamare l'LLM.
-5. **Deploy:** la cartella `web/` è statica. Va bene Vercel, Netlify o GitHub Pages: basta pubblicare `web/`.
+5. **Deploy:** a ogni push su `main`, GitHub Actions lancia i test e pubblica **solo** la cartella `web/` su GitHub Pages ([.github/workflows/pages.yml](.github/workflows/pages.yml)).
+   - Sito: https://mancormemec-stack.github.io/primo-passo/
+   - Con l'agente: aggiungete `?agent=ID` all'indirizzo, oppure scrivete l'ID in `AGENT_ID` in `web/app.js`.
 
 Requisiti: Node 18 o superiore. Non ci sono dipendenze da installare: l'SDK `@elevenlabs/client@1.29.0` è caricato da CDN.
 
