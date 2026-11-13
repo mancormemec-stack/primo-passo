@@ -28,7 +28,7 @@
       "verificato": false
     },
     "asl": {
-      "nome": "{asl} - Sportello di Medicina Generale del Distretto {municipio}",
+      "nome": "{asl} - Sportello di Medicina Generale del distretto che copre il Municipio {municipio}",
       "dove": "DA_COMPILARE: sede dello sportello del Distretto dal sito della ASL",
       "come": "Verificare sul sito della ASL se serve prenotare; alcuni sportelli funzionano a numeri.",
       "verificato": false
