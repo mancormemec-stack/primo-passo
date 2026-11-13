@@ -21,7 +21,7 @@ export function creaRegia({ onStato } = {}) {
       ultimoFrame = t;
       let v = null;
       try {
-        if (typeof conv.getOutputVolume === "function") v = Math.min(1, Math.sqrt(conv.getOutputVolume()) * 1.6);
+        if (typeof conv.getOutputVolume === "function") v = Math.min(1, conv.getOutputVolume() * 1.6);
       } catch {
         v = null;
       }

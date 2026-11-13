@@ -3,9 +3,14 @@ import { createTools } from "./tools.js";
 import { creaPino } from "./pino.js";
 import { creaRegia } from "./pino-regia.js";
 import { esitoPositivo, contaFatti } from "./pino-state.js";
+import {
+  PRINCIPALI, ALTRE, TUTTE, direzione, nomePerAgente, nomeNativo, provataAVoce,
+  traduttore, linguaUI, SALUTI, linguaSalvata, salvaLingua,
+} from "./i18n.js";
 
 // ID dell'agente ElevenLabs (pubblico per la demo). Si può anche passare come ?agent=...
-const AGENT_ID = new URLSearchParams(location.search).get("agent") || "agent_0601m7b42fyaf8ybzmhabg67wy0w";
+const parametri = new URLSearchParams(location.search);
+const AGENT_ID = parametri.get("agent") || "agent_0601m7b42fyaf8ybzmhabg67wy0w";
 
 const $ = (id) => document.getElementById(id);
 const [percorsi, uffici] = await Promise.all([
@@ -13,11 +18,41 @@ const [percorsi, uffici] = await Promise.all([
   fetch("data/uffici.json").then((r) => r.json()),
 ]);
 
-// Pino segue solo eventi reali: sessione, modalità di ElevenLabs, messaggi, strumenti.
-const regia = creaRegia();
-regia.aggiungi(creaPino($("pino"), { etichetta: "Pino" }));
-let fattiOra = 0;
+// ---------- Stato della pagina ----------
+let lingua = null; // codice scelto
+let t = traduttore("it");
+let conv = null; // sessione ElevenLabs attiva
+let spoke = false;
+let soloTesto = false;
+let fattiOra = 0; // passi fatti in tutti i percorsi (per riconoscere un successo vero)
 
+function applicaLingua(code) {
+  lingua = code;
+  t = traduttore(code);
+  const html = document.documentElement;
+  html.lang = linguaUI(code);
+  html.dir = direzione(code);
+  for (const el of document.querySelectorAll("[data-t]")) el.textContent = t(el.dataset.t);
+  for (const el of document.querySelectorAll("[data-tp]")) el.placeholder = t(el.dataset.tp);
+  for (const el of document.querySelectorAll("[data-ta]")) el.setAttribute("aria-label", t(el.dataset.ta));
+  $("lingua-nome").textContent = nomeNativo(code);
+  $("lingua").setAttribute("aria-label", `${t("lingua.cambia")}: ${nomeNativo(code)}`);
+  didascalia(regia.stato);
+}
+
+// ---------- Pino ----------
+// Pino segue solo eventi reali: sessione, modalità di ElevenLabs, messaggi, strumenti.
+const regia = creaRegia({ onStato: (s) => didascalia(s) });
+regia.aggiungi(creaPino($("pino")));
+
+function didascalia(stato) {
+  $("app").querySelector(".palco").dataset.stato = stato;
+  const chiave = stato === "idle" ? (conv && soloTesto ? "stato.idleTesto" : "stato.idle") : `stato.${stato}`;
+  const testo = t(chiave);
+  if ($("didascalia").textContent !== testo) $("didascalia").textContent = testo;
+}
+
+// ---------- Strumenti (logica invariata: tools.js) ----------
 const tools = createTools({ percorsi, uffici }, {
   onState: (st) => {
     fattiOra = contaFatti(st);
@@ -29,7 +64,7 @@ const tools = createTools({ percorsi, uffici }, {
     a.download = name;
     a.click();
     URL.revokeObjectURL(a.href);
-    log("sys", `📅 Promemoria scaricato: ${name}`);
+    log("sys", `📅 ${t("sys.promemoria", { nome: name })}`);
   },
   print(html) {
     // Il foglio si apre dentro la pagina: nessun popup da consentire.
@@ -37,15 +72,15 @@ const tools = createTools({ percorsi, uffici }, {
     const box = document.createElement("div");
     box.id = "foglio";
     box.setAttribute("role", "dialog");
-    box.setAttribute("aria-label", "Foglio da portare allo sportello");
+    box.setAttribute("aria-label", t("foglio.titolo"));
     const bar = document.createElement("div");
     bar.className = "bar";
     const frame = document.createElement("iframe");
-    frame.title = "Foglio da portare allo sportello";
+    frame.title = t("foglio.titolo");
     frame.srcdoc = html;
     for (const [label, fn] of [
-      ["Stampa / salva PDF", () => frame.contentWindow.print()],
-      ["Chiudi", () => box.remove()],
+      [t("foglio.stampa"), () => frame.contentWindow.print()],
+      [t("foglio.chiudi"), () => box.remove()],
     ]) {
       const b = document.createElement("button");
       b.textContent = label;
@@ -54,9 +89,9 @@ const tools = createTools({ percorsi, uffici }, {
     }
     box.append(bar, frame);
     document.body.append(box);
-    log("sys", "📄 Foglio pronto: puoi stamparlo o salvarlo come PDF.");
+    log("sys", `📄 ${t("sys.foglio")}`);
   },
-  onHandoff: (motivo) => log("sys", `↪ Indirizzato a uno sportello: ${motivo}`),
+  onHandoff: () => log("sys", `↪ ${t("sys.handoff")}`),
 });
 
 // Ogni tool viene registrato così com'è; i log aiutano in demo a mostrare cosa fa l'agente.
@@ -77,20 +112,25 @@ const clientTools = Object.fromEntries(
     }])
 );
 
-let conv = null;
-let spoke = false;
+// ---------- Sessione ElevenLabs (opzioni invariate) ----------
+
+const erroreMicrofono = (e) => /NotAllowed|Permission|denied|NotFound|microphone/i.test(`${e?.name} ${e?.message}`);
 
 async function start(textOnly) {
   if (AGENT_ID.startsWith("INSERISCI")) return log("sys", "Imposta AGENT_ID in app.js o aggiungi ?agent=... all'URL.");
+  if (conv) return;
+  $("text").classList.remove("evidenzia");
   try {
     spoke = false;
+    soloTesto = textOnly;
     regia.invia({ type: "sessione", soloTesto: textOnly });
+    setRunning(true);
     conv = await Conversation.startSession({
       agentId: AGENT_ID,
       // WebSocket anche per la voce: più robusto di WebRTC su reti con UDP bloccato (WiFi di eventi, uffici).
-      connectionType: new URLSearchParams(location.search).get("conn") || "websocket",
+      connectionType: parametri.get("conn") || "websocket",
       textOnly,
-      overrides: { agent: { language: $("lang").value, firstMessage: "" } },
+      overrides: { agent: { language: lingua, firstMessage: "" } },
       clientTools,
       // Il modello vocale può aggiungere indicazioni di tono tipo [happy]: non vanno mostrate.
       onMessage: ({ message, role }) => {
@@ -105,33 +145,45 @@ async function start(textOnly) {
       onStatusChange: ({ status }) => regia.invia({ type: "status", status }),
       onModeChange: ({ mode }) => regia.invia({ type: "mode", mode }),
       onVadScore: ({ vadScore }) => regia.invia({ type: "vad", score: vadScore }),
-      onError: (m) => log("sys", `Errore: ${m}`),
-      onDisconnect: () => {
+      onError: (m) => console.warn("ElevenLabs:", m),
+      onDisconnect: (d) => {
         regia.invia({ type: "status", status: "disconnected" });
+        if (d?.reason === "error") log("sys errore", t("err.rete"));
         setRunning(false);
       },
     });
     regia.conversazione(conv);
     regia.invia({ type: "status", status: "connected" });
-    setRunning(true);
     // Il saluto lo genera l'agente (LLM) nella lingua scelta. Se l'agente ha ancora un primo messaggio fisso, parla da solo e questo non serve.
-    const lingua = ($("lang").selectedOptions[0]?.textContent || "").replace(/\s*\(.*\)/, "").trim();
+    const nome = nomePerAgente(lingua);
     setTimeout(() => {
       if (conv && !spoke) {
         regia.invia({ type: "turnoUtente" }); // l'agente sta preparando il saluto
-        conv.sendUserMessage(`[AVVIO] Saluta e presentati in breve, in ${lingua}.`);
+        conv.sendUserMessage(`[AVVIO] Saluta e presentati in breve, in ${nome}.`);
       }
     }, 1500);
   } catch (e) {
-    log("sys", `Impossibile avviare: ${e.message}`);
+    console.warn("Avvio non riuscito:", e);
+    conv = null;
+    setRunning(false);
+    regia.invia({ type: "status", status: "disconnected" });
+    if (!textOnly && erroreMicrofono(e)) {
+      log("sys errore", t("err.mic"));
+      $("text").classList.add("evidenzia");
+      $("text").focus();
+    } else {
+      log("sys errore", t("err.avvio"));
+    }
   }
 }
 
 function setRunning(on) {
-  $("voice").disabled = $("text").disabled = $("lang").disabled = on;
+  $("voice").disabled = $("text").disabled = $("lingua").disabled = on;
   $("stop").disabled = !on;
   $("q").disabled = $("chat").querySelector("button").disabled = !on;
   if (!on) conv = null;
+  didascalia(regia.stato);
+  if (on && soloTesto) setTimeout(() => $("q").focus(), 0);
 }
 
 $("voice").onclick = () => start(false);
@@ -139,19 +191,19 @@ $("text").onclick = () => start(true);
 $("stop").onclick = () => conv?.endSession();
 $("chat").onsubmit = (e) => {
   e.preventDefault();
-  const t = $("q").value.trim();
-  if (!t || !conv) return;
+  const testo = $("q").value.trim();
+  if (!testo || !conv) return;
   regia.invia({ type: "turnoUtente" });
-  conv.sendUserMessage(t);
+  conv.sendUserMessage(testo);
   $("q").value = "";
 };
-
 $("q").addEventListener("input", () => regia.invia({ type: "scrive", on: $("q").value.trim() !== "" }));
 $("q").addEventListener("blur", () => regia.invia({ type: "scrive", on: false }));
 
 function log(kind, text) {
   const d = document.createElement("div");
   d.className = `msg ${kind}`;
+  d.dir = "auto"; // testi misti: nomi di uffici in italiano dentro una frase in arabo
   d.textContent = text;
   $("log").append(d);
   $("log").scrollTop = $("log").scrollHeight;
@@ -159,15 +211,17 @@ function log(kind, text) {
 
 function renderSteps(state) {
   const box = $("steps");
-  box.replaceChildren(Object.assign(document.createElement("h2"), { textContent: "Il tuo percorso" }));
+  box.replaceChildren(Object.assign(document.createElement("h2"), { textContent: t("percorso") }));
   for (const [id, s] of Object.entries(state.percorsi)) {
     const p = percorsi.percorsi.find((x) => x.id === id);
     const h = document.createElement("h3");
     h.textContent = p.titolo;
-    h.style.fontSize = "15px";
+    h.lang = "it";
     const ul = document.createElement("ul");
+    ul.lang = "it"; // i passi vengono dai dati verificati, in italiano
     for (const step of p.passi) {
       const li = document.createElement("li");
+      li.dir = "auto";
       const done = s.completati.includes(step.id);
       li.textContent = `${done ? "✓" : "○"} ${step.testo}`;
       if (done) li.className = "done";
@@ -175,4 +229,112 @@ function renderSteps(state) {
     }
     box.append(h, ul);
   }
+}
+
+// ---------- Onboarding: senza lingua non si entra ----------
+const onbPino = creaPino($("onb-pino"));
+let scelta = null;
+let timerSaluti = null;
+
+function tessera(code, testo, sotto) {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "tessera press";
+  b.setAttribute("role", "radio");
+  b.setAttribute("aria-checked", "false");
+  b.dataset.code = code;
+  b.lang = code;
+  b.dir = direzione(code);
+  const nome = document.createElement("span");
+  nome.textContent = testo;
+  if (sotto) nome.append(Object.assign(document.createElement("small"), { textContent: sotto }));
+  const spunta = Object.assign(document.createElement("span"), { className: "spunta", textContent: "✓" });
+  spunta.setAttribute("aria-hidden", "true");
+  b.append(nome, spunta);
+  b.onclick = () => scegli(code);
+  return b;
+}
+
+$("lingue").append(...PRINCIPALI.map((l) => tessera(l.code, l.nome)));
+$("altre-lista").append(...ALTRE.map((l) => tessera(l.code, l.nativo, l.nativo === l.inglese ? "" : l.inglese)));
+
+function scegli(code) {
+  scelta = code;
+  for (const b of document.querySelectorAll(".tessera")) b.setAttribute("aria-checked", String(b.dataset.code === code));
+  applicaLingua(code); // tutta l'interfaccia cambia subito lingua (e direzione)
+  $("nota-lingua").hidden = provataAVoce(code);
+  $("avanti").disabled = false;
+  onbPino.stato("success");
+  setTimeout(() => onbPino.stato("idle"), 900);
+}
+
+$("altre-apri").onclick = () => {
+  const apri = $("altre").hidden;
+  $("altre").hidden = !apri;
+  $("altre-apri").setAttribute("aria-expanded", String(apri));
+  if (apri) $("cerca").focus();
+};
+$("cerca").oninput = () => {
+  const q = $("cerca").value.trim().toLowerCase();
+  let visibili = 0;
+  for (const b of $("altre-lista").children) {
+    const l = ALTRE.find((x) => x.code === b.dataset.code);
+    const ok = !q || `${l.inglese} ${l.nativo} ${l.code}`.toLowerCase().includes(q);
+    b.hidden = !ok;
+    visibili += ok;
+  }
+  $("nessuna").hidden = visibili > 0;
+};
+
+function mostraOnboarding() {
+  $("app").hidden = true;
+  $("onboarding").hidden = false;
+  scelta = lingua;
+  for (const b of document.querySelectorAll(".tessera")) b.setAttribute("aria-checked", String(b.dataset.code === scelta));
+  $("avanti").disabled = !scelta;
+  $("nota-lingua").hidden = !scelta || provataAVoce(scelta);
+  if (scelta && !PRINCIPALI.some((l) => l.code === scelta)) {
+    $("altre").hidden = false;
+    $("altre-apri").setAttribute("aria-expanded", "true");
+  }
+  let i = 0;
+  clearInterval(timerSaluti);
+  timerSaluti = setInterval(() => {
+    if (document.hidden) return;
+    i = (i + 1) % SALUTI.length;
+    const s = $("saluto").lastElementChild;
+    const nuovo = s.cloneNode();
+    nuovo.textContent = SALUTI[i];
+    nuovo.dir = "auto";
+    s.replaceWith(nuovo);
+  }, 2200);
+  $("onb-domanda").focus?.();
+}
+
+function entra() {
+  if (!scelta) return;
+  salvaLingua(scelta);
+  applicaLingua(scelta);
+  clearInterval(timerSaluti);
+  $("onboarding").hidden = true;
+  $("app").hidden = false;
+  $("voice").focus();
+}
+
+$("avanti").onclick = entra;
+$("lingua").onclick = () => {
+  if (!conv) mostraOnboarding();
+};
+
+// ?lang=it salta la scelta (utile in demo); altrimenti vale la lingua ricordata da questo browser.
+const daUrl = parametri.get("lang");
+const iniziale = daUrl && TUTTE.includes(daUrl) ? daUrl : linguaSalvata();
+if (iniziale) {
+  scelta = iniziale;
+  applicaLingua(iniziale);
+  $("app").hidden = false;
+} else {
+  applicaLingua("it");
+  lingua = null;
+  mostraOnboarding();
 }
