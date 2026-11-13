@@ -83,6 +83,16 @@ test("prepare_summary produce HTML con escaping", () => {
   assert.match(fx.printed[0], /&lt;b&gt;pași&lt;\/b&gt;/);
 });
 
+test("il foglio riporta l'ufficio trovato e le fonti con la data", () => {
+  const { call, fx } = setup();
+  call("find_office", { path_id: "iscrizione_ssn", municipio: "VIII" });
+  call("prepare_summary", { path_id: "iscrizione_ssn" });
+  assert.match(fx.printed[0], /ASL Roma 2/);
+  assert.match(fx.printed[0], /verificate il 2026-11-13/);
+  assert.match(fx.printed[0], /aslroma1\.it/);
+  assert.ok(!/Distretto VIII/.test(fx.printed[0]));
+});
+
 test("handoff restituisce aiuto gratuito", () => {
   const { call, fx } = setup();
   const r = call("handoff", { motivo: "richiesta di asilo" });

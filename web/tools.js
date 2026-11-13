@@ -125,6 +125,8 @@ export function createTools(data, effects = {}) {
       if (!info) return out({ errore: "Municipio non valido: chiedi il quartiere all'utente e ricava il Municipio (I-XV)." });
       const u = uffici.uffici[p.ufficio];
       const fill = (t) => t.replace("{municipio}", m).replace("{asl}", info.asl);
+      pathState(path_id).ufficio = fill(u.nome);
+      notify();
       const contatti = p.ufficio === "anagrafe_municipio" && info.pec
         ? { pec: info.pec, telefono: info.telefono, nota: "Contatti generali del Municipio: chiedi a loro l'ufficio anagrafe giusto." }
         : undefined;
@@ -201,6 +203,16 @@ function buildIcs(testo, titolo, quando) {
   ].join("\r\n");
 }
 
+// Fonti ufficiali citate dalle voci del percorso, con la data dell'ultima verifica.
+function sourcesHtml(p, esc) {
+  const items = [...p.prerequisiti, ...p.passi, ...p.scadenze];
+  const urls = [...new Set(items.flatMap((x) => (x.fonte || "").match(/https?:\/\/[^\s;)]+/g) || []))];
+  if (!urls.length) return "";
+  const dates = items.map((x) => x.verificato_il).filter(Boolean).sort();
+  const when = dates.length ? `Fonti ufficiali, verificate il ${esc(dates[dates.length - 1])}:` : "Fonti ufficiali:";
+  return `<p class="nota">${when}<br>${urls.map(esc).join("<br>")}</p>`;
+}
+
 function buildSummaryHtml(p, s, lingua, traduzione) {
   const esc = (t) => String(t).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const li = (items, done = []) =>
@@ -209,10 +221,11 @@ function buildSummaryHtml(p, s, lingua, traduzione) {
 <style>body{font:15px/1.5 system-ui,sans-serif;max-width:720px;margin:24px auto;padding:0 16px;color:#111}
 h1{font-size:20px}h2{font-size:16px;margin-top:20px}ul{list-style:none;padding:0}li{margin:6px 0}
 .tr{border-top:1px solid #ccc;margin-top:24px;padding-top:12px;white-space:pre-wrap}.nota{font-size:12px;color:#555}</style></head>
-<body><h1>${esc(p.titolo)}</h1><p>${esc(p.ente)}</p>
+<body><h1>${esc(p.titolo)}</h1><p>${esc(s.ufficio || p.ente)}</p>
 <h2>Documenti da portare</h2><ul>${li(p.prerequisiti, s.posseduti)}</ul>
 <h2>Passi</h2><ul>${li(p.passi, s.completati)}</ul>
-${traduzione ? `<div class="tr"><strong>${esc(lingua || "")}</strong>\n${esc(traduzione)}</div>` : ""}
+${traduzione ? `<div class="tr"><strong>${esc(lingua || "")}</strong>\n${esc(traduzione)}<p class="nota">Traduzione automatica: in caso di dubbio vale il testo italiano.</p></div>` : ""}
+${sourcesHtml(p, esc)}
 <p class="nota">Foglio informativo generato da un assistente automatico. Non sostituisce gli uffici. Nessun dato personale è stato salvato.</p>
 </body></html>`;
 }
