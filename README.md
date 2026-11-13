@@ -1,6 +1,6 @@
 # Primo Passo
 
-Agente multilingue, anche vocale, che orienta le persone straniere a Roma tra le pratiche: residenza, tessera sanitaria, rinnovo del permesso. Il Comune è la porta d'ingresso; da lì l'agente orienta verso ASL e Questura.
+Pino è l'agente multilingue, anche vocale, che orienta le persone straniere a Roma tra le pratiche: residenza, tessera sanitaria, rinnovo del permesso. Il Comune è la porta d'ingresso; da lì l'agente orienta verso ASL e Questura.
 
 L'agente conosce solo **percorsi verificati a mano**. Su questi:
 - sa in che ordine vanno fatte le pratiche;
@@ -39,6 +39,7 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
    Lo script crea gli 8 client tool definiti in [agent/tools.json](agent/tools.json) e l'agente con il prompt di [agent/prompt-sistema.md](agent/prompt-sistema.md), e stampa l'ID dell'agente.
 
    **Il modo manuale** è descritto in [agent/tool-elevenlabs.md](agent/tool-elevenlabs.md). Il webhook `check_updates` verso Exa va comunque configurato a mano dal pannello, perché usa un Secret.
+**Aggiornare l'agente già creato:** dopo ogni modifica a `agent/prompt-sistema.md` lanciate `ELEVENLABS_API_KEY=... node scripts/aggiorna-agente.mjs` (provate prima con `--dry-run`). Lo script aggiorna prompt, modello LLM e domini ammessi, rinomina l'agente in Pino e svuota il primo messaggio: il saluto lo genera l'LLM nella lingua scelta, quando l'app manda il messaggio di avvio `[AVVIO]`.
 2. Copiate l'ID dell'agente in `web/app.js` (costante `AGENT_ID`), oppure aprite la pagina con `?agent=ID` nell'URL.
 3. Avviate la pagina in locale con `npm start` e aprite http://localhost:8080.
 4. Lanciate i test con `npm test`. Verificano i tool sui dati, senza chiamare l'LLM.
@@ -93,6 +94,8 @@ Ordine di prova, 2-3 prove di fila per ciascuna:
 3. **Bengalese**: seconda comunità non UE. Nelle liste di ElevenLabs c'è solo nei modelli v3 e v4, non in Flash v2.5 né in Multilingual v2: controllate nel pannello quale modello usa l'agente.
 4. **Arabo** e **spagnolo** (Perù, Ecuador).
 5. Cinese e hindi, se c'è tempo.
+
+Il menu della pagina ha altre 28 lingue (gruppo "Altre lingue (da testare)"). Per usarle a voce vanno abilitate anche nell'agente: pannello ElevenLabs, Agent, Additional languages (l'opzione All ne abilita 31). Urdu, persiano, nepalese, punjabi, thai, georgiano, serbo, swahili, somalo, yoruba e hausa, come il bengalese, ci sono solo nei modelli vocali v3 e v4, non in Flash v2.5. Il singalese (Sri Lanka) non risulta nelle liste di ElevenLabs.
 
 Per ogni lingua controllate: l'agente fa la domanda sulla cittadinanza UE una sola volta, il `NON VERIFICATO` viene detto, il foglio tradotto contiene tutti i documenti e tutti i passi.
 
