@@ -70,7 +70,9 @@ async function start(textOnly) {
       textOnly,
       overrides: { agent: { language: $("lang").value } },
       clientTools,
-      onMessage: ({ message, role }) => log(role === "user" ? "user" : "ai", message),
+      // Il modello vocale può aggiungere indicazioni di tono tipo [happy]: non vanno mostrate.
+      onMessage: ({ message, role }) =>
+        log(role === "user" ? "user" : "ai", message.replace(/\[[a-z ]{2,20}\]\s*/g, "").trim()),
       onError: (m) => log("sys", `Errore: ${m}`),
       onDisconnect: () => setRunning(false),
     });
