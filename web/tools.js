@@ -164,6 +164,18 @@ export function createTools(data, effects = {}) {
       const p = getPath(path_id);
       if (!p) return unknown(path_id);
       const s = pathState(path_id);
+      // In un'altra lingua il foglio deve avere la traduzione di tutto: altrimenti si rifiuta e si danno i testi.
+      const altraLingua = (lingua || "").trim() && !/^(it|ital)/i.test(lingua.trim());
+      if (altraLingua && (traduzione || "").trim().length < 150) {
+        return out({
+          creato: false,
+          errore: `Traduzione mancante o troppo breve. Traduci in ${lingua} TUTTI i documenti e TUTTI i passi qui sotto, nello stesso ordine e senza riassumere, poi richiama prepare_summary con il parametro traduzione.`,
+          testi_da_tradurre: {
+            documenti: p.prerequisiti.map(mark),
+            passi: p.passi.map(mark),
+          },
+        });
+      }
       const html = buildSummaryHtml(p, s, lingua, traduzione);
       effects.print?.(html);
       return out({ creato: true, istruzione: "Di' all'utente che può stamparlo o salvarlo come PDF e portarlo allo sportello." });

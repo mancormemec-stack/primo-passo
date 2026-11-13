@@ -79,8 +79,25 @@ test("create_reminders crea un .ics alla data giusta", () => {
 
 test("prepare_summary produce HTML con escaping", () => {
   const { call, fx } = setup();
-  call("prepare_summary", { path_id: "iscrizione_ssn", lingua: "Română", traduzione: "<b>pași</b>" });
+  const lunga = "<b>pași</b> " + "x".repeat(200);
+  call("prepare_summary", { path_id: "iscrizione_ssn", lingua: "Română", traduzione: lunga });
   assert.match(fx.printed[0], /&lt;b&gt;pași&lt;\/b&gt;/);
+});
+
+test("in un'altra lingua senza traduzione il foglio non si crea e arrivano i testi", () => {
+  const { call, fx } = setup();
+  const r = call("prepare_summary", { path_id: "iscrizione_ssn", lingua: "Filipino" });
+  assert.equal(r.creato, false);
+  assert.equal(fx.printed.length, 0);
+  assert.equal(r.testi_da_tradurre.passi.length, 4);
+  assert.equal(r.testi_da_tradurre.documenti.length, 4);
+});
+
+test("in italiano il foglio si crea anche senza traduzione", () => {
+  const { call, fx } = setup();
+  assert.equal(call("prepare_summary", { path_id: "iscrizione_ssn" }).creato, true);
+  assert.equal(call("prepare_summary", { path_id: "iscrizione_ssn", lingua: "Italiano" }).creato, true);
+  assert.equal(fx.printed.length, 2);
 });
 
 test("il foglio riporta l'ufficio trovato e le fonti con la data", () => {
