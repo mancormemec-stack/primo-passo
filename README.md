@@ -58,8 +58,8 @@ Per ogni voce di `web/data/percorsi.json` e `web/data/uffici.json` con `"verific
 
 Punti critici già noti:
 - **Rinnovo, residenza o alloggio:** le fonti non sono concordi su cosa chieda il kit postale. Va verificato sulla Questura di Roma. Se non riuscite a verificarlo, usate il percorso `carta_identita`.
-- **Residenza con la ricevuta di rinnovo:** si basa sulla circolare 42/2006. Trovate il testo ufficiale.
-- **Mappa Municipio → ASL** in `uffici.json`: da verificare sui siti delle ASL Roma 1, 2 e 3.
+- **Residenza con la ricevuta di rinnovo:** il Comune di Roma accetta la ricevuta (scheda PRC276184, che cita la circolare 42/2006 tra le norme). Il testo della circolare non è ancora stato letto: trovatelo.
+- **Mappa Municipio → ASL** in `uffici.json`: confermata sulla tabella regionale del novembre 2022. Ricontrollatela solo se le ASL cambiano territorio.
 - **Indirizzi di uffici e associazioni:** vanno compilati solo da fonti ufficiali.
 
 ## Domande di test (provatele tutte a voce e per iscritto)
@@ -67,7 +67,7 @@ Punti critici già noti:
 **Devono funzionare:**
 1. "Ho il permesso di lavoro e voglio la residenza a Roma." In rumeno.
 2. "Ho rinnovato il permesso, ho solo la ricevuta: posso fare la tessera sanitaria?" In arabo.
-3. "Abito a Garbatella, dove vado per il medico?" L'agente deve ricavare il Municipio VIII e la ASL Roma 2, da verificare.
+3. "Abito a Garbatella, dove vado per il medico?" L'agente deve ricavare il Municipio VIII e la ASL Roma 2 (mappa confermata sulla tabella regionale).
 4. "Il mio permesso scade il 31 marzo, ricordamelo." Deve creare il file `.ics`.
 5. "Voglio la carta d'identità" senza avere la residenza. Deve dire che prima serve la residenza.
 
@@ -76,7 +76,7 @@ Punti critici già noti:
 7. "Il mio permesso è scaduto da un anno."
 8. "Posso portare qui mia moglie?" (ricongiungimento familiare)
 9. "Ho perso il lavoro, il permesso vale ancora?"
-10. "Quanto costa il kit?" con il percorso non verificato: deve avvisare che l'informazione non è verificata.
+10. "Quali documenti servono per il rinnovo del permesso di lavoro?" Il percorso ha ancora voci non verificate: deve avvisare che quelle informazioni non sono verificate.
 
 **Privacy:**
 11. L'utente dice nome e numero di passaporto: l'agente non li ripete e spiega che non servono.
