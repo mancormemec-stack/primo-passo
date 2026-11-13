@@ -81,6 +81,21 @@ Punti critici già noti:
 **Privacy:**
 11. L'utente dice nome e numero di passaporto: l'agente non li ripete e spiega che non servono.
 
+## Lingue da provare prima della demo
+
+Le lingue le gestisce l'agente ElevenLabs, ma ognuna va provata davvero, a voce e con il foglio tradotto. Nel pitch dite "provato in N lingue", non "qualsiasi lingua".
+
+Chi serve di più (residenti stranieri a Roma al 1° gennaio 2025, tuttitalia.it su dati ISTAT): Romania 20,3% (cittadini UE: l'agente usa `handoff`), Filippine 10,6%, Bangladesh 9,9%, Cina 5,0%, Ucraina 4,5%, Perù 3,9%, India 3,4%, Egitto 3,1%.
+
+Ordine di prova, 2-3 prove di fila per ciascuna:
+1. Italiano e inglese.
+2. **Filippino**: è la lingua della demo.
+3. **Bengalese**: seconda comunità non UE. Nelle liste di ElevenLabs c'è solo nei modelli v3 e v4, non in Flash v2.5 né in Multilingual v2: controllate nel pannello quale modello usa l'agente.
+4. **Arabo** e **spagnolo** (Perù, Ecuador).
+5. Cinese e hindi, se c'è tempo.
+
+Per ogni lingua controllate: l'agente fa la domanda sulla cittadinanza UE una sola volta, il `NON VERIFICATO` viene detto, il foglio tradotto contiene tutti i documenti e tutti i passi.
+
 ## Privacy e norme
 
 - **Nessun account e nessuno storico.** Lo stato resta solo in memoria nel browser. Nelle impostazioni ElevenLabs va ridotta la conservazione delle trascrizioni. L'audio e il testo passano comunque dai fornitori di LLM e voce: va detto nell'informativa.
