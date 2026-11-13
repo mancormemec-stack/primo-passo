@@ -71,7 +71,7 @@ test("find_office usa la ASL del Municipio", () => {
 
 test("create_reminders crea un .ics alla data giusta", () => {
   const { call, fx } = setup();
-  const giorni = data.percorsi.find((p) => p.id === "rinnovo_permesso_lavoro").scadenze.find((s) => s.id === "presenta_rinnovo").giorni_prima_evento;
+  const giorni = data.percorsi.percorsi.find((p) => p.id === "rinnovo_permesso_lavoro").scadenze.find((s) => s.id === "presenta_rinnovo").giorni_prima_evento;
   const atteso = new Date(Date.UTC(2027, 2, 31) - giorni * 86400000).toISOString().slice(0, 10);
   const r = call("create_reminders", { path_id: "rinnovo_permesso_lavoro", scadenza_id: "presenta_rinnovo", data_evento: "2027-03-31" });
   assert.equal(r.data_promemoria, atteso);
