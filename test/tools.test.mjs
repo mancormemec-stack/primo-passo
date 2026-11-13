@@ -17,6 +17,13 @@ function setup() {
   return { t, fx, call: (name, p = {}) => JSON.parse(t[name](p)) };
 }
 
+// Dichiara di avere tutti i documenti obbligatori del percorso (come farebbe l'utente a voce).
+function possiedi(call, pathId) {
+  const p = data.percorsi.percorsi.find((x) => x.id === pathId);
+  const ids = p.prerequisiti.filter((x) => x.obbligatorio !== false).map((x) => x.id).join(",");
+  return call("check_prerequisites", { path_id: pathId, posseduti: ids });
+}
+
 test("list_paths elenca tutti i percorsi", () => {
   const { call } = setup();
   const ids = call("list_paths").map((p) => p.id);
@@ -32,6 +39,7 @@ test("solo gli elementi non verificati sono marcati", () => {
   const { call } = setup();
   const r = call("start_path", { path_id: "iscrizione_anagrafica" });
   assert.ok(r.prerequisiti.every((p) => !p.testo.includes("NON VERIFICATO")));
+  possiedi(call, "iscrizione_anagrafica");
   const ultimo = call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3,a4" });
   assert.equal(ultimo.passo.id, "a5");
   assert.ok(ultimo.passo.testo.includes("NON VERIFICATO"));
@@ -49,6 +57,7 @@ test("next_step segue l'ordine e poi propone le scadenze", () => {
   const { call } = setup();
   assert.equal(call("next_step", { path_id: "iscrizione_anagrafica" }).passo.id, "a1");
   assert.equal(call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2" }).passo.id, "a3");
+  possiedi(call, "iscrizione_anagrafica");
   const fine = call("next_step", { path_id: "iscrizione_anagrafica", completati: "a3,a4,a5" });
   assert.equal(fine.completato, true);
   assert.equal(fine.scadenze_da_ricordare[0].id, "aggiorna_dopo_rinnovo");
@@ -57,6 +66,7 @@ test("next_step segue l'ordine e poi propone le scadenze", () => {
 test("la carta d'identità è bloccata finché manca la residenza", () => {
   const { call } = setup();
   assert.equal(call("next_step", { path_id: "carta_identita" }).bloccato, true);
+  possiedi(call, "iscrizione_anagrafica");
   call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3,a4,a5" });
   assert.equal(call("next_step", { path_id: "carta_identita" }).passo.id, "c1");
 });
@@ -115,7 +125,8 @@ test("il foglio riporta l'ufficio trovato e le fonti con la data", () => {
   call("find_office", { path_id: "iscrizione_ssn", municipio: "VIII" });
   call("prepare_summary", { path_id: "iscrizione_ssn" });
   assert.match(fx.printed[0], /ASL Roma 2/);
-  assert.match(fx.printed[0], /verificate il 2026-11-13/);
+  assert.match(fx.printed[0], /controllate in modo automatico il 2026-11-13/);
+  assert.ok(!/verificate da una persona/.test(fx.printed[0]), "un controllo automatico non è una verifica umana");
   assert.match(fx.printed[0], /aslroma1\.it/);
   assert.ok(!/Distretto VIII/.test(fx.printed[0]));
 });

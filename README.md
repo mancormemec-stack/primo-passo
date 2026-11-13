@@ -23,12 +23,12 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
    ├──► Client tool (web/tools.js, nel browser) ──► web/data/*.json (percorsi verificati)
    │      list_paths · start_path · check_prerequisites · next_step
    │      find_office · create_reminders (.ics) · prepare_summary (stampa/PDF) · handoff
-   └──► Webhook tool check_updates ──► Exa, solo domini istituzionali
+   └──► (opzionale, NON attivo) Webhook tool check_updates ──► Exa, solo domini istituzionali
 ```
 
 - **Perché i client tool:** lo stato del percorso resta nel browser e la conversazione non passa da un nostro server. Così niente account, niente database e niente dati personali da proteggere.
 - **Perché i percorsi sono in JSON:** l'LLM non inventa i passi, li legge. Ogni elemento ha una fonte e una data di verifica, e quelli non verificati vengono segnalati all'utente.
-- **Il ruolo di Exa:** non genera risposte. Serve solo a segnalare "questa pagina ufficiale potrebbe essere cambiata".
+- **Il ruolo di Exa (opzionale, oggi non attivo nell'agente):** non genera risposte. Serve solo a segnalare "questa pagina ufficiale potrebbe essere cambiata".
 
 ## Setup (circa 30 minuti)
 
@@ -48,6 +48,17 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
    - Con l'agente: aggiungete `?agent=ID` all'indirizzo, oppure scrivete l'ID in `AGENT_ID` in `web/app.js`.
 
 Requisiti: Node 18 o superiore. Non ci sono dipendenze da installare: l'SDK `@elevenlabs/client@1.29.0` è caricato da CDN.
+
+## Stati di verifica
+
+Ogni voce dei percorsi ha uno stato, calcolato da `verificato` e `controllo` nei file JSON:
+- **umano:** una persona ha aperto la fonte e confrontato il testo (`"controllo": "umano"`);
+- **automatico:** letta e confrontata con la fonte ufficiale da uno strumento, **non ancora da una persona**;
+- **non verificato:** nessun controllo.
+
+Un controllo automatico non diventa mai "umano" da solo: l'agente lo dichiara all'utente e il foglio lo scrive. `npm run verifica` elenca le voci da confermare, con i link da aprire.
+
+Gli strumenti impongono anche i vincoli: i passi si completano solo in ordine, e quelli in cui si presentano i documenti (`richiede_prerequisiti`) solo se i documenti obbligatori (`obbligatorio` diverso da `false`) sono stati dichiarati con `check_prerequisites`. I test lo verificano.
 
 ## Checklist di verifica (da fare prima della demo)
 

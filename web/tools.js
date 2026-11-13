@@ -7,7 +7,38 @@ const NV = "[NON VERIFICATO - confermare allo sportello]";
 const splitIds = (s) =>
   (s || "").split(",").map((x) => x.trim()).filter(Boolean);
 
-const mark = (item) => (item.verificato ? item.testo : `${item.testo} ${NV}`);
+// Tre livelli di verifica:
+//  - "umano": una persona ha controllato la fonte (controllo: "umano"), oppure è un testo nostro
+//    di raccordo che non afferma nulla di amministrativo (fonte: "interno");
+//  - "automatico": letto e confrontato con la fonte ufficiale da uno strumento, non ancora da una persona;
+//  - "non_verificato": nessun controllo.
+// Un controllo automatico non diventa mai "umano" da solo.
+export function statoOf(item) {
+  if (!item.verificato) return "non_verificato";
+  if (item.controllo === "umano" || item.fonte === "interno") return "umano";
+  return "automatico";
+}
+
+export function riepilogoVerifica(items) {
+  const n = { umano: 0, automatico: 0, non_verificato: 0 };
+  for (const i of items) n[statoOf(i)]++;
+  return n;
+}
+
+const tuttiGliElementi = (p) => [...p.prerequisiti, ...p.passi, ...p.scadenze];
+
+function avvisoVerifica(n) {
+  if (!n.automatico && !n.non_verificato) return undefined;
+  return (
+    "Le informazioni di questo percorso sono state controllate sulle fonti ufficiali in modo AUTOMATICO, non ancora da una persona" +
+    ` (controllo automatico: ${n.automatico}; non verificate: ${n.non_verificato}). ` +
+    "Ricordalo all'utente UNA sola volta e consiglia di confermare allo sportello. " +
+    "Non dire mai che sono 'verificate da una persona'. Le voci con stato non_verificato vanno sempre segnalate."
+  );
+}
+
+// Le voci non verificate portano l'etichetta nel testo; quelle controllate in automatico hanno solo `stato`.
+const mark = (item) => (statoOf(item) === "non_verificato" ? `${item.testo} ${NV}` : item.testo);
 
 const out = (obj) => JSON.stringify(obj, null, 1);
 
@@ -25,6 +56,12 @@ export function createTools(data, effects = {}) {
     state.percorsi[id] ??= { posseduti: [], completati: [] };
     return state.percorsi[id];
   }
+
+  // Documenti obbligatori che l'utente non ha ancora dichiarato di avere (via check_prerequisites).
+  const mancantiObbligatori = (p, s) =>
+    p.prerequisiti.filter((x) => x.obbligatorio !== false && !s.posseduti.includes(x.id));
+
+  const itemOut = (x) => ({ id: x.id, testo: mark(x), stato: statoOf(x), obbligatorio: x.obbligatorio !== false });
 
   function dependencies(p) {
     return (p.dipende_da || []).map((d) => {
@@ -53,6 +90,7 @@ export function createTools(data, effects = {}) {
           quando_si_applica: p.quando_si_applica,
           non_si_applica: p.non_si_applica,
           avviso: p._avviso,
+          verifica: riepilogoVerifica(tuttiGliElementi(p)),
         }))
       );
     },
@@ -62,12 +100,15 @@ export function createTools(data, effects = {}) {
       if (!p) return unknown(path_id);
       pathState(path_id);
       notify();
+      const verifica = riepilogoVerifica(tuttiGliElementi(p));
       return out({
         titolo: p.titolo,
         ente: p.ente,
         prima_di_iniziare: dependencies(p),
-        prerequisiti: p.prerequisiti.map((x) => ({ id: x.id, testo: mark(x) })),
+        prerequisiti: p.prerequisiti.map(itemOut),
         numero_passi: p.passi.length,
+        verifica,
+        avviso_verifica: avvisoVerifica(verifica),
         istruzione: "Chiedi all'utente quali prerequisiti ha, poi chiama check_prerequisites.",
       });
     },
@@ -79,21 +120,25 @@ export function createTools(data, effects = {}) {
       s.posseduti = splitIds(posseduti).filter((id) => p.prerequisiti.some((x) => x.id === id));
       notify();
       const mancanti = p.prerequisiti.filter((x) => !s.posseduti.includes(x.id));
+      const obbligatori = mancantiObbligatori(p, s);
       return out({
-        ha_tutto: mancanti.length === 0,
-        mancanti: mancanti.map((x) => ({ id: x.id, testo: mark(x) })),
+        ha_tutto: obbligatori.length === 0,
+        mancanti: mancanti.map(itemOut),
+        mancanti_obbligatori: obbligatori.map(itemOut),
         dipendenze: dependencies(p).filter((d) => d.stato !== "completato"),
+        istruzione: obbligatori.length
+          ? "Mancano documenti obbligatori: i passi in cui si presentano i documenti non possono essere segnati come fatti finché non li ha."
+          : undefined,
       });
     },
 
+    // I passi si completano solo in ordine, e quelli in cui si presentano i documenti
+    // (richiede_prerequisiti) solo se i documenti obbligatori sono stati dichiarati con check_prerequisites.
+    // Il rispetto di queste regole non dipende dal prompt: lo impone questo strumento.
     next_step({ path_id, completati }) {
       const p = getPath(path_id);
       if (!p) return unknown(path_id);
       const s = pathState(path_id);
-      for (const id of splitIds(completati)) {
-        if (p.passi.some((x) => x.id === id) && !s.completati.includes(id)) s.completati.push(id);
-      }
-      notify();
       const bloccanti = dependencies(p).filter((d) => d.obbligatorio && d.stato !== "completato");
       if (bloccanti.length) {
         return out({
@@ -102,18 +147,46 @@ export function createTools(data, effects = {}) {
           suggerimento: `Se l'utente non l'ha ancora fatto, avvia quel percorso con start_path.`,
         });
       }
+      const richiesti = new Set(splitIds(completati));
+      const rifiutati = [];
+      p.passi.forEach((step, i) => {
+        if (!richiesti.has(step.id) || s.completati.includes(step.id)) return;
+        const prima = p.passi.slice(0, i).filter((x) => !s.completati.includes(x.id));
+        if (prima.length) {
+          rifiutati.push({ passo: step.id, motivo: "ordine", da_fare_prima: prima.map((x) => x.id) });
+          return;
+        }
+        if (step.richiede_prerequisiti) {
+          const mancanti = mancantiObbligatori(p, s);
+          if (mancanti.length) {
+            rifiutati.push({ passo: step.id, motivo: "documenti_mancanti", mancanti: mancanti.map(itemOut) });
+            return;
+          }
+        }
+        s.completati.push(step.id);
+      });
+      notify();
+      const rifiuto = rifiutati.length
+        ? {
+            rifiutati,
+            istruzione_rifiuto:
+              "Alcuni passi NON sono stati segnati come fatti: spiega all'utente cosa manca o cosa va fatto prima. Non dire che sono completati.",
+          }
+        : {};
       const prossimo = p.passi.find((x) => !s.completati.includes(x.id));
       if (!prossimo) {
         return out({
           completato: true,
-          scadenze_da_ricordare: p.scadenze.map((x) => ({ id: x.id, testo: mark(x), evento: x.evento })),
+          scadenze_da_ricordare: p.scadenze.map((x) => ({ id: x.id, testo: mark(x), stato: statoOf(x), evento: x.evento })),
           istruzione: "Proponi create_reminders e prepare_summary.",
+          ...rifiuto,
         });
       }
       return out({
-        passo: { id: prossimo.id, testo: mark(prossimo) },
+        passo: { id: prossimo.id, testo: mark(prossimo), stato: statoOf(prossimo), richiede_prerequisiti: !!prossimo.richiede_prerequisiti },
         fatti: s.completati.length,
         totale: p.passi.length,
+        ...rifiuto,
       });
     },
 
@@ -130,6 +203,8 @@ export function createTools(data, effects = {}) {
       const contatti = p.ufficio === "anagrafe_municipio" && info.pec
         ? { pec: info.pec, telefono: info.telefono, nota: "Contatti generali del Municipio: chiedi a loro l'ufficio anagrafe giusto." }
         : undefined;
+      // La mappa Municipio -> ASL fa parte della risposta: se non è verificata, l'ufficio non lo è.
+      const su = p.ufficio === "asl" && !uffici.mappa_verificata ? "non_verificato" : statoOf(u);
       const sportelli = p.ufficio === "asl" && info.sportelli_asl
         ? { elenco: info.sportelli_asl, nota: info.sportelli_nota, fonte: info.sportelli_fonte }
         : undefined;
@@ -139,8 +214,15 @@ export function createTools(data, effects = {}) {
         come: u.come,
         contatti_municipio: contatti,
         sportelli_vicini: sportelli,
-        verificato: u.verificato && (p.ufficio !== "asl" || uffici.mappa_verificata),
-        avviso: u.verificato ? undefined : NV,
+        stato: su,
+        // `verificato` vale solo se una persona ha controllato la fonte.
+        verificato: su === "umano",
+        avviso:
+          su === "non_verificato"
+            ? NV
+            : su === "automatico"
+              ? "Controllato in modo automatico sulle fonti ufficiali, non ancora da una persona: consiglia di confermare orari e indirizzo."
+              : undefined,
       });
     },
 
@@ -225,8 +307,17 @@ function sourcesHtml(p, esc) {
   const urls = [...new Set(items.flatMap((x) => (x.fonte || "").match(/https?:\/\/[^\s;)]+/g) || []))];
   if (!urls.length) return "";
   const dates = items.map((x) => x.verificato_il).filter(Boolean).sort();
-  const when = dates.length ? `Fonti ufficiali, verificate il ${esc(dates[dates.length - 1])}:` : "Fonti ufficiali:";
-  return `<p class="nota">${when}<br>${urls.map(esc).join("<br>")}</p>`;
+  const n = riepilogoVerifica(items);
+  const tutteUmane = !n.automatico && !n.non_verificato;
+  const d = dates.length ? esc(dates[dates.length - 1]) : "";
+  // Un controllo automatico non si presenta mai come verifica fatta da una persona.
+  const when = !dates.length
+    ? "Fonti ufficiali:"
+    : tutteUmane
+      ? `Fonti ufficiali, verificate da una persona il ${d}:`
+      : `Fonti ufficiali, controllate in modo automatico il ${d} (non ancora confermate da una persona):`;
+  const nota = n.non_verificato ? "<br>Alcune voci sono segnate come non verificate: confermale allo sportello." : "";
+  return `<p class="nota">${when}<br>${urls.map(esc).join("<br>")}${nota}</p>`;
 }
 
 function buildSummaryHtml(p, s, lingua, traduzione) {
