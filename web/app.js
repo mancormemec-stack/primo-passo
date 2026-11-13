@@ -59,24 +59,35 @@ const clientTools = Object.fromEntries(
 );
 
 let conv = null;
+let spoke = false;
 
 async function start(textOnly) {
   if (AGENT_ID.startsWith("INSERISCI")) return log("sys", "Imposta AGENT_ID in app.js o aggiungi ?agent=... all'URL.");
   try {
+    spoke = false;
     conv = await Conversation.startSession({
       agentId: AGENT_ID,
       // WebSocket anche per la voce: più robusto di WebRTC su reti con UDP bloccato (WiFi di eventi, uffici).
       connectionType: new URLSearchParams(location.search).get("conn") || "websocket",
       textOnly,
-      overrides: { agent: { language: $("lang").value } },
+      overrides: { agent: { language: $("lang").value, firstMessage: "" } },
       clientTools,
       // Il modello vocale può aggiungere indicazioni di tono tipo [happy]: non vanno mostrate.
-      onMessage: ({ message, role }) =>
-        log(role === "user" ? "user" : "ai", message.replace(/\[[a-z ]{2,20}\]\s*/g, "").trim()),
+      onMessage: ({ message, role }) => {
+        // Il messaggio di avvio non si mostra; quando parla l'agente, il saluto è già arrivato.
+        if (role === "user" && message.startsWith("[AVVIO]")) return;
+        if (role !== "user") spoke = true;
+        log(role === "user" ? "user" : "ai", message.replace(/\[[a-z ]{2,20}\]\s*/g, "").trim());
+      },
       onError: (m) => log("sys", `Errore: ${m}`),
       onDisconnect: () => setRunning(false),
     });
     setRunning(true);
+    // Il saluto lo genera l'agente (LLM) nella lingua scelta. Se l'agente ha ancora un primo messaggio fisso, parla da solo e questo non serve.
+    const lingua = ($("lang").selectedOptions[0]?.textContent || "").replace(/\s*\(.*\)/, "").trim();
+    setTimeout(() => {
+      if (conv && !spoke) conv.sendUserMessage(`[AVVIO] Saluta e presentati in breve, in ${lingua}.`);
+    }, 1500);
   } catch (e) {
     log("sys", `Impossibile avviare: ${e.message}`);
   }
