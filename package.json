@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node --test",
     "start": "npx --yes http-server@14.1.1 web -p 8080 -c-1",
-    "verifica": "node scripts/da-verificare.mjs"
+    "verifica": "node scripts/da-verificare.mjs",
+    "impronta": "node scripts/impronta-prompt.mjs"
   }
 }

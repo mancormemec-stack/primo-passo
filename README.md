@@ -40,6 +40,8 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
 
    **Il modo manuale** è descritto in [agent/tool-elevenlabs.md](agent/tool-elevenlabs.md). Il webhook `check_updates` verso Exa va comunque configurato a mano dal pannello, perché usa un Secret.
 **Aggiornare l'agente già creato:** dopo ogni modifica a `agent/prompt-sistema.md` lanciate `ELEVENLABS_API_KEY=... node scripts/aggiorna-agente.mjs` (provate prima con `--dry-run`). Lo script aggiorna prompt, modello LLM e domini ammessi, rinomina l'agente in Pino e svuota il primo messaggio: il saluto lo genera l'LLM nella lingua scelta, quando l'app manda il messaggio di avvio `[AVVIO]`.
+
+**Il prompt pubblicato è uguale a quello del repo?** `npm run impronta` stampa lunghezza e impronta del prompt in `agent/prompt-sistema.md`; lo stesso calcolo sul testo dell'editor di ElevenLabs (istruzioni in [scripts/impronta-prompt.mjs](scripts/impronta-prompt.mjs)) deve dare gli stessi due numeri. Chi modifica il prompt su ElevenLabs riporti la modifica anche nel file, e viceversa.
 2. Copiate l'ID dell'agente in `web/app.js` (costante `AGENT_ID`), oppure aprite la pagina con `?agent=ID` nell'URL.
 3. Avviate la pagina in locale con `npm start` e aprite http://localhost:8080.
 4. Lanciate i test con `npm test`. Verificano i tool sui dati, senza chiamare l'LLM.
