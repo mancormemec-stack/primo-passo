@@ -29,6 +29,9 @@
     #steps li { margin:4px 0; }
     .done { color:var(--ok); }
     .muted { color:var(--muted); font-size:13px; }
+    #foglio { position:fixed; inset:0; z-index:10; background:var(--bg); display:flex; flex-direction:column; }
+    #foglio .bar { display:flex; gap:8px; padding:8px 16px; border-bottom:1px solid var(--line); }
+    #foglio iframe { flex:1; width:100%; border:0; background:#fff; }
   </style>
 </head>
 <body>

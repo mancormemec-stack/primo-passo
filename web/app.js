@@ -21,10 +21,29 @@ const tools = createTools({ percorsi, uffici }, {
     log("sys", `📅 Promemoria scaricato: ${name}`);
   },
   print(html) {
-    const w = window.open("", "_blank");
-    if (!w) return log("sys", "Consenti i popup per vedere il riepilogo.");
-    w.document.write(html);
-    w.document.close();
+    // Il foglio si apre dentro la pagina: nessun popup da consentire.
+    $("foglio")?.remove();
+    const box = document.createElement("div");
+    box.id = "foglio";
+    box.setAttribute("role", "dialog");
+    box.setAttribute("aria-label", "Foglio da portare allo sportello");
+    const bar = document.createElement("div");
+    bar.className = "bar";
+    const frame = document.createElement("iframe");
+    frame.title = "Foglio da portare allo sportello";
+    frame.srcdoc = html;
+    for (const [label, fn] of [
+      ["Stampa / salva PDF", () => frame.contentWindow.print()],
+      ["Chiudi", () => box.remove()],
+    ]) {
+      const b = document.createElement("button");
+      b.textContent = label;
+      b.onclick = fn;
+      bar.append(b);
+    }
+    box.append(bar, frame);
+    document.body.append(box);
+    log("sys", "📄 Foglio pronto: puoi stamparlo o salvarlo come PDF.");
   },
   onHandoff: (motivo) => log("sys", `↪ Indirizzato a uno sportello: ${motivo}`),
 });
