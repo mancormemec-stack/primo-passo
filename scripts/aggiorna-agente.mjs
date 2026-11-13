@@ -1,5 +1,6 @@
 // Aggiorna l'agente esistente su ElevenLabs: prompt, modello LLM e domini ammessi.
-// Non tocca i tool, le lingue e il primo messaggio.
+// Rinomina l'agente in Pino e svuota il primo messaggio fisso: il saluto lo genera l'LLM
+// quando l'app manda [AVVIO]. Non tocca i tool e le lingue.
 //
 // Uso (la chiave resta solo nella vostra shell, mai nel codice):
 //   ELEVENLABS_API_KEY=... node scripts/aggiorna-agente.mjs
@@ -28,7 +29,8 @@ const prompt = read("agent/prompt-sistema.md").split(/^---$/m)[1].trim();
 const llm = process.env.LLM || "claude-sonnet-5-5";
 
 const body = {
-  conversation_config: { agent: { prompt: { prompt, llm } } },
+  name: "Pino",
+  conversation_config: { agent: { first_message: "", prompt: { prompt, llm } } },
   platform_settings: {
     auth: {
       allowlist: [{ hostname: "mancormemec-stack.github.io" }, { hostname: "localhost" }],
