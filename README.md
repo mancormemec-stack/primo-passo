@@ -30,6 +30,23 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
 - **Perché i percorsi sono in JSON:** l'LLM non inventa i passi, li legge. Ogni elemento ha una fonte e una data di verifica, e quelli non verificati vengono segnalati all'utente.
 - **Il ruolo di Exa (opzionale, oggi non attivo nell'agente):** non genera risposte. Serve solo a segnalare "questa pagina ufficiale potrebbe essere cambiata".
 
+### Interfaccia e Pino
+
+- **Prima schermata:** la lingua è obbligatoria (6 lingue provate più ricerca tra le altre 83). La scelta resta solo in questo browser; `?lang=it` la salta in demo, "Cambia lingua" la riapre.
+- **Pino** ([web/pino.js](web/pino.js), [web/pino.css](web/pino.css)) è un unico SVG, lo stesso del prototipo Lovable, usato in tutte le schermate: cambia solo `data-stato`. Anteprima dei cinque stati: [web/pino.html](web/pino.html).
+- **Stati:** li decide [web/pino-state.js](web/pino-state.js) solo da eventi reali, senza DOM (testato):
+  - idle: nessuna sessione;
+  - listening: ElevenLabs in modalità ascolto;
+  - thinking: dalla fine del turno dell'utente alla risposta, e mentre lavora uno strumento, al massimo 12 s;
+  - speaking: modalità parla di ElevenLabs, con la bocca che segue il volume in uscita;
+  - success: 1,5 s, solo quando uno strumento ha davvero segnato un passo o creato foglio o promemoria.
+- **Lingue dell'interfaccia** ([web/i18n.js](web/i18n.js)):
+  - tradotte in it, en, ro, ar, uk, fil e bn, con testi scritti per la demo che vanno rivisti da madrelingua;
+  - le altre lingue hanno l'interfaccia in inglese, ma Pino parla la lingua scelta;
+  - arabo, ebraico, persiano, urdu, pashto, sindhi e curdo sorani vanno da destra a sinistra;
+  - i passi del percorso restano in italiano, perché vengono dai dati verificati.
+- **Cache:** pagina e moduli locali hanno `?v=N`. Se cambiate un file in `web/`, aumentate N in `index.html`, `app.js` e `pino-regia.js`: il test lo controlla. Senza, per 10 minuti GitHub Pages può servire un `app.js` vecchio con la pagina nuova.
+
 ## Setup (circa 30 minuti)
 
 1. **ElevenLabs, il modo veloce:** create una API key nel pannello ElevenLabs (Developers → API Keys) con i permessi per gli agenti. Poi, dalla cartella del progetto:
@@ -108,7 +125,7 @@ Ordine di prova, 2-3 prove di fila per ciascuna:
 4. **Arabo** e **spagnolo** (Perù, Ecuador).
 5. Cinese e hindi, se c'è tempo.
 
-Il menu della pagina ha 89 lingue: le 7 principali e, nel gruppo "Altre lingue (non ancora provate a voce)", quelle che ElevenLabs elenca per i modelli v4 (`eleven_v4` e `eleven_v4_turbo`), in ordine alfabetico. Nell'agente ne sono abilitate 88 (`language_presets`, tutte con primo messaggio vuoto: il saluto lo scrive l'LLM). Mancano fula, lingala, cebuano e kamba, i cui codici ElevenLabs rifiuta, e albanese e singalese, che non risultano nelle liste. In testo ho provato, per esempio, spagnolo, urdu, curdo sorani, wolof e cantonese; a voce nessuna lingua nuova è stata provata. Una lingua nuova va aggiunta sia nel menu (`web/index.html`) sia nell'agente, e serve un modello vocale v3 o v4: Flash v2.5 e Multilingual v2 non coprono, per esempio, bengalese, urdu, persiano o swahili.
+La prima schermata ha 89 lingue (elenco in `web/i18n.js`): le 6 principali e, sotto "Altre lingue", il bengalese più quelle che ElevenLabs elenca per i modelli v4 (`eleven_v4` e `eleven_v4_turbo`), in ordine alfabetico. Nell'agente ne sono abilitate 88 (`language_presets`, tutte con primo messaggio vuoto: il saluto lo scrive l'LLM). Mancano fula, lingala, cebuano e kamba, i cui codici ElevenLabs rifiuta, e albanese e singalese, che non risultano nelle liste. In testo ho provato, per esempio, spagnolo, urdu, curdo sorani, wolof e cantonese; a voce nessuna lingua nuova è stata provata. Una lingua nuova va aggiunta sia in `web/i18n.js` sia nell'agente, e serve un modello vocale v3 o v4: Flash v2.5 e Multilingual v2 non coprono, per esempio, bengalese, urdu, persiano o swahili.
 
 Per ogni lingua controllate: l'agente fa la domanda sulla cittadinanza UE una sola volta, il `NON VERIFICATO` viene detto, il foglio tradotto contiene tutti i documenti e tutti i passi.
 
