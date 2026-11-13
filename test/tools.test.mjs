@@ -61,6 +61,14 @@ test("la carta d'identità è bloccata finché manca la residenza", () => {
   assert.equal(call("next_step", { path_id: "carta_identita" }).passo.id, "c1");
 });
 
+test("per il Municipio VIII find_office dà gli sportelli ASL, per gli altri no", () => {
+  const { call } = setup();
+  const r = call("find_office", { path_id: "iscrizione_ssn", municipio: "VIII" });
+  assert.ok(r.sportelli_vicini.elenco.some((s) => /San Nemesio 21/.test(s.indirizzo)));
+  assert.equal(call("find_office", { path_id: "iscrizione_ssn", municipio: "I" }).sportelli_vicini, undefined);
+  assert.equal(call("find_office", { path_id: "iscrizione_anagrafica", municipio: "VIII" }).sportelli_vicini, undefined);
+});
+
 test("find_office usa la ASL del Municipio", () => {
   const { call } = setup();
   assert.match(call("find_office", { path_id: "iscrizione_ssn", municipio: "viii" }).ufficio, /ASL Roma 2/);

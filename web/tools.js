@@ -130,11 +130,15 @@ export function createTools(data, effects = {}) {
       const contatti = p.ufficio === "anagrafe_municipio" && info.pec
         ? { pec: info.pec, telefono: info.telefono, nota: "Contatti generali del Municipio: chiedi a loro l'ufficio anagrafe giusto." }
         : undefined;
+      const sportelli = p.ufficio === "asl" && info.sportelli_asl
+        ? { elenco: info.sportelli_asl, nota: info.sportelli_nota, fonte: info.sportelli_fonte }
+        : undefined;
       return out({
         ufficio: fill(u.nome),
         dove: u.dove,
         come: u.come,
         contatti_municipio: contatti,
+        sportelli_vicini: sportelli,
         verificato: u.verificato && (p.ufficio !== "asl" || uffici.mappa_verificata),
         avviso: u.verificato ? undefined : NV,
       });

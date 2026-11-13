@@ -10,7 +10,19 @@
     "V":    { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma05@pec.comune.roma.it", "telefono": "0669606302" },
     "VI":   { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma06@pec.comune.roma.it", "telefono": "0669608302" },
     "VII":  { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma07@pec.comune.roma.it", "telefono": "0669610472" },
-    "VIII": { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma08@pec.comune.roma.it", "telefono": "0669611302" },
+    "VIII": {
+      "asl": "ASL Roma 2",
+      "pec": "protocollo.municipioroma08@pec.comune.roma.it",
+      "telefono": "0669611302",
+      "distretto": "8° Distretto",
+      "sportelli_nota": "Scelta e revoca del medico: il servizio è erogato dalle 11:00 fino a fine turno. Gli orari di chiusura indicati dalla ASL variano tra le sue pagine: controlla prima di andare.",
+      "sportelli_fonte": "https://www.aslroma2.it/index.php?id=322&option=com_content&view=article ; https://www.aslroma2.it/attachements/j4/com_content.article/Sportelli-CUP-iscrizione-SSR.pdf ; https://www.aslroma2.it/index.php/organizzazione/distretti/8-distretto-ex-municipio-xi (letti 2026-11-13, controllo automatico)",
+      "sportelli_asl": [
+        { "nome": "Casa della Comunità San Nemesio (Garbatella)", "indirizzo": "Via San Nemesio 21", "orari": "lunedì-venerdì e sabato mattina (fino alle 12:30)" },
+        { "nome": "Casa della Comunità Casale de Merode (Tor Marancia)", "indirizzo": "Via del Casale de Merode 8", "orari": "lunedì-venerdì e sabato mattina (fino alle 12:30)" },
+        { "nome": "Casa della Comunità Malfante (Navigatori)", "indirizzo": "Via Antonio Malfante 35", "orari": "lunedì-venerdì" }
+      ]
+    },
     "IX":   { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma09@pec.comune.roma.it", "telefono": "0669612302" },
     "X":    { "asl": "ASL Roma 3", "pec": "protocollo.municipioroma10@pec.comune.roma.it", "telefono": "0669613472" },
     "XI":   { "asl": "ASL Roma 3", "pec": "protocollo.municipioroma11@pec.comune.roma.it", "telefono": "0669615302" },
