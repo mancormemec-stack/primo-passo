@@ -65,6 +65,8 @@ async function start(textOnly) {
   try {
     conv = await Conversation.startSession({
       agentId: AGENT_ID,
+      // WebSocket anche per la voce: più robusto di WebRTC su reti con UDP bloccato (WiFi di eventi, uffici).
+      connectionType: new URLSearchParams(location.search).get("conn") || "websocket",
       textOnly,
       overrides: { agent: { language: $("lang").value } },
       clientTools,
