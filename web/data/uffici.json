@@ -23,27 +23,68 @@
   "uffici": {
     "anagrafe_municipio": {
       "nome": "Anagrafe del Municipio {municipio}",
-      "dove": "DA_COMPILARE: indirizzi per Municipio elencati in https://www.comune.roma.it/web/it/amministrazione-trasparente-procedimenti-amministrativi-municipi.page?contentId=PRC276184",
-      "come": "Di persona, per PEC o e-mail ordinaria con copia del documento, oppure con raccomandata. Alcuni Municipi ricevono su prenotazione (TuPassi).",
-      "verificato": false
+      "dove": "Ogni Municipio ha una o più sedi anagrafiche: indirizzi e orari sono nella pagina ufficiale degli uffici del tuo Municipio, https://www.comune.roma.it/web/it/rubrica-uffici.page?cpz=anagrafe_stato_civile_elet&mun=municipio_ seguito dal numero romano in minuscolo (per esempio municipio_viii). Esempio, Municipio VIII: via Benedetto Croce 50, lunedì, mercoledì e venerdì 8:30-13:00, martedì e giovedì 8:30-17:00.",
+      "come": "Di persona, per PEC o e-mail ordinaria con copia del documento, oppure con raccomandata. Molti Municipi ricevono su appuntamento (TuPassi o e-mail): controlla la pagina del tuo Municipio.",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://www.comune.roma.it/web/it/rubrica-uffici.page?cpz=anagrafe_stato_civile_elet&mun=municipio_viii ; https://www.comune.roma.it/web/it/amministrazione-trasparente-procedimenti-amministrativi-municipi.page?contentId=PRC276184 ; https://www.comune.roma.it/web/it/informazione-di-servizio.page?contentId=IDS546855 ; https://www.comune.roma.it/web/it/municipio-ii-uffici-e-contatti.page?contentId=UFF1130944",
+      "verificato_il": "2026-11-13"
     },
     "asl": {
       "nome": "{asl} - Sportello di Medicina Generale del distretto che copre il Municipio {municipio}",
-      "dove": "DA_COMPILARE: sede dello sportello del Distretto dal sito della ASL",
-      "come": "Verificare sul sito della ASL se serve prenotare.",
-      "verificato": false
+      "dove": "Elenco ufficiale degli sportelli per la scelta del medico, con indirizzi e orari. ASL Roma 1: https://www.aslroma1.it/sportelli-di-medicina-generale ; ASL Roma 2: https://www.aslroma2.it/index.php?id=322&option=com_content&view=article ; ASL Roma 3: https://www.aslroma3.it/servizi-dalla-a-alla-z/i/iscrizione-servizio-sanitario-scelta-medico-o-pediatra/ (alla ASL Roma 3 si può andare a qualsiasi sportello CUP, a prescindere dal distretto).",
+      "come": "Porta permesso di soggiorno (o ricevuta del rinnovo), codice fiscale, documento e autocertificazione di residenza; la ASL Roma 2 elenca anche un documento con la residenza o la cessione di fabbricato. Alla ASL Roma 1 alcuni sportelli danno numeri eliminacode, e si può scrivere anche all'e-mail dello sportello del distretto o usare il portale Salute Lazio con SPID. Alla ASL Roma 2 la scelta e la revoca del medico si fanno dalle 11:00 fino a fine turno.",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://www.aslroma1.it/sportelli-di-medicina-generale ; https://www.aslroma2.it/index.php?id=322&option=com_content&view=article ; https://www.aslroma2.it/attachments/article/322/Documentazione%20per%20scelta%20e%20revoca%20del%20medico.pdf ; https://www.aslroma3.it/servizi-dalla-a-alla-z/i/iscrizione-servizio-sanitario-scelta-medico-o-pediatra/",
+      "verificato_il": "2026-11-13"
     },
     "questura": {
       "nome": "Questura di Roma - Ufficio Immigrazione",
-      "dove": "DA_COMPILARE",
-      "come": "La domanda di rinnovo si spedisce dalle Poste; in Questura si va solo su convocazione.",
-      "verificato": false
+      "dove": "Via Teofilo Patini 23, 00155 Roma (sede diversa dalla Questura centrale di via San Vitale). Telefono 06 46863911. Orari di sportello indicati dalla Questura: lunedì, mercoledì e venerdì 8:30-12:00; martedì e giovedì 8:30-12:00 e 15:00-17:00.",
+      "come": "La domanda di rinnovo si presenta con il kit a uno sportello postale 'Sportello Amico'. Dopo la spedizione ricevi una lettera con data, ora e luogo dell'appuntamento in Questura (se non è possibile fissarlo, arriva una raccomandata). Controlla la data della convocazione sul Portale Immigrazione con i codici della ricevuta prima di andare.",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://questure.poliziadistato.it/servizio/orari/5730dc9d12479962542426 ; https://www.poste.it/guida-rilascio-e-rinnovo-permesso-di-soggiorno ; https://portaleimmigrazione.it/",
+      "verificato_il": "2026-11-13"
     }
   },
   "aiuto_gratuito": [
-    { "nome": "Patronati (es. INCA CGIL, ACLI, INAS CISL)", "per": "kit postale, rinnovo, pratiche di lavoro", "contatto": "DA_COMPILARE", "verificato": false },
-    { "nome": "Comunità di Sant'Egidio", "per": "residenza, persone senza dimora, orientamento", "contatto": "DA_COMPILARE", "verificato": false },
-    { "nome": "Centro Astalli", "per": "rifugiati e richiedenti asilo, salute", "contatto": "DA_COMPILARE", "verificato": false },
-    { "nome": "Contact center di Roma Capitale 060606", "per": "informazioni sui servizi comunali", "contatto": "060606", "verificato": false }
+    {
+      "nome": "Patronati e Comuni abilitati (assistenza gratuita, ad esempio ACLI Roma)",
+      "per": "kit postale, rinnovo, pratiche di lavoro",
+      "contatto": "Elenco di Patronati e Comuni per provincia e CAP: https://www.portaleimmigrazione.it/ITA/ricercastrutture.html ; Contact center del Portale Immigrazione 800 200 309. ACLI Roma, Patronato: via Prospero Alpino 20, 00154 Roma, tel. 06 57087052, roma@patronato.acli.it",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://portaleimmigrazione.it/ ; https://www.portaleimmigrazione.it/ITA/nuovaProcedura.html ; https://www.acliromaservizi.it/servizio/permesso-e-carta-di-soggiorno/",
+      "verificato_il": "2026-11-13"
+    },
+    {
+      "nome": "Comunità di Sant'Egidio",
+      "per": "orientamento sociale e legale per persone straniere",
+      "contatto": "Piazza Sant'Egidio 3a, 00153 Roma, tel. 06 4292929 (dal lunedì al sabato, 9:00-13:00 e 15:00-19:00), info@santegidio.org",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://www.santegidio.org/pageID/30016/langID/it/CONTATTI.html",
+      "verificato_il": "2026-11-13"
+    },
+    {
+      "nome": "Centro Astalli",
+      "per": "rifugiati e richiedenti asilo: orientamento legale per la domanda di asilo",
+      "contatto": "Via degli Astalli 14/a, 00186 Roma, tel. 06 69700306, astalli@jrs.net. Servizio di orientamento legale: via del Collegio Romano 1, 00186 Roma, tel. 06 69925099",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://www.centroastalli.it/contattaci/ ; https://www.centroastalli.it/servizi/centro-di-ascolto-e-orientamento-socio-legale/",
+      "verificato_il": "2026-11-13"
+    },
+    {
+      "nome": "Contact center di Roma Capitale 060606",
+      "per": "informazioni sugli uffici e sui servizi di Roma Capitale",
+      "contatto": "060606 (attivo 24 ore su 24, tutti i giorni; gli operatori rispondono anche in inglese, francese e rumeno; costo di una chiamata alla rete urbana di Roma)",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://www.comune.roma.it/web/it/scheda-servizi.page?contentId=INF647088",
+      "verificato_il": "2026-11-13"
+    }
   ]
 }
