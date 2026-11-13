@@ -1,12 +1,12 @@
 import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.29.0/+esm";
-import { createTools } from "./tools.js";
-import { creaPino } from "./pino.js";
-import { creaRegia } from "./pino-regia.js";
-import { esitoPositivo, contaFatti } from "./pino-state.js";
+import { createTools } from "./tools.js?v=3";
+import { creaPino } from "./pino.js?v=3";
+import { creaRegia } from "./pino-regia.js?v=3";
+import { esitoPositivo, contaFatti } from "./pino-state.js?v=3";
 import {
   PRINCIPALI, ALTRE, TUTTE, direzione, nomePerAgente, nomeNativo, provataAVoce,
   traduttore, linguaUI, SALUTI, linguaSalvata, salvaLingua,
-} from "./i18n.js";
+} from "./i18n.js?v=3";
 
 // ID dell'agente ElevenLabs (pubblico per la demo). Si può anche passare come ?agent=...
 const parametri = new URLSearchParams(location.search);

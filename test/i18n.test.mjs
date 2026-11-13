@@ -95,3 +95,17 @@ test("la pagina conserva gli elementi su cui contano app e prove dal vivo", asyn
   }
   assert.ok(!/<select id="lang"/.test(html), "la lingua si sceglie nell'onboarding, non più nel menu");
 });
+
+test("pagina e moduli locali portano la stessa versione (niente file vecchi dalla cache)", async () => {
+  const { readFileSync } = await import("node:fs");
+  const leggi = (f) => readFileSync(new URL(`../web/${f}`, import.meta.url), "utf8");
+  const html = leggi("index.html");
+  const riferimenti = [
+    ...[...html.matchAll(/(?:src|href)="([\w-]+\.(?:js|css)[^"]*)"/g)].map((m) => m[1]),
+    ...["app.js", "pino-regia.js"].flatMap((f) => [...leggi(f).matchAll(/from "\.\/([^"]+)"/g)].map((m) => m[1])),
+  ];
+  assert.ok(riferimenti.length >= 8);
+  const versioni = new Set(riferimenti.map((r) => r.match(/\?v=(\w+)$/)?.[1] ?? "nessuna"));
+  assert.equal(versioni.size, 1, `versioni diverse: ${riferimenti.join(", ")}`);
+  assert.ok(!versioni.has("nessuna"), "ogni file locale deve avere ?v=");
+});
