@@ -77,7 +77,7 @@ Ogni voce dei percorsi ha uno stato, calcolato da `verificato` e `controllo` nei
 
 Un controllo automatico non diventa mai "umano" da solo: l'agente lo dichiara all'utente e il foglio lo scrive. `npm run verifica` elenca le voci da confermare, con i link da aprire.
 
-Gli strumenti impongono anche i vincoli: i passi si completano solo in ordine, e quelli in cui si presentano i documenti (`richiede_prerequisiti`) solo se i documenti obbligatori (`obbligatorio` diverso da `false`) sono stati dichiarati con `check_prerequisites`. I test lo verificano.
+Gli strumenti impongono anche i vincoli: i passi si completano solo in ordine, e quelli in cui si presentano i documenti (`richiede_prerequisiti`) solo se i documenti obbligatori (`obbligatorio` diverso da `false`) sono stati dichiarati con `check_prerequisites`. Un id di documento sconosciuto è un errore (con l'elenco degli id validi) e non cambia nulla: prima veniva scartato in silenzio e il documento risultava mancante. I test lo verificano.
 
 ## Checklist di verifica (da fare prima della demo)
 

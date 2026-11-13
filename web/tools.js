@@ -116,8 +116,22 @@ export function createTools(data, effects = {}) {
     check_prerequisites({ path_id, posseduti }) {
       const p = getPath(path_id);
       if (!p) return unknown(path_id);
+      // Un id sconosciuto non si scarta in silenzio: farebbe risultare "mancante" un documento
+      // che l'utente ha (es. "permesso_soggiorno" invece di "permesso_o_ricevuta").
+      // Nessun cambiamento di stato finché gli id non sono tutti validi.
+      const dati = splitIds(posseduti);
+      const sconosciuti = dati.filter((id) => !p.prerequisiti.some((x) => x.id === id));
+      if (sconosciuti.length) {
+        return out({
+          errore:
+            `Id non riconosciuti: ${sconosciuti.join(", ")}. Nulla è stato registrato. ` +
+            "Richiama check_prerequisites usando SOLO gli id di id_validi. Non dire all'utente che gli manca un documento prima di averlo fatto.",
+          id_non_riconosciuti: sconosciuti,
+          id_validi: p.prerequisiti.map((x) => ({ id: x.id, testo: mark(x).slice(0, 80) })),
+        });
+      }
       const s = pathState(path_id);
-      s.posseduti = splitIds(posseduti).filter((id) => p.prerequisiti.some((x) => x.id === id));
+      s.posseduti = dati;
       notify();
       const mancanti = p.prerequisiti.filter((x) => !s.posseduti.includes(x.id));
       const obbligatori = mancantiObbligatori(p, s);

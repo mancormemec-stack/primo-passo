@@ -1,12 +1,12 @@
 import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.29.0/+esm";
-import { createTools } from "./tools.js?v=3";
-import { creaPino } from "./pino.js?v=3";
-import { creaRegia } from "./pino-regia.js?v=3";
-import { esitoPositivo, contaFatti } from "./pino-state.js?v=3";
+import { createTools } from "./tools.js?v=4";
+import { creaPino } from "./pino.js?v=4";
+import { creaRegia } from "./pino-regia.js?v=4";
+import { esitoPositivo, contaFatti } from "./pino-state.js?v=4";
 import {
   PRINCIPALI, ALTRE, TUTTE, direzione, nomePerAgente, nomeNativo, provataAVoce,
   traduttore, linguaUI, SALUTI, linguaSalvata, salvaLingua,
-} from "./i18n.js?v=3";
+} from "./i18n.js?v=4";
 
 // ID dell'agente ElevenLabs (pubblico per la demo). Si può anche passare come ?agent=...
 const parametri = new URLSearchParams(location.search);
@@ -116,16 +116,28 @@ const clientTools = Object.fromEntries(
 
 const erroreMicrofono = (e) => /NotAllowed|Permission|denied|NotFound|microphone/i.test(`${e?.name} ${e?.message}`);
 
+// Collegamento in corso: "Fine" premuto adesso chiude la sessione appena si apre.
+let inAvvio = false;
+let annullato = false;
+let erroreMostrato = false;
+// Ogni sessione ha un numero: le notifiche di una sessione già chiusa non toccano quella nuova.
+let numeroSessione = 0;
+
 async function start(textOnly) {
   if (AGENT_ID.startsWith("INSERISCI")) return log("sys", "Imposta AGENT_ID in app.js o aggiungi ?agent=... all'URL.");
-  if (conv) return;
+  if (conv || inAvvio) return;
   $("text").classList.remove("evidenzia");
+  inAvvio = true;
+  annullato = false;
+  const mio = ++numeroSessione;
+  const attiva = () => mio === numeroSessione;
+  erroreMostrato = false;
   try {
     spoke = false;
     soloTesto = textOnly;
     regia.invia({ type: "sessione", soloTesto: textOnly });
     setRunning(true);
-    conv = await Conversation.startSession({
+    const sessione = await Conversation.startSession({
       agentId: AGENT_ID,
       // WebSocket anche per la voce: più robusto di WebRTC su reti con UDP bloccato (WiFi di eventi, uffici).
       connectionType: parametri.get("conn") || "websocket",
@@ -134,6 +146,7 @@ async function start(textOnly) {
       clientTools,
       // Il modello vocale può aggiungere indicazioni di tono tipo [happy]: non vanno mostrate.
       onMessage: ({ message, role }) => {
+        if (!attiva()) return;
         // Il messaggio di avvio non si mostra; quando parla l'agente, il saluto è già arrivato.
         if (role === "user" && message.startsWith("[AVVIO]")) return;
         if (role !== "user") spoke = true;
@@ -142,16 +155,34 @@ async function start(textOnly) {
         else regia.invia({ type: "rispostaAgente", ms: Math.min(4000, Math.max(1200, testo.length * 30)) });
         log(role === "user" ? "user" : "ai", testo);
       },
-      onStatusChange: ({ status }) => regia.invia({ type: "status", status }),
-      onModeChange: ({ mode }) => regia.invia({ type: "mode", mode }),
-      onVadScore: ({ vadScore }) => regia.invia({ type: "vad", score: vadScore }),
-      onError: (m) => console.warn("ElevenLabs:", m),
+      onStatusChange: ({ status }) => attiva() && regia.invia({ type: "status", status }),
+      onModeChange: ({ mode }) => attiva() && regia.invia({ type: "mode", mode }),
+      onVadScore: ({ vadScore }) => attiva() && regia.invia({ type: "vad", score: vadScore }),
+      onError: (m) => {
+        console.warn("ElevenLabs:", m);
+        // Durante l'avvio ci pensa il catch qui sotto; dopo, l'utente lo deve sapere (una volta sola).
+        if (attiva() && conv && !erroreMostrato) {
+          erroreMostrato = true;
+          log("sys errore", t("err.sessione"));
+        }
+      },
       onDisconnect: (d) => {
+        if (!attiva()) return;
         regia.invia({ type: "status", status: "disconnected" });
         if (d?.reason === "error") log("sys errore", t("err.rete"));
         setRunning(false);
       },
     });
+    inAvvio = false;
+    if (annullato) {
+      // L'utente ha premuto "Fine" mentre ci collegavamo: niente saluto, si chiude subito.
+      numeroSessione++; // da qui le sue notifiche vengono ignorate
+      sessione.endSession();
+      regia.invia({ type: "status", status: "disconnected" });
+      setRunning(false);
+      return;
+    }
+    conv = sessione;
     regia.conversazione(conv);
     regia.invia({ type: "status", status: "connected" });
     // Il saluto lo genera l'agente (LLM) nella lingua scelta. Se l'agente ha ancora un primo messaggio fisso, parla da solo e questo non serve.
@@ -164,9 +195,11 @@ async function start(textOnly) {
     }, 1500);
   } catch (e) {
     console.warn("Avvio non riuscito:", e);
+    inAvvio = false;
     conv = null;
     setRunning(false);
     regia.invia({ type: "status", status: "disconnected" });
+    if (annullato) return; // l'utente aveva già chiuso: nessun messaggio d'errore
     if (!textOnly && erroreMicrofono(e)) {
       log("sys errore", t("err.mic"));
       $("text").classList.add("evidenzia");
@@ -188,7 +221,13 @@ function setRunning(on) {
 
 $("voice").onclick = () => start(false);
 $("text").onclick = () => start(true);
-$("stop").onclick = () => conv?.endSession();
+$("stop").onclick = () => {
+  if (conv) return conv.endSession();
+  if (inAvvio) {
+    annullato = true;
+    $("stop").disabled = true;
+  }
+};
 $("chat").onsubmit = (e) => {
   e.preventDefault();
   const testo = $("q").value.trim();

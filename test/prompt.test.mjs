@@ -109,6 +109,14 @@ test("l'avviso generale chiede all'agente di dirlo una sola volta", () => {
   assert.match(s.avviso_verifica, /UNA sola volta/);
 });
 
+test("i documenti si verificano dopo start_path, con gli id esatti, e gli id sbagliati si correggono", () => {
+  const r = prompt.split("\n").find((x) => x.startsWith("3. ")) || "";
+  assert.match(r, /Solo dopo aver ricevuto la risposta di `start_path`/);
+  assert.match(r, /esattamente gli `id`/);
+  assert.match(r, /`id_non_riconosciuti`/);
+  assert.match(r, /prima di dire all'utente cosa manca/);
+});
+
 // ---------- sincronizzazione con il prompt pubblicato ----------
 
 test("il prompt conserva la regola del cofounder «resta nel tuo ambito»", () => {

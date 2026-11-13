@@ -138,6 +138,36 @@ test("con i documenti obbligatori il passo si completa, anche senza quelli facol
   assert.equal(r.passo.id, "a4");
 });
 
+test("un id di documento sconosciuto è un errore, non un documento mancante", () => {
+  const { call } = setup();
+  // caso reale (conversazione conv_3701m7bj0h6ke1grhethc4pcm7xc): l'agente ha scritto "permesso_soggiorno"
+  const r = call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: "passaporto,permesso_soggiorno" });
+  assert.match(r.errore, /permesso_soggiorno/);
+  assert.match(r.errore, /Nulla è stato registrato/);
+  assert.deepEqual(r.id_non_riconosciuti, ["permesso_soggiorno"]);
+  assert.ok(r.id_validi.some((x) => x.id === "permesso_o_ricevuta"));
+  assert.equal(r.mancanti_obbligatori, undefined, "nessun elenco di mancanti da riferire all'utente");
+  assert.equal(r.ha_tutto, undefined);
+});
+
+test("con un id sconosciuto lo stato non cambia: i documenti dichiarati prima restano", () => {
+  const { call } = setup();
+  const ids = obbligatori("iscrizione_anagrafica").join(",");
+  call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: ids });
+  call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: "passaporto,xyz" });
+  const r = call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3" });
+  assert.equal(r.rifiutati, undefined, "i documenti validi dichiarati prima valgono ancora");
+  assert.equal(r.passo.id, "a4");
+});
+
+test("dopo la correzione degli id il risultato è quello giusto", () => {
+  const { call } = setup();
+  call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: "passaporto,permesso_soggiorno" });
+  const r = call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: "passaporto, permesso_o_ricevuta" });
+  assert.equal(r.errore, undefined);
+  assert.deepEqual(r.mancanti_obbligatori.map((m) => m.id), ["codice_fiscale", "dati_occupazione"]);
+});
+
 test("ha_tutto è falso finché manca un documento obbligatorio", () => {
   const { call } = setup();
   const c = call("check_prerequisites", { path_id: "iscrizione_ssn", posseduti: "codice_fiscale" });

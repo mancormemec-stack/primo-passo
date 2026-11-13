@@ -11,7 +11,7 @@ Nel pannello dell'agente: **Tools → Add tool**.
 |---|---|---|
 | `list_paths` | Elenca i percorsi che conosci, con quando si applicano e quando no. Chiamalo all'inizio di ogni conversazione. | nessuno |
 | `start_path` | Avvia un percorso e restituisce prerequisiti, passi e dipendenze da altri percorsi. | `path_id` (obbligatorio): id da list_paths |
-| `check_prerequisites` | Confronta i documenti che l'utente ha con quelli richiesti e dice cosa manca. | `path_id` (obbligatorio); `posseduti`: id dei prerequisiti posseduti, separati da virgola |
+| `check_prerequisites` | Confronta i documenti che l'utente ha con quelli richiesti e dice cosa manca. Se un id non esiste risponde con `errore`, `id_non_riconosciuti` e `id_validi`, e non registra nulla. | `path_id` (obbligatorio); `posseduti`: id dei prerequisiti posseduti, separati da virgola |
 | `next_step` | Restituisce il prossimo passo da fare, rispettando ordine e dipendenze. | `path_id` (obbligatorio); `completati`: id dei passi già fatti, separati da virgola |
 | `find_office` | Trova l'ufficio competente per il percorso nel Municipio dell'utente. | `path_id` (obbligatorio); `municipio` (obbligatorio): numero romano, da I a XV |
 | `create_reminders` | Crea un file calendario con la scadenza, che l'utente scarica sul telefono. | `path_id` (obbligatorio); `scadenza_id` (obbligatorio); `data_evento` (obbligatorio): data AAAA-MM-GG dell'evento di riferimento |
