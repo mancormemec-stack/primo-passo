@@ -1,0 +1,17 @@
+# Segreti: mai nella repository
+.env
+.env.*
+*.pem
+*.key
+
+# Dipendenze e build
+node_modules/
+dist/
+.vercel/
+.netlify/
+
+# Sistema ed editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

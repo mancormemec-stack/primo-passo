@@ -1,0 +1,49 @@
+{
+  "_nota": "Mappa Municipio -> ASL verificata sulla tabella regionale (colonna Municipio, non sui vecchi nomi dei distretti). Indirizzi e orari: compilare solo da fonte ufficiale, mai a memoria.",
+  "fonte_mappa": "https://rms.regione.lazio.it/sipc/doc/Corrispondenze_ASL_Municipi_DistrettiSocioSanitari_LAZIO_2022.11.pdf (verificato 2026-11-13, controllo automatico)",
+  "fonte_contatti": "https://www.comune.roma.it/web/it/amministrazione-trasparente-procedimenti-amministrativi-municipi.page?contentId=PRC276184 (aggiornata 03/03/2026; letta 2026-11-13, controllo automatico). Sono i contatti GENERALI del Municipio, non quelli specifici dell'anagrafe.",
+  "municipi": {
+    "I":    { "asl": "ASL Roma 1", "pec": "protocollo.municipioroma01@pec.comune.roma.it", "telefono": "0669601472" },
+    "II":   { "asl": "ASL Roma 1", "pec": "protocollo.municipioroma02@pec.comune.roma.it", "telefono": "0669602361" },
+    "III":  { "asl": "ASL Roma 1", "pec": "protocollo.municipioroma03@pec.comune.roma.it", "telefono": "0669604333" },
+    "IV":   { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma04@pec.comune.roma.it", "telefono": "0669605301" },
+    "V":    { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma05@pec.comune.roma.it", "telefono": "0669606302" },
+    "VI":   { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma06@pec.comune.roma.it", "telefono": "0669608302" },
+    "VII":  { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma07@pec.comune.roma.it", "telefono": "0669610333" },
+    "VIII": { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma08@pec.comune.roma.it", "telefono": "0669611302" },
+    "IX":   { "asl": "ASL Roma 2", "pec": "protocollo.municipioroma09@pec.comune.roma.it", "telefono": "0669612389" },
+    "X":    { "asl": "ASL Roma 3", "pec": "protocollo.municipioroma10@pec.comune.roma.it", "telefono": "0669613472" },
+    "XI":   { "asl": "ASL Roma 3", "pec": "protocollo.municipioroma11@pec.comune.roma.it", "telefono": "0669615302" },
+    "XII":  { "asl": "ASL Roma 3", "pec": "protocollo.municipioroma12@pec.comune.roma.it", "telefono": "0669616302" },
+    "XIII": { "asl": "ASL Roma 1", "pec": "protocollo.municipioroma13@pec.comune.roma.it", "telefono": "0669618302" },
+    "XIV":  { "asl": "ASL Roma 1", "pec": "protocollo.municipioroma14@pec.comune.roma.it", "telefono": "0669619302" },
+    "XV":   { "asl": "ASL Roma 1", "pec": "protocollo.municipioroma15@pec.comune.roma.it", "telefono": "0669620333" }
+  },
+  "mappa_verificata": true,
+  "uffici": {
+    "anagrafe_municipio": {
+      "nome": "Anagrafe del Municipio {municipio}",
+      "dove": "DA_COMPILARE: indirizzi per Municipio elencati in https://www.comune.roma.it/web/it/amministrazione-trasparente-procedimenti-amministrativi-municipi.page?contentId=PRC276184",
+      "come": "Di persona, per PEC o e-mail ordinaria con copia del documento, oppure con raccomandata. Alcuni Municipi ricevono su prenotazione (TuPassi).",
+      "verificato": false
+    },
+    "asl": {
+      "nome": "{asl} - Sportello di Medicina Generale del Distretto {municipio}",
+      "dove": "DA_COMPILARE: sede dello sportello del Distretto dal sito della ASL",
+      "come": "Verificare sul sito della ASL se serve prenotare; alcuni sportelli funzionano a numeri.",
+      "verificato": false
+    },
+    "questura": {
+      "nome": "Questura di Roma - Ufficio Immigrazione",
+      "dove": "DA_COMPILARE",
+      "come": "La domanda di rinnovo si spedisce dalle Poste; in Questura si va solo su convocazione.",
+      "verificato": false
+    }
+  },
+  "aiuto_gratuito": [
+    { "nome": "Patronati (es. INCA CGIL, ACLI, INAS CISL)", "per": "kit postale, rinnovo, pratiche di lavoro", "contatto": "DA_COMPILARE", "verificato": false },
+    { "nome": "Comunità di Sant'Egidio", "per": "residenza, persone senza dimora, orientamento", "contatto": "DA_COMPILARE", "verificato": false },
+    { "nome": "Centro Astalli", "per": "rifugiati e richiedenti asilo, salute", "contatto": "DA_COMPILARE", "verificato": false },
+    { "nome": "Contact center di Roma Capitale 060606", "per": "informazioni sui servizi comunali", "contatto": "060606", "verificato": false }
+  ]
+}

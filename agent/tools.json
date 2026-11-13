@@ -1,0 +1,69 @@
+[
+  {
+    "name": "list_paths",
+    "description": "Elenca i percorsi che conosci, con quando si applicano e quando no. Chiamalo all'inizio di ogni conversazione.",
+    "params": {}
+  },
+  {
+    "name": "start_path",
+    "description": "Avvia un percorso e restituisce prerequisiti, passi e dipendenze da altri percorsi.",
+    "params": { "path_id": "Id del percorso restituito da list_paths" },
+    "required": ["path_id"]
+  },
+  {
+    "name": "check_prerequisites",
+    "description": "Confronta i documenti che l'utente ha con quelli richiesti e dice cosa manca.",
+    "params": {
+      "path_id": "Id del percorso",
+      "posseduti": "Id dei prerequisiti che l'utente ha, separati da virgola"
+    },
+    "required": ["path_id"]
+  },
+  {
+    "name": "next_step",
+    "description": "Restituisce il prossimo passo da fare, rispettando ordine e dipendenze tra percorsi.",
+    "params": {
+      "path_id": "Id del percorso",
+      "completati": "Id dei passi già fatti, separati da virgola"
+    },
+    "required": ["path_id"]
+  },
+  {
+    "name": "find_office",
+    "description": "Trova l'ufficio competente per il percorso nel Municipio dell'utente.",
+    "params": {
+      "path_id": "Id del percorso",
+      "municipio": "Municipio di Roma in numeri romani, da I a XV. Se l'utente dice il quartiere, ricava il Municipio."
+    },
+    "required": ["path_id", "municipio"]
+  },
+  {
+    "name": "create_reminders",
+    "description": "Crea un file calendario con una scadenza del percorso, che l'utente scarica sul telefono.",
+    "params": {
+      "path_id": "Id del percorso",
+      "scadenza_id": "Id della scadenza restituito da next_step",
+      "data_evento": "Data dell'evento di riferimento in formato AAAA-MM-GG"
+    },
+    "required": ["path_id", "scadenza_id", "data_evento"]
+  },
+  {
+    "name": "prepare_summary",
+    "description": "Prepara un foglio stampabile con documenti e passi, in italiano e nella lingua dell'utente.",
+    "params": {
+      "path_id": "Id del percorso",
+      "lingua": "Nome della lingua dell'utente",
+      "traduzione": "Breve traduzione dei passi nella lingua dell'utente"
+    },
+    "required": ["path_id"]
+  },
+  {
+    "name": "handoff",
+    "description": "Usalo quando la domanda è fuori dai percorsi o non sei sicuro. Restituisce dove chiedere aiuto gratuito.",
+    "params": {
+      "motivo": "Breve descrizione del perché non puoi rispondere",
+      "municipio": "Municipio dell'utente, se noto"
+    },
+    "required": ["motivo"]
+  }
+]

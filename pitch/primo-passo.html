@@ -1,0 +1,199 @@
+<title>Primo Passo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  /* Layout: una colonna di lettura, con la "scheda percorso" come unico oggetto in evidenza, come un modulo d'ufficio */
+  :root {
+    --bg: #f6f7f9;
+    --paper: #ffffff;
+    --ink: #172033;
+    --muted: #5b6475;
+    --line: #dde1e8;
+    --stamp: #1f4fa3;
+    --stamp-soft: #e6edf9;
+    --ok: #1d6b45;
+    --ok-soft: #e3f2ea;
+    --warn: #8a5a00;
+    --warn-soft: #fbf0d9;
+    --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #10141c; --paper: #171d28; --ink: #e8ecf3; --muted: #a2abbb; --line: #2a3242;
+      --stamp: #8fb1ef; --stamp-soft: #1c2a45; --ok: #7fd1a5; --ok-soft: #173326; --warn: #f0c46b; --warn-soft: #3a2f17;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #10141c; --paper: #171d28; --ink: #e8ecf3; --muted: #a2abbb; --line: #2a3242;
+    --stamp: #8fb1ef; --stamp-soft: #1c2a45; --ok: #7fd1a5; --ok-soft: #173326; --warn: #f0c46b; --warn-soft: #3a2f17;
+    color-scheme: dark;
+  }
+  body { background: var(--bg); color: var(--ink); font: 17px/1.6 var(--f-body); }
+  .wrap { max-width: 760px; margin: 0 auto; padding-block: 40px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 40px; }
+  header { display: grid; gap: 12px; }
+  .eyebrow { font: 500 13px/1.4 var(--f-mono); letter-spacing: .06em; text-transform: uppercase; color: var(--stamp); }
+  h1 { font: 800 clamp(40px, 8vw, 64px)/1 var(--f-display); margin: 0; letter-spacing: -.02em; text-wrap: balance; }
+  .lede { font-size: 21px; line-height: 1.5; margin: 0; max-width: 62ch; text-wrap: pretty; }
+  h2 { font: 600 24px/1.25 var(--f-display); margin: 0 0 12px; text-wrap: balance; }
+  section p { margin: 0 0 12px; max-width: 65ch; }
+  ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+  li { max-width: 65ch; }
+  code, .mono { font-family: var(--f-mono); font-size: .86em; }
+  a { color: var(--stamp); text-underline-offset: 2px; }
+  a:focus-visible { outline: 2px solid var(--stamp); outline-offset: 2px; border-radius: 2px; }
+
+  ol.flow { list-style: none; padding: 0; margin: 0; display: grid; gap: 0; counter-reset: s; }
+  ol.flow li { counter-increment: s; display: grid; grid-template-columns: 36px 1fr; gap: 12px; padding: 10px 0; border-top: 1px solid var(--line); }
+  ol.flow li::before { content: counter(s); font: 600 15px/28px var(--f-mono); color: var(--stamp); }
+
+  .scheda { background: var(--paper); border: 1px solid var(--line); border-left: 4px solid var(--stamp); border-radius: 6px; padding: 18px 20px; display: grid; gap: 10px; }
+  .scheda .t { font: 600 15px/1.3 var(--f-display); }
+  .scheda .row { display: grid; grid-template-columns: 110px 1fr; gap: 12px; font-size: 15px; }
+  .scheda .row > span:first-child { color: var(--muted); font: 500 12px/1.9 var(--f-mono); text-transform: uppercase; letter-spacing: .05em; }
+  .scheda .row > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+  .stamp { display: inline-block; font: 500 12px/1 var(--f-mono); padding: 5px 8px; border-radius: 4px; background: var(--ok-soft); color: var(--ok); letter-spacing: .03em; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  .tbl { overflow-x: auto; }
+  th, td { text-align: left; vertical-align: top; padding: 10px 12px 10px 0; border-top: 1px solid var(--line); }
+  th { font: 500 12px/1.4 var(--f-mono); text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .pill { display: inline-block; font: 500 12px/1 var(--f-mono); padding: 4px 7px; border-radius: 999px; white-space: nowrap; }
+  .pill.ok { background: var(--ok-soft); color: var(--ok); }
+  .pill.todo { background: var(--warn-soft); color: var(--warn); }
+
+  .pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+  .pair > div { min-width: 0; }
+  .pair h3 { font: 600 17px/1.3 var(--f-display); margin: 0 0 6px; }
+  .pair p { font-size: 15px; margin: 0; }
+
+  .copy { display: grid; gap: 10px; }
+  .copy textarea { width: 100%; min-height: 200px; font: 15px/1.5 var(--f-body); padding: 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); resize: vertical; box-sizing: border-box; }
+  .copy button { justify-self: start; font: 600 15px var(--f-body); padding: 9px 16px; border-radius: 6px; border: 1px solid var(--stamp); background: var(--stamp); color: var(--paper); cursor: pointer; }
+  .copy button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .muted { color: var(--muted); font-size: 14px; }
+  footer { font-size: 14px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 6px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Agentic Hack Rome · 13–14 novembre 2026 · consegna sabato 14:00</div>
+    <h1>Primo Passo</h1>
+    <p class="lede">Un agente che accompagna le persone straniere a Roma tra Anagrafe, ASL e Questura, nella loro lingua e anche a voce. Sa in che ordine vanno fatte le pratiche, prepara i documenti, crea i promemoria delle scadenze e, quando non è sicuro, dice "non lo so" e manda allo sportello giusto.</p>
+  </header>
+
+  <section>
+    <h2>Il problema</h2>
+    <ul>
+      <li>Residenza, tessera sanitaria e permesso dipendono da enti diversi che non si parlano, e le regole si incastrano tra loro.</li>
+      <li>Un'informazione sbagliata costa una giornata di coda o una scadenza persa. Per esempio: dopo il rinnovo del permesso hai 60 giorni per tornare all'Anagrafe, altrimenti rischi la cancellazione. Quasi nessuno lo sa.</li>
+      <li>Julia, l'assistente del Comune, risponde solo sui contenuti del Comune e chiede SPID. Chi è appena arrivato spesso non ce l'ha e non parla italiano.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Come funziona</h2>
+    <ol class="flow">
+      <li><span>La persona parla o scrive nella sua lingua: "Ho rinnovato il permesso, ho la ricevuta, abito a Garbatella. Posso avere il medico?"</span></li>
+      <li><span>L'agente fa 2-3 domande e sceglie il percorso giusto tra quelli verificati.</span></li>
+      <li><span>Controlla i documenti, indica il prossimo passo e l'ufficio competente per il Municipio (qui: ASL Roma 2, senza aspettare la residenza).</span></li>
+      <li><span>Agisce: crea il promemoria sul calendario del telefono e il foglio da portare allo sportello, in italiano e nella lingua della persona.</span></li>
+      <li><span>Se la domanda esce dai percorsi (asilo, permesso scaduto da un anno, ricongiungimento) risponde "su questo non posso darti un'informazione sicura" e indica dove chiedere aiuto gratis.</span></li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Il cuore: regole verificate, non generate</h2>
+    <p>L'LLM non inventa i passi: li legge da schede in cui ogni regola ha la fonte ufficiale e la data di verifica. Esempio reale dal progetto:</p>
+    <div class="scheda" aria-label="Esempio di scheda">
+      <div class="t">Iscrizione anagrafica · scadenza dopo il rinnovo</div>
+      <div class="row"><span>Regola</span><span>Quando ottieni il rinnovo del permesso, entro 60 giorni rinnovi all'Anagrafe la dichiarazione di dimora abituale, di persona.</span></div>
+      <div class="row"><span>Fonte</span><span class="mono">comune.roma.it · scheda INF33606</span></div>
+      <div class="row"><span>Stato</span><span><span class="stamp">VERIFICATO 13/11/2026</span></span></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Perché è un agente</h2>
+    <p>Gira su ElevenLabs Agents, che gestisce voce e LLM. L'agente decide da solo quali di questi 8 strumenti usare e in che ordine. Gli strumenti girano nel browser, quindi niente account e niente dati salvati sul server:</p>
+    <p class="mono">list_paths · start_path · check_prerequisites · next_step · find_office · create_reminders · prepare_summary · handoff</p>
+    <p>Gestisce le dipendenze tra percorsi (la carta d'identità resta bloccata finché manca la residenza). Exa, se resta tempo, controlla solo sui siti istituzionali se una regola è cambiata.</p>
+  </section>
+
+  <section>
+    <h2>Perché può vincere</h2>
+    <div class="pair">
+      <div><h3>Idea e impatto</h3><p>Problema reale e specifico di Roma, con persone che lo vivono ogni giorno. Il Comune fa da porta d'ingresso e da lì orientiamo verso gli altri enti.</p></div>
+      <div><h3>Esecuzione tecnica</h3><p>Tool calling vero, dipendenze tra percorsi, dati verificati con fonte, privacy by design.</p></div>
+      <div><h3>Demo</h3><p>Persona che parla in filippino, promemoria che arriva sul telefono, e il "non lo so" sulla domanda rischiosa.</p></div>
+      <div><h3>Premi sponsor</h3><p>ElevenLabs (la voce è il prodotto) ed Exa (verifica delle fonti).</p></div>
+    </div>
+  </section>
+
+  <section>
+    <h2>A che punto siamo</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Pezzo</th><th>Stato</th></tr></thead>
+        <tbody>
+          <tr><td>Percorsi residenza e tessera sanitaria, con fonti ufficiali</td><td><span class="pill ok">20 su 21</span></td></tr>
+          <tr><td>Mappa Municipio → ASL e contatti dei 15 Municipi</td><td><span class="pill ok">fatto</span></td></tr>
+          <tr><td>8 strumenti dell'agente, con 10 test automatici</td><td><span class="pill ok">fatto</span></td></tr>
+          <tr><td>Pagina di prova (voce e testo, scelta della lingua)</td><td><span class="pill ok">fatto</span></td></tr>
+          <tr><td>Script che crea l'agente su ElevenLabs</td><td><span class="pill ok">pronto, da lanciare</span></td></tr>
+          <tr><td>Copione della demo, scaletta del video, risposte alla giuria</td><td><span class="pill ok">fatto</span></td></tr>
+          <tr><td>Ricontrollo a vista delle fonti (oggi è automatico)</td><td><span class="pill todo">da fare</span></td></tr>
+          <tr><td>Test della voce in filippino e arabo</td><td><span class="pill todo">da fare</span></td></tr>
+          <tr><td>Interfaccia finale (Lovable) e pubblicazione online</td><td><span class="pill todo">da fare</span></td></tr>
+          <tr><td>Video di 3 minuti</td><td><span class="pill todo">sabato mattina</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Rischi e come li gestiamo</h2>
+    <ul>
+      <li><strong>Somiglia al vincitore della prima edizione</strong> (un assistente per le pratiche di chi apre un ristorante). Ci distinguiamo su utenti fragili, lingue, voce, più enti e il rifiuto esplicito quando non c'è certezza.</li>
+      <li><strong>Errori sulle regole.</strong> Solo percorsi verificati a mano; fuori da quelli l'agente rimanda allo sportello.</li>
+      <li><strong>Lingue.</strong> Il bengalese non è confermato: va testato stasera, altrimenti lo togliamo.</li>
+      <li><strong>Privacy.</strong> Non chiediamo nome né documenti e non salviamo nulla. Audio e testo passano dai fornitori di voce e LLM, e lo diciamo nell'informativa.</li>
+    </ul>
+  </section>
+
+  <section class="copy">
+    <h2>Versione breve da incollare</h2>
+    <label class="muted" for="breve">Per WhatsApp o Telegram</label>
+    <textarea id="breve" readonly>Idea per l'hackathon: Primo Passo.
+Un agente vocale e multilingue che accompagna le persone straniere a Roma tra Anagrafe, ASL e Questura. Sa in che ordine fare le pratiche, prepara la lista dei documenti, trova l'ufficio del tuo Municipio e crea i promemoria delle scadenze (es. i 60 giorni per tornare all'Anagrafe dopo il rinnovo del permesso). Quando non è sicuro dice "non lo so" e manda allo sportello giusto.
+Le regole non le inventa l'AI: le legge da schede verificate sulle fonti ufficiali (Roma Capitale, ASL), ognuna con fonte e data.
+Già pronti: 2 percorsi verificati, 8 tool dell'agente con test, pagina di prova, script per creare l'agente su ElevenLabs, copione della demo.
+Stasera: ricontrollo fonti, test voce in filippino/arabo, interfaccia. Domattina: video.
+Premi a cui puntiamo: generale, ElevenLabs, Exa.</textarea>
+    <button type="button" id="copia">Copia testo</button>
+    <span class="muted" id="esito" aria-live="polite"></span>
+  </section>
+
+  <footer>
+    <span>Fonti principali: <a href="https://www.comune.roma.it/web/it/scheda-servizi.page?contentId=INF33606&pagina=4" target="_blank" rel="noopener">Roma Capitale, iscrizione anagrafica</a> · <a href="https://www.aslroma1.it/assistenza-sanitaria-ai-cittadini-extracomunitari" target="_blank" rel="noopener">ASL Roma 1, cittadini non comunitari</a> · <a href="https://agentic.urbe.build/manual/" target="_blank" rel="noopener">Hacker Manual</a></span>
+    <span>Codice e dati nella cartella del progetto (README, DEMO.md).</span>
+  </footer>
+</div>
+
+<script>
+  document.getElementById("copia").addEventListener("click", async () => {
+    const t = document.getElementById("breve");
+    const esito = document.getElementById("esito");
+    try {
+      await navigator.clipboard.writeText(t.value);
+      esito.textContent = "Copiato.";
+    } catch {
+      t.focus();
+      t.select();
+      esito.textContent = "Testo selezionato: premi Ctrl+C per copiarlo.";
+    }
+  });
+</script>
