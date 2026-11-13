@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pino · stati</title>
+  <link rel="stylesheet" href="pino.css">
+  <style>
+    body { margin: 0; padding: 24px 16px; font: 15px/1.5 system-ui, sans-serif; background: #FAF9F6; color: #202B30; }
+    h1 { font-size: 20px; margin: 0 0 4px; }
+    p { margin: 0 0 20px; color: #5E6A6F; }
+    .griglia { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px; }
+    figure { margin: 0; background: #fff; border-radius: 16px; padding: 12px; text-align: center; box-shadow: 0 1px 2px rgb(32 43 48 / .05), 0 4px 16px rgb(32 43 48 / .06); }
+    figure .pino { height: 160px; margin: auto; }
+    figcaption { font-weight: 700; margin-top: 8px; }
+    .controlli { margin-top: 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    button { font: inherit; padding: 8px 14px; border-radius: 999px; border: 1px solid #D9D4CB; background: #fff; }
+    #grande .pino { height: 260px; margin: 16px auto 0; }
+  </style>
+</head>
+<body>
+  <h1>Pino · i cinque stati</h1>
+  <p>Pagina di controllo: un solo disegno, cinque pose. In basso, un Pino che si comanda a mano.</p>
+  <div class="griglia" id="griglia"></div>
+  <div class="controlli" id="controlli"><label>Volume <input id="vol" type="range" min="0" max="1" step="0.05" value="0.5"></label></div>
+  <div id="grande"></div>
+  <script type="module">
+    import { creaPino, STATI_PINO } from "./pino.js";
+    for (const s of STATI_PINO) {
+      const f = document.createElement("figure");
+      document.getElementById("griglia").append(f);
+      creaPino(f, { etichetta: `Pino: ${s}` }).stato(s);
+      f.append(Object.assign(document.createElement("figcaption"), { textContent: s }));
+    }
+    const p = creaPino(document.getElementById("grande"), { etichetta: "Pino" });
+    for (const s of STATI_PINO) {
+      const b = Object.assign(document.createElement("button"), { textContent: s, type: "button" });
+      b.onclick = () => p.stato(s);
+      const c = document.getElementById("controlli");
+      c.insertBefore(b, c.lastElementChild);
+    }
+    document.getElementById("vol").oninput = (e) => p.livello(+e.target.value);
+  </script>
+</body>
+</html>

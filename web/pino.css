@@ -1,0 +1,74 @@
+/* Pino: colori, pose e animazioni dei cinque stati (data-stato sull'svg).
+   Solo transform e opacity. Con "riduci movimento" restano le pose, senza movimento continuo. */
+:root {
+  --pino-skin: #FFF3E6; --pino-line: #173F46; --pino-orange: #F28A35; --pino-orange-dark: #D9661C; --pino-ok: #368568;
+  --flag-green: #2E8B57; --flag-white: #FFFFFF; --flag-red: #D9412B;
+  --pino-spring: cubic-bezier(.34, 1.4, .64, 1);
+}
+
+.pino { display: block; overflow: visible; }
+.pino * { transform-box: view-box; }
+
+/* Punti di rotazione delle parti */
+.pino-root { transform-origin: 100px 225px; animation: pino-breathe 3.2s ease-in-out infinite; }
+.pino-head { transform-origin: 100px 118px; transition: transform 320ms var(--pino-spring); }
+.pino-eyes-open { transform-origin: 100px 80px; transition: transform 300ms ease-out, opacity 150ms ease-out; }
+.pino-eyes-happy { opacity: 0; transition: opacity 150ms ease-out; }
+.pino-lid { transform-box: fill-box !important; transform-origin: center top; transform: scaleY(0); animation: pino-blink 4.4s ease-in-out infinite; }
+.pino-mouth { transform-origin: 100px 96px; transition: transform 110ms ease-out; }
+.pino-arm-r { transform-origin: 138px 136px; transition: transform 320ms var(--pino-spring); }
+.pino-brows, .pino-sparks, .pino-dots, .pino-check { opacity: 0; transition: opacity 200ms ease-out; }
+.pino-sparks { transform-origin: 176px 36px; }
+.pino-dots { transform-origin: 174px 16px; }
+.pino-check { transform-origin: 36px 40px; }
+
+/* Idle: respira e sbatte le palpebre. Niente altro. */
+
+/* Listening: testa inclinata, mano all'orecchio, sopracciglia su */
+.pino[data-stato="listening"] .pino-head { transform: rotate(-7deg); }
+.pino[data-stato="listening"] .pino-arm-r { transform: rotate(-22deg) translate(-6px, -8px); }
+.pino[data-stato="listening"] .pino-brows { opacity: 1; }
+.pino[data-stato="listening"] .pino-eyes-open { transform: scaleY(1.15); }
+.pino[data-stato="listening"] .pino-mouth { transform: scaleY(.55); }
+/* l'utente sta parlando: si sporge un po' di più */
+.pino[data-stato="listening"][data-sente] .pino-head { transform: rotate(-11deg) translateY(2px); }
+
+/* Thinking: occhi in alto, bocca piccola, tre puntini */
+.pino[data-stato="thinking"] .pino-root { animation: none; }
+.pino[data-stato="thinking"] .pino-eyes-open { transform: translate(5px, -5px); }
+.pino[data-stato="thinking"] .pino-mouth { transform: scale(.45, .35); }
+.pino[data-stato="thinking"] .pino-dots { opacity: 1; animation: pino-bounce .6s ease-in-out infinite; }
+
+/* Speaking: occhi felici, scintille, bocca che segue il volume (o un movimento generico) */
+.pino[data-stato="speaking"] .pino-root { animation: pino-bounce .5s ease-in-out infinite; }
+.pino[data-stato="speaking"] .pino-eyes-open,
+.pino[data-stato="success"] .pino-eyes-open { opacity: 0; }
+.pino[data-stato="speaking"] .pino-eyes-happy,
+.pino[data-stato="success"] .pino-eyes-happy { opacity: 1; }
+.pino[data-stato="speaking"] .pino-brows { opacity: 1; }
+.pino[data-stato="speaking"] .pino-sparks { opacity: 1; animation: pino-spark 1.2s ease-in-out infinite; }
+.pino[data-stato="speaking"]:not([data-livello]) .pino-mouth { animation: pino-talk .32s ease-in-out infinite; }
+.pino[data-stato="speaking"][data-livello] .pino-mouth { transform: scaleY(var(--bocca, 1)); }
+
+/* Success: saluta col braccio, saltello, spunta verde */
+.pino[data-stato="success"] .pino-root { animation: pino-hop 520ms var(--pino-spring) both; }
+.pino[data-stato="success"] .pino-arm-r { animation: pino-wave .35s ease-in-out 3 alternate; }
+.pino[data-stato="success"] .pino-sparks { opacity: 1; animation: pino-spark .6s ease-in-out infinite; }
+.pino[data-stato="success"] .pino-check { opacity: 1; animation: pino-pop 360ms var(--pino-spring) both; }
+
+@keyframes pino-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+@keyframes pino-blink { 0%, 93%, 100% { transform: scaleY(0); } 96% { transform: scaleY(1); } }
+@keyframes pino-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes pino-talk { 0%, 100% { transform: scaleY(.4); } 50% { transform: scaleY(1.05); } }
+@keyframes pino-spark { 0%, 100% { opacity: .35; transform: scale(.85); } 50% { opacity: 1; transform: scale(1.1); } }
+@keyframes pino-wave { from { transform: rotate(-8deg); } to { transform: rotate(22deg); } }
+@keyframes pino-hop { 0% { transform: translateY(0); } 40% { transform: translateY(-14px) scale(1.03); } 100% { transform: none; } }
+@keyframes pino-pop { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.18); opacity: 1; } 100% { transform: scale(1); } }
+
+/* Scheda nascosta: niente lavoro inutile */
+html.paused .pino * { animation-play-state: paused !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pino *, .pino { animation: none !important; transition-duration: 1ms !important; }
+  .pino[data-stato="speaking"] .pino-mouth { transform: scaleY(.8); }
+}

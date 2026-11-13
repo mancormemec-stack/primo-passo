@@ -1,5 +1,8 @@
 import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.29.0/+esm";
 import { createTools } from "./tools.js";
+import { creaPino } from "./pino.js";
+import { creaRegia } from "./pino-regia.js";
+import { esitoPositivo, contaFatti } from "./pino-state.js";
 
 // ID dell'agente ElevenLabs (pubblico per la demo). Si può anche passare come ?agent=...
 const AGENT_ID = new URLSearchParams(location.search).get("agent") || "agent_0601m7b42fyaf8ybzmhabg67wy0w";
@@ -10,8 +13,16 @@ const [percorsi, uffici] = await Promise.all([
   fetch("data/uffici.json").then((r) => r.json()),
 ]);
 
+// Pino segue solo eventi reali: sessione, modalità di ElevenLabs, messaggi, strumenti.
+const regia = creaRegia();
+regia.aggiungi(creaPino($("pino"), { etichetta: "Pino" }));
+let fattiOra = 0;
+
 const tools = createTools({ percorsi, uffici }, {
-  onState: renderSteps,
+  onState: (st) => {
+    fattiOra = contaFatti(st);
+    renderSteps(st);
+  },
   download(name, content, mime) {
     const a = document.createElement("a");
     a.href = URL.createObjectURL(new Blob([content], { type: mime }));
@@ -54,7 +65,15 @@ const clientTools = Object.fromEntries(
     .filter(([, fn]) => typeof fn === "function")
     .map(([name, fn]) => [name, async (params) => {
       log("sys", `🔧 ${name}`);
-      return fn(params || {});
+      const prima = fattiOra;
+      regia.invia({ type: "strumentoInizio" });
+      let risultato;
+      try {
+        risultato = fn(params || {});
+      } finally {
+        regia.invia({ type: "strumentoFine", successo: esitoPositivo(name, risultato, prima, fattiOra) });
+      }
+      return risultato;
     }])
 );
 
@@ -65,6 +84,7 @@ async function start(textOnly) {
   if (AGENT_ID.startsWith("INSERISCI")) return log("sys", "Imposta AGENT_ID in app.js o aggiungi ?agent=... all'URL.");
   try {
     spoke = false;
+    regia.invia({ type: "sessione", soloTesto: textOnly });
     conv = await Conversation.startSession({
       agentId: AGENT_ID,
       // WebSocket anche per la voce: più robusto di WebRTC su reti con UDP bloccato (WiFi di eventi, uffici).
@@ -77,16 +97,30 @@ async function start(textOnly) {
         // Il messaggio di avvio non si mostra; quando parla l'agente, il saluto è già arrivato.
         if (role === "user" && message.startsWith("[AVVIO]")) return;
         if (role !== "user") spoke = true;
-        log(role === "user" ? "user" : "ai", message.replace(/\[[a-z ]{2,20}\]\s*/g, "").trim());
+        const testo = message.replace(/\[[a-z ]{2,20}\]\s*/g, "").trim();
+        if (role === "user") regia.invia({ type: "turnoUtente" });
+        else regia.invia({ type: "rispostaAgente", ms: Math.min(4000, Math.max(1200, testo.length * 30)) });
+        log(role === "user" ? "user" : "ai", testo);
       },
+      onStatusChange: ({ status }) => regia.invia({ type: "status", status }),
+      onModeChange: ({ mode }) => regia.invia({ type: "mode", mode }),
+      onVadScore: ({ vadScore }) => regia.invia({ type: "vad", score: vadScore }),
       onError: (m) => log("sys", `Errore: ${m}`),
-      onDisconnect: () => setRunning(false),
+      onDisconnect: () => {
+        regia.invia({ type: "status", status: "disconnected" });
+        setRunning(false);
+      },
     });
+    regia.conversazione(conv);
+    regia.invia({ type: "status", status: "connected" });
     setRunning(true);
     // Il saluto lo genera l'agente (LLM) nella lingua scelta. Se l'agente ha ancora un primo messaggio fisso, parla da solo e questo non serve.
     const lingua = ($("lang").selectedOptions[0]?.textContent || "").replace(/\s*\(.*\)/, "").trim();
     setTimeout(() => {
-      if (conv && !spoke) conv.sendUserMessage(`[AVVIO] Saluta e presentati in breve, in ${lingua}.`);
+      if (conv && !spoke) {
+        regia.invia({ type: "turnoUtente" }); // l'agente sta preparando il saluto
+        conv.sendUserMessage(`[AVVIO] Saluta e presentati in breve, in ${lingua}.`);
+      }
     }, 1500);
   } catch (e) {
     log("sys", `Impossibile avviare: ${e.message}`);
@@ -107,9 +141,13 @@ $("chat").onsubmit = (e) => {
   e.preventDefault();
   const t = $("q").value.trim();
   if (!t || !conv) return;
+  regia.invia({ type: "turnoUtente" });
   conv.sendUserMessage(t);
   $("q").value = "";
 };
+
+$("q").addEventListener("input", () => regia.invia({ type: "scrive", on: $("q").value.trim() !== "" }));
+$("q").addEventListener("blur", () => regia.invia({ type: "scrive", on: false }));
 
 function log(kind, text) {
   const d = document.createElement("div");

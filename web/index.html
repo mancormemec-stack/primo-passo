@@ -4,7 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Primo Passo</title>
+  <link rel="stylesheet" href="pino.css">
   <style>
+    #pino .pino { height:140px; margin:0 auto 8px; }
     :root { --bg:#fafaf7; --fg:#1a1a1a; --muted:#666; --card:#fff; --line:#e3e1da; --acc:#8a1c1c; --ok:#2e6b3a; }
     @media (prefers-color-scheme: dark) {
       :root { --bg:#141414; --fg:#eee; --muted:#999; --card:#1e1e1e; --line:#333; --acc:#e07a5f; --ok:#7fbf8a; }
@@ -136,6 +138,7 @@
   </header>
   <main>
     <section class="card">
+      <div id="pino"></div>
       <div id="log" aria-live="polite"></div>
       <form id="chat"><input id="q" type="text" placeholder="Scrivi qui…" disabled><button disabled>Invia</button></form>
       <p class="muted">Pino è un assistente automatico (IA): non sostituisce gli uffici. Nessun dato viene salvato.</p>
