@@ -2,7 +2,7 @@ import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.
 import { createTools } from "./tools.js";
 
 // ID dell'agente ElevenLabs (pubblico per la demo). Si può anche passare come ?agent=...
-const AGENT_ID = new URLSearchParams(location.search).get("agent") || "INSERISCI_AGENT_ID";
+const AGENT_ID = new URLSearchParams(location.search).get("agent") || "agent_0601m7b42fyaf8ybzmhabg67wy0w";
 
 const $ = (id) => document.getElementById(id);
 const [percorsi, uffici] = await Promise.all([
