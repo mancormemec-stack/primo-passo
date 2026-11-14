@@ -326,7 +326,11 @@ export function createTools(data, effects = {}) {
       const mappe =
         p.ufficio === "asl" && info.sportelli_asl
           ? info.sportelli_asl.map((x) => ({ nome: x.nome, link: mappaUrl(`${x.nome}, ${x.indirizzo}, Roma`) }))
-          : p.ufficio === "agenzia_entrate"
+          : p.ufficio === "sportello_unico"
+            ? [{ nome: fill(u.nome), link: mappaUrl("Prefettura di Roma Sportello Unico Immigrazione, Via Stendhal 1, Roma") }]
+            : p.ufficio === "spid" || p.ufficio === "cittadinanza"
+              ? []
+              : p.ufficio === "agenzia_entrate"
             ? [{ nome: fill(u.nome), link: mappaUrl("Agenzia delle Entrate ufficio territoriale Roma") }]
             : p.ufficio === "questura"
             ? [{ nome: fill(u.nome), link: mappaUrl("Questura di Roma Ufficio Immigrazione, Via Teofilo Patini 23, Roma") }]
