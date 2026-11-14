@@ -7,7 +7,7 @@
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
-  const V = "10";
+  const V = "11";
   const CHIAVE = "primoPasso.municipio";
 
   // ---------- Testi (le altre lingue ricadono sull'inglese) ----------

@@ -76,3 +76,10 @@ test("mappa e profilo hanno i testi nelle sette lingue (le altre ricadono sull'i
   };
   assert.ok(conta(mappaJs) > 30 && conta(profiloJs) > 20);
 });
+
+test("la barra in basso (tema-demo.js) ha tutte le voci: se qualcuno ricopia una versione vecchia del file, qui si accorge", () => {
+  const tema = leggi("tema-demo.js");
+  assert.ok(tema.includes('const VOCI = ["pino", "percorso", "mappa", "documenti", "profilo"];'), "mancano Mappa e Documenti nella barra: tema-demo.js è stato sostituito con una copia vecchia");
+  assert.ok(tema.includes("ICONE.mappa") && tema.includes("ICONE.documenti"), "mancano le icone di Mappa e Documenti");
+  assert.ok(tema.includes("ppMappa") && tema.includes("ppDocumenti"), "mancano le etichette di Mappa e Documenti (altrimenti restano vuote)");
+});

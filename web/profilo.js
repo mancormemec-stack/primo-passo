@@ -4,7 +4,7 @@
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
-  const V = "10";
+  const V = "11";
   const CHIAVI = ["titolo", "sotto", "municipio", "nonScelto", "percorso", "nessunPercorso", "passi", "aiuto", "chiama", "dati", "d1", "d2", "d3", "d4", "d5", "d6",
     "info", "sito", "codice", "licenza", "prototipo", "versione", "cancella", "conferma"];
   const RIGHE = {
