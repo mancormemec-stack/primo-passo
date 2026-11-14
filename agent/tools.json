@@ -7,8 +7,12 @@
   {
     "name": "start_path",
     "description": "Avvia un percorso e restituisce prerequisiti, passi e dipendenze da altri percorsi.",
-    "params": { "path_id": "Id del percorso restituito da list_paths" },
-    "required": ["path_id"]
+    "params": {
+      "path_id": "Id del percorso restituito da list_paths"
+    },
+    "required": [
+      "path_id"
+    ]
   },
   {
     "name": "check_prerequisites",
@@ -17,7 +21,9 @@
       "path_id": "Id del percorso",
       "posseduti": "Id dei prerequisiti che l'utente ha, separati da virgola"
     },
-    "required": ["path_id"]
+    "required": [
+      "path_id"
+    ]
   },
   {
     "name": "next_step",
@@ -26,16 +32,26 @@
       "path_id": "Id del percorso",
       "completati": "Id dei passi già fatti, separati da virgola"
     },
-    "required": ["path_id"]
+    "required": [
+      "path_id"
+    ]
+  },
+  {
+    "name": "locate_user",
+    "description": "Chiede al browser la posizione dell'utente (con il suo permesso) e ricava il Municipio di Roma. Chiamalo SOLO dopo che l'utente ha detto di sì alla tua richiesta di usare la posizione. Non salva la posizione.",
+    "params": {}
   },
   {
     "name": "find_office",
-    "description": "Trova l'ufficio competente per il percorso nel Municipio dell'utente.",
+    "description": "Trova l'ufficio competente per il percorso nel Municipio dell'utente e un link alla mappa per raggiungerlo.",
     "params": {
       "path_id": "Id del percorso",
       "municipio": "Municipio di Roma in numeri romani, da I a XV. Se l'utente dice il quartiere, ricava il Municipio."
     },
-    "required": ["path_id", "municipio"]
+    "required": [
+      "path_id",
+      "municipio"
+    ]
   },
   {
     "name": "create_reminders",
@@ -45,7 +61,11 @@
       "scadenza_id": "Id della scadenza restituito da next_step",
       "data_evento": "Data dell'evento di riferimento in formato AAAA-MM-GG"
     },
-    "required": ["path_id", "scadenza_id", "data_evento"]
+    "required": [
+      "path_id",
+      "scadenza_id",
+      "data_evento"
+    ]
   },
   {
     "name": "prepare_summary",
@@ -55,7 +75,9 @@
       "lingua": "Nome della lingua dell'utente",
       "traduzione": "Breve traduzione dei passi nella lingua dell'utente"
     },
-    "required": ["path_id"]
+    "required": [
+      "path_id"
+    ]
   },
   {
     "name": "handoff",
@@ -64,6 +86,8 @@
       "motivo": "Breve descrizione del perché non puoi rispondere",
       "municipio": "Municipio dell'utente, se noto"
     },
-    "required": ["motivo"]
+    "required": [
+      "motivo"
+    ]
   }
 ]
