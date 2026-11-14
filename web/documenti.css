@@ -99,5 +99,5 @@
    la barra "sticky" resta davvero in fondo mentre si scorre. La vista Pino non cambia. */
 #app:not([data-vista="pino"]) > main { flex: 1 0 auto; min-height: min-content; }
 
-/* Con quattro voci la barra è più stretta: etichette un po' più piccole, senza tagliarle */
-#tabbar button span { font-size: 11.5px; padding: 0; }
+/* Con cinque voci la barra è più stretta: etichette un po' più piccole, senza tagliarle */
+#tabbar button span { font-size: 11px; padding: 0; letter-spacing: -.01em; }

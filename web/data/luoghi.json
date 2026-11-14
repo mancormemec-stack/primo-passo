@@ -1,0 +1,50 @@
+{
+ "_nota": "Luoghi con indirizzo già presente in uffici.json (fonti ufficiali); le coordinate vengono da Nominatim/OpenStreetMap (ODbL). Generato da scripts/mappa-dati.mjs",
+ "luoghi": [
+  {
+   "id": "questura",
+   "tipo": "questura",
+   "nome": "Questura di Roma - Ufficio Immigrazione",
+   "indirizzo": "Via Teofilo Patini 23",
+   "lat": 41.90763,
+   "lon": 12.58384,
+   "trovato": "Via Teofilo Patini, Municipio Roma V, Roma"
+  },
+  {
+   "id": "acli",
+   "tipo": "aiuto",
+   "nome": "ACLI Roma, Patronato",
+   "indirizzo": "via Prospero Alpino 20",
+   "lat": 41.86935,
+   "lon": 12.48714,
+   "trovato": "Coop, 16/20, Via Prospero Alpino"
+  },
+  {
+   "id": "santegidio",
+   "tipo": "aiuto",
+   "nome": "Comunità di Sant'Egidio",
+   "indirizzo": "Piazza Sant'Egidio 3a",
+   "lat": 41.88997,
+   "lon": 12.4691,
+   "trovato": "Piazza di Sant'Egidio, Trastevere, Municipio Roma I"
+  },
+  {
+   "id": "astalli",
+   "tipo": "aiuto",
+   "nome": "Centro Astalli",
+   "indirizzo": "Via degli Astalli 14/a",
+   "lat": 41.89656,
+   "lon": 12.48016,
+   "trovato": "Via degli Astalli, Pigna, Municipio Roma I"
+  },
+  {
+   "id": "anagrafe-viii",
+   "tipo": "anagrafe",
+   "nome": "Anagrafe del Municipio VIII (sede indicata come esempio)",
+   "indirizzo": "via Benedetto Croce 50",
+   "lat": 41.84137,
+   "lon": 12.48407,
+   "trovato": "50, Via Benedetto Croce, Montagnola"
+  }
+ ]
+}

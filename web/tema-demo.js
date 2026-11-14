@@ -167,19 +167,20 @@
   // ---------- Barra in basso come nella demo: Pino, Percorso, Profilo ----------
   // Tre viste dello stesso schermo: si mostra una parte alla volta, nulla viene ricreato.
   const SVG = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
+  ICONE.mappa = SVG('<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>');
   ICONE.documenti = SVG('<path d="M3.5 7.5A2.5 2.5 0 0 1 6 5h4l2 2.5h6a2.5 2.5 0 0 1 2.5 2.5v7a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 17z"/>');
   ICONE.profilo = SVG('<circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>');
   ICONE.tastiera = SVG('<rect x="2.5" y="5.5" width="19" height="13" rx="3"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M7.5 14h9"/>');
   ICONE.mic = SVG('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>');
   ICONE.stop = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>';
   ICONE.micOff = SVG('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 11.4 4.3M18.5 11a6.4 6.4 0 0 1-.3 1.9M12 17.5V21M3 3l18 18"/>');
-  const VOCI = ["pino", "percorso", "documenti", "profilo"];
+  const VOCI = ["pino", "percorso", "mappa", "documenti", "profilo"];
   function testo(id, vuoto) { const e = $(id); return (e && e.textContent.trim()) || vuoto; }
   function etichette() {
     const nav = $("tabbar");
     if (!nav) return;
     const h2 = $("steps") && $("steps").querySelector("h2");
-    const mappa = { pino: "Pino", percorso: (h2 && h2.textContent.trim()) || "Percorso", documenti: (globalThis.ppDocumenti && globalThis.ppDocumenti.etichetta()) || "Documenti", profilo: testo("lingua-nome", "Profilo") };
+    const mappa = { pino: "Pino", percorso: (h2 && h2.textContent.trim()) || "Percorso", mappa: (globalThis.ppMappa && globalThis.ppMappa.etichetta()) || "Mappa", documenti: (globalThis.ppDocumenti && globalThis.ppDocumenti.etichetta()) || "Documenti", profilo: testo("lingua-nome", "Profilo") };
     nav.querySelectorAll("button").forEach((b) => {
       const t = mappa[b.dataset.voce];
       const span = b.querySelector("span");

@@ -1,0 +1,75 @@
+/* Scheda "Mappa": Pino guida ai Municipi, su una mappa vera di Roma (Leaflet + OpenStreetMap). Solo presentazione. */
+#mappa { display: none; padding: 0; }
+#app[data-vista="mappa"] #mappa { display: flex; flex-direction: column; gap: 12px; }
+#app[data-vista="mappa"] .palco, #app[data-vista="mappa"] .chat, #app[data-vista="mappa"] #steps { display: none; }
+#mappa h2, #mappa h3 { font-family: var(--font-display, inherit); margin: 0; }
+
+/* Pino che guida */
+.mp-guida { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 22px; background: var(--peach); }
+.mp-pino { flex: none; width: 62px; height: auto; }
+.mp-guida h2 { font-size: 21px; font-weight: 800; color: var(--petrol); }
+.mp-bolla { margin: 6px 0 0; font-weight: 700; line-height: 1.35; }
+.mp-gps { display: inline-flex; align-items: center; gap: 8px; margin-top: 10px; min-height: 42px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--primary); color: #fff; font: 800 14px inherit; font-family: inherit; box-shadow: 0 6px 18px rgb(240 100 36 / .25); }
+.mp-gps span svg { width: 18px; height: 18px; display: block; }
+.mp-nota { margin: 8px 0 0; font-size: 12.5px; color: var(--muted); line-height: 1.35; }
+
+/* Barra delle destinazioni */
+#mp-barra { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; margin: 0 -2px; scrollbar-width: none; scroll-snap-type: x proximity; }
+#mp-barra::-webkit-scrollbar { display: none; }
+.mp-dest { flex: none; display: inline-flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--fg); font: 800 14px inherit; font-family: inherit; scroll-snap-align: start; box-shadow: var(--shadow); }
+.mp-dest span svg { width: 18px; height: 18px; display: block; color: var(--primary-text); }
+.mp-dest[aria-pressed="true"] { background: var(--peach); border-color: var(--primary); color: var(--primary-text); }
+
+/* La mappa */
+#mp-box { position: relative; border-radius: 22px; overflow: hidden; border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
+#mp-mappa { height: min(46dvh, 380px); min-height: 250px; width: 100%; background: color-mix(in oklab, var(--line) 60%, transparent); }
+#mp-stato { position: absolute; inset: auto 12px 12px 12px; margin: 0; padding: 8px 12px; border-radius: 12px; background: var(--card); color: var(--muted); font-weight: 700; font-size: 13px; text-align: center; z-index: 500; box-shadow: var(--shadow); }
+#mp-stato[hidden] { display: none; }
+.leaflet-container { font: inherit; background: #e9ecee; }
+.leaflet-container a { color: var(--primary-text); }
+.leaflet-control-zoom a { width: 36px !important; height: 36px !important; line-height: 36px !important; }
+.leaflet-popup-content-wrapper { border-radius: 14px; color: #202B30; }
+.mp-pop { display: flex; flex-direction: column; gap: 4px; min-width: 170px; font-size: 13.5px; }
+.mp-pop a { font-weight: 800; }
+.mp-tip { font-weight: 800; border-radius: 10px; }
+@media (prefers-color-scheme: dark) {
+  .leaflet-tile-pane { filter: invert(1) hue-rotate(180deg) brightness(.95) contrast(.9); }
+  .leaflet-container { background: #1c2528; }
+}
+path.mp-poligono { cursor: pointer; transition: fill-opacity .2s; }
+.mp-num { background: none; border: 0; pointer-events: none; }
+.mp-num span { display: grid; place-items: center; width: 34px; height: 20px; border-radius: 10px; background: rgb(255 255 255 / .92); color: #173F46; font: 800 11px system-ui, sans-serif; box-shadow: 0 1px 4px rgb(0 0 0 / .3); }
+.mp-pin { background: none; border: 0; }
+.mp-pin svg { width: 34px; height: 34px; padding: 6px; box-sizing: border-box; border-radius: 50% 50% 50% 4px; transform: rotate(-45deg) scale(.9); background: #F06424; color: #fff; box-shadow: 0 2px 8px rgb(0 0 0 / .35); }
+.mp-pin svg > * { transform: rotate(45deg); transform-origin: 12px 12px; }
+.mp-pin.questura svg { background: #173F46; }
+.mp-pin.aiuto svg { background: #C2361B; }
+.mp-pin.anagrafe svg { background: #2E8B6A; }
+
+/* Scelta del Municipio */
+.mp-etichetta { margin: 2px 0 6px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.mp-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.mp-chip { min-width: 46px; min-height: 40px; padding: 0 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--card); color: var(--fg); font: 800 13.5px inherit; font-family: inherit; }
+.mp-chip[aria-checked="true"] { background: var(--primary); border-color: var(--primary); color: #fff; }
+
+/* Scheda con le informazioni */
+.mp-card { display: flex; flex-direction: column; gap: 8px; padding: 14px; border-radius: 22px; background: var(--card); box-shadow: var(--shadow); }
+.mp-card h3 { font-size: 20px; font-weight: 800; }
+.mp-sotto, .mp-vuoto { margin: 0; color: var(--muted); line-height: 1.4; }
+.mp-riga { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 52px; padding: 8px 10px; border: 0; border-radius: 16px; background: color-mix(in oklab, var(--line) 55%, transparent); color: var(--fg); text-align: start; text-decoration: none; font: 700 15px inherit; font-family: inherit; }
+.mp-ic { display: grid; place-items: center; flex: none; width: 38px; height: 38px; border-radius: 12px; background: var(--card); color: var(--primary-text); }
+.mp-ic svg { width: 20px; height: 20px; }
+.mp-t { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; overflow-wrap: anywhere; }
+.mp-t small { color: var(--muted); font-weight: 600; font-size: 12.5px; }
+.mp-vai { flex: none; color: var(--muted); }
+.mp-vai svg { width: 18px; height: 18px; display: block; }
+[dir="rtl"] .mp-vai svg { transform: scaleX(-1); }
+.mp-aiuto { display: flex; flex-direction: column; gap: 4px; padding: 10px 12px; border-radius: 16px; background: color-mix(in oklab, var(--line) 45%, transparent); }
+.mp-per { color: var(--muted); font-size: 13.5px; }
+.mp-azioni { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.mp-az { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--fg); text-decoration: none; font: 800 13px inherit; font-family: inherit; }
+.mp-az span svg { width: 16px; height: 16px; display: block; color: var(--primary-text); }
+.mp-det { margin-top: 4px; font-size: 13.5px; color: var(--muted); }
+.mp-det summary { cursor: pointer; font-weight: 800; color: var(--primary-text); min-height: 32px; display: flex; align-items: center; }
+.mp-det p { margin: 6px 0 0; line-height: 1.4; }
+#mp-pie { margin: 2px 0 0; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.4; }
