@@ -95,9 +95,12 @@
 
 /* La scheda è più alta dello schermo: il contenitore non deve restringersi, altrimenti il testo sotto la copre.
    Scorre l'app e la barra in basso resta attaccata in fondo (vedi tema-demo.css). */
-/* Vale per tutte le viste lunghe (Percorso, Documenti, Profilo, Mappa): con il contenitore alto quanto il contenuto,
-   la barra "sticky" resta davvero in fondo mentre si scorre. La vista Pino non cambia. */
-#app:not([data-vista="pino"]) > main { flex: 1 0 auto; min-height: min-content; }
+/* Correzioni di layout per tutte le viste, Pino compreso. Il contenitore non si restringe sotto il suo contenuto:
+   se manca spazio scorre la pagina (la barra in basso resta attaccata), non si taglia né si sovrappone nulla.
+   Prima, con poco spazio o con il chip del Municipio, il fumetto di Pino si schiacciava (testo tagliato con le
+   frecce di scorrimento) e il testo della privacy finiva sopra i pulsanti. */
+#app > main { flex: 1 0 auto; min-height: min-content; }
+#fumetto { flex-shrink: 0; min-height: min-content; }
 
 /* Con cinque voci la barra è più stretta: etichette un po' più piccole, senza tagliarle */
 #tabbar button span { font-size: 11px; padding: 0; letter-spacing: -.01em; }

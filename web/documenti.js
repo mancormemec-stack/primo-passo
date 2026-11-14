@@ -227,7 +227,7 @@
     render();
   }
 
-  fetch("data/percorsi.json?v=12").then((r) => r.json()).then((j) => {
+  fetch("data/percorsi.json?v=13").then((r) => r.json()).then((j) => {
     percorsi = j.percorsi.map((p) => {
       const docs = new Map();
       for (const q of p.prerequisiti) {
