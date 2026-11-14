@@ -8,9 +8,33 @@
   // ---------- Muto del microfono ----------
   // Spegne le tracce audio del microfono (silenzio), cosi' se l'utente parla con qualcuno Pino non viene interrotto.
   const mic = { muto: false, tracce: new Set() };
+  mic.gains = new Set();
   function applicaMuto() {
     mic.tracce.forEach((t) => { if (t.readyState === "ended") mic.tracce.delete(t); else if (t.enabled === mic.muto) t.enabled = !mic.muto; });
+    // Secondo blocco, indipendente dal browser: il volume verso Pino va a zero.
+    mic.gains.forEach((g) => { try { g.gain.value = mic.muto ? 0 : 1; } catch (e) { mic.gains.delete(g); } });
   }
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC && AC.prototype.createMediaStreamSource) {
+      const origCms = AC.prototype.createMediaStreamSource;
+      AC.prototype.createMediaStreamSource = function (stream) {
+        const src = origCms.call(this, stream);
+        try {
+          if (stream && stream.getAudioTracks && stream.getAudioTracks().length) {
+            const g = this.createGain();
+            g.gain.value = mic.muto ? 0 : 1;
+            mic.gains.add(g);
+            const collega = src.connect.bind(src);
+            collega(g);
+            src.connect = (...a) => g.connect(...a);
+            src.disconnect = (...a) => g.disconnect(...a);
+          }
+        } catch (e) { /* senza questo blocco resta lo spegnimento della traccia */ }
+        return src;
+      };
+    }
+  } catch (e) { /* idem */ }
   try {
     const md = navigator.mediaDevices;
     if (md && md.getUserMedia) {
@@ -137,7 +161,7 @@
   }
   async function cercaPosizione() {
     try {
-      const { locateInBrowser } = await import("./tools.js?v=9");
+      const { locateInBrowser } = await import("./tools.js?v=7");
       const r = await locateInBrowser();
       if (r && r.stato === "ok" && r.municipio && MUNICIPI_OK.test(r.municipio)) {
         globalThis.__ppMunicipio = r.municipio;
@@ -167,20 +191,18 @@
   // ---------- Barra in basso come nella demo: Pino, Percorso, Profilo ----------
   // Tre viste dello stesso schermo: si mostra una parte alla volta, nulla viene ricreato.
   const SVG = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
-  ICONE.mappa = SVG('<path d="m3 6 6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/>');
-  ICONE.documenti = SVG('<path d="M3.5 7.5A2.5 2.5 0 0 1 6 5h4l2 2.5h6a2.5 2.5 0 0 1 2.5 2.5v7a2.5 2.5 0 0 1-2.5 2.5H6A2.5 2.5 0 0 1 3.5 17z"/>');
   ICONE.profilo = SVG('<circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>');
   ICONE.tastiera = SVG('<rect x="2.5" y="5.5" width="19" height="13" rx="3"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M7.5 14h9"/>');
   ICONE.mic = SVG('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>');
   ICONE.stop = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>';
   ICONE.micOff = SVG('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 11.4 4.3M18.5 11a6.4 6.4 0 0 1-.3 1.9M12 17.5V21M3 3l18 18"/>');
-  const VOCI = ["pino", "percorso", "mappa", "documenti", "profilo"];
+  const VOCI = ["pino", "percorso", "profilo"];
   function testo(id, vuoto) { const e = $(id); return (e && e.textContent.trim()) || vuoto; }
   function etichette() {
     const nav = $("tabbar");
     if (!nav) return;
     const h2 = $("steps") && $("steps").querySelector("h2");
-    const mappa = { pino: "Pino", percorso: (h2 && h2.textContent.trim()) || "Percorso", mappa: (globalThis.ppMappa && globalThis.ppMappa.etichetta()) || "Mappa", documenti: (globalThis.ppDocumenti && globalThis.ppDocumenti.etichetta()) || "Documenti", profilo: testo("lingua-nome", "Profilo") };
+    const mappa = { pino: "Pino", percorso: (h2 && h2.textContent.trim()) || "Percorso", profilo: testo("lingua-nome", "Profilo") };
     nav.querySelectorAll("button").forEach((b) => {
       const t = mappa[b.dataset.voce];
       const span = b.querySelector("span");
