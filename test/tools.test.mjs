@@ -34,7 +34,7 @@ function completa(call, pathId, ids) {
 test("list_paths elenca tutti i percorsi", () => {
   const { call } = setup();
   const ids = call("list_paths").map((p) => p.id);
-  assert.deepEqual(ids, ["iscrizione_anagrafica", "iscrizione_ssn", "rinnovo_permesso_lavoro", "carta_identita"]);
+  assert.deepEqual(ids, ["iscrizione_anagrafica", "iscrizione_ssn", "rinnovo_permesso_lavoro", "carta_identita", "codice_fiscale"]);
 });
 
 test("percorso sconosciuto restituisce errore e non inventa", () => {
@@ -209,4 +209,16 @@ test("list_paths: se l'app conosce gia' il Municipio lo dice, altrimenti resta u
   assert.match(con.nota_municipio, /senza chiedere il permesso/);
   const falso = JSON.parse(createTools(data, { municipioNoto: () => "XX" }).list_paths());
   assert.ok(Array.isArray(falso), "un Municipio non valido non si usa");
+});
+
+test("codice_fiscale: percorso con fonti ufficiali, ufficio e link alla mappa dell'Agenzia delle Entrate", () => {
+  const { call } = setup();
+  const r = call("start_path", { path_id: "codice_fiscale" });
+  assert.ok(r.prerequisiti.length >= 1 && r.numero_passi === 4);
+  const o = call("find_office", { path_id: "codice_fiscale", municipio: "VIII" });
+  assert.match(o.ufficio, /Agenzia delle Entrate/);
+  assert.match(decodeURIComponent(o.mappe[0].link), /Agenzia delle Entrate/);
+  assert.equal(o.verificato, false, "controllo automatico: non diventa verificato da solo");
+  const voci = data.percorsi.percorsi.find((p) => p.id === "codice_fiscale");
+  for (const x of [...voci.prerequisiti, ...voci.passi]) if (x.fonte !== "interno") assert.match(x.fonte, /agenziaentrate\.gov\.it/, x.id);
 });
