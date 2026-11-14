@@ -117,6 +117,148 @@ test("i documenti si verificano dopo start_path, con gli id esatti, e gli id sba
   assert.match(r, /prima di dire all'utente cosa manca/);
 });
 
+// ---------- Priorità 3, fase 1: avanzamento senza deduzioni ----------
+
+const avanz = regola("- Avanzamento, senza dedurre.");
+const docum = regola("- Quando chiami `check_prerequisites` passa sempre");
+const dichiarati = regola("- Passi dichiarati dall'utente.");
+const parlaDi = regola("- Parla di ciò che l'utente ti ha detto");
+
+test("avanzamento: un passo si segna solo se l'utente dice chiaramente di averlo fatto", () => {
+  assert.ok(avanz, "manca la regola sull'avanzamento");
+  assert.match(avanz, /solo se l'utente dice chiaramente, in questa conversazione, di aver fatto proprio quel passo/);
+});
+
+test("avanzamento: possesso, consegna e accettazione sono tre cose diverse", () => {
+  assert.match(avanz, /Avere un documento non vuol dire averlo consegnato/);
+  assert.match(avanz, /consegnarlo non vuol dire che l'ufficio l'abbia accettato/);
+});
+
+test("avanzamento: «sì», «ok», «ho tutto» valgono solo per l'ultima domanda; se vago si chiede, non si registra", () => {
+  assert.match(avanz, /«sì», «ok», «ho tutto» rispondono solo all'ultima domanda/);
+  assert.match(avanz, /fai UNA domanda precisa e non chiamare `next_step`/);
+});
+
+test("avanzamento: una chiamata a next_step per ogni passo, mai più passi insieme", () => {
+  assert.match(avanz, /una chiamata a `next_step` per ogni passo/i);
+  assert.match(avanz, /mai più passi insieme/);
+  assert.match(prompt, /4\. Indica il passo successivo con `next_step`\..*Una chiamata per ogni passo\./);
+});
+
+test("avanzamento: lo strumento non «conferma» ciò che fa l'utente", () => {
+  assert.match(avanz, /Non dire mai che lo strumento «conferma» o «verifica» ciò che fa l'utente/);
+});
+
+test("documenti: si passa sempre l'elenco completo dichiarato finora, con le correzioni", () => {
+  assert.ok(docum, "manca la regola sull'elenco dei documenti");
+  assert.match(docum, /elenco COMPLETO dei documenti che l'utente ha dichiarato finora, non solo quelli nuovi/);
+  assert.match(docum, /se l'utente corregge/);
+  assert.match(docum, /«ho tutto» dopo una domanda su tre documenti vale per quei tre/);
+});
+
+test("passi dell'ufficio: registrabili solo se dichiarati, presentati come dichiarati e mai come verificati", () => {
+  assert.ok(dichiarati, "manca la regola sui passi dichiarati");
+  assert.match(dichiarati, /Comune, dalla Questura o da altri enti/);
+  assert.match(dichiarati, /solo se l'utente dice esplicitamente che sono avvenuti/);
+  assert.match(dichiarati, /«me l'hai detto tu»: mai come verificati, mai come conferma ufficiale/);
+});
+
+test("chi ha già completato un passo prima di usare l'app non viene bloccato, ma si registra passo per passo", () => {
+  assert.match(dichiarati, /Non bloccare chi ha già completato un passo o un percorso/);
+  assert.match(dichiarati, /uno per chiamata/);
+  assert.match(dichiarati, /non puoi verificarli/);
+  assert.match(dichiarati, /chiedi UNA volta se li aveva/);
+});
+
+test("comunicazione: si parla di ciò che l'utente ha detto, la pratica non è mai «conclusa» o «accettata» da Pino", () => {
+  assert.ok(parlaDi, "manca la regola sul modo di parlare dei passi");
+  assert.match(parlaDi, /«mi hai detto che hai il passaporto», non «hai i documenti»/);
+  assert.match(parlaDi, /Non dire mai che una pratica è conclusa o accettata: lo decide l'ufficio/);
+  assert.match(parlaDi, /tre su cinque, tutti dichiarati da te/);
+  assert.match(parlaDi, /l'esito lo conferma solo l'ufficio/);
+});
+
+test("un percorso bloccato resta bloccato: lo sblocca solo lo strumento (regole della Priorità 1)", () => {
+  const r = regola("- Segui l'ordine dei passi");
+  assert.match(r, /non saltare avanti, nemmeno se l'utente lo chiede/);
+  assert.match(r, /risponde `bloccato`, quel percorso NON è accessibile/);
+  assert.match(r, /non descrivere i suoi passi/);
+  assert.match(r, /«completato» o «da considerare fatto»: lo sblocca solo lo strumento, mai una tua frase/);
+  assert.match(r, /il percorso si sblocca solo quando lo strumento lo sblocca/);
+  assert.match(r, /usa `handoff`/);
+});
+
+// ---------- Priorità 3, fase 1: risposte da voce ----------
+
+const voce = regola("- Risposte da voce.");
+
+test("voce: una sola risposta per turno, dopo i risultati degli strumenti", () => {
+  assert.ok(voce, "manca la regola per la voce");
+  assert.match(voce, /Una sola risposta per turno/);
+  assert.match(voce, /prima di chiamare uno strumento non scrivere nulla/);
+  assert.match(voce, /rispondi una volta sola dopo aver ricevuto i risultati/);
+  assert.match(regola("- Sii proattivo"), /senza dire nulla prima/);
+});
+
+test("voce: massimo 3 frasi (~250 caratteri), una sola domanda, dettagli solo se richiesti", () => {
+  assert.match(voce, /Massimo 3 frasi \(circa 250 caratteri\) e una sola domanda, alla fine/);
+  assert.match(voce, /Costi, indirizzi, orari ed eccezioni solo se l'utente li chiede/);
+  assert.match(voce, /«Vuoi i dettagli\?»/);
+});
+
+test("voce: niente aperture di cortesia, più domande insieme una alla volta, niente ripetizioni", () => {
+  for (const x of ["Ti rispondo in breve", "Bravo", "Ottimo", "Scusa"]) assert.ok(voce.includes(`«${x}»`), x);
+  assert.match(voce, /Se l'utente fa più domande insieme, rispondi in ordine a una o due e chiedi se vuole continuare/);
+  assert.match(voce, /Non ripetere ciò che hai già detto/);
+});
+
+test("voce: la brevità non toglie documenti mancanti, stato non verificato, blocchi e passi dichiarati", () => {
+  assert.match(voce, /Brevità non vuol dire omettere/);
+  for (const x of ["documenti obbligatori che mancano", "«non verificato»", "blocco di un percorso", "passi dichiarati dall'utente"]) {
+    assert.ok(voce.includes(x), x);
+  }
+});
+
+test("i documenti si nominano con il nome semplice; il testo completo solo su richiesta", () => {
+  const r = regola("- Se `next_step` risponde con `rifiutati`");
+  assert.match(r, /chiamandoli con il loro nome semplice/);
+  assert.match(r, /il testo completo dello strumento lo leggi solo se l'utente chiede i dettagli, senza cambiarlo/);
+  assert.match(r, /ESATTAMENTE quelli di `mancanti_obbligatori`/, "l'elenco resta quello dello strumento");
+});
+
+test("l'ufficio si dice per intero una volta sola; avviso e «non sostituisco gli uffici» in una frase", () => {
+  assert.ok(!/ripeti il nome due volte/.test(prompt));
+  assert.match(prompt, /Il nome dell'ufficio lo dici per intero una sola volta/);
+  assert.match(regola("- All'inizio dici"), /nella stessa frase dell'avviso sulle fonti/);
+  assert.match(avviso, /in UNA frase breve/);
+});
+
+test("regole vecchie sostituite non sono rimaste nel prompt", () => {
+  assert.ok(!/con il testo che dà lo strumento/.test(prompt));
+  assert.ok(!/un passo è fatto solo se lo conferma `next_step`/.test(prompt), "affermazione circolare: lo strumento registra, non verifica");
+  assert.ok(!/la sua parola non sblocca lo strumento/.test(prompt), "sostituita dalla regola sui passi dichiarati");
+});
+
+test("le regole della Priorità 1 ci sono ancora", () => {
+  const ancore = [
+    "Conosci SOLO i percorsi restituiti dal tool `list_paths`",
+    "Su questo non posso darti un'informazione sicura",
+    "ricade in \"non_si_applica\"",
+    "Non dire mai «verificato», «confermato» o «controllato da una persona» se lo stato non è `umano`",
+    "Non nascondere mai lo stato di un'informazione nuova",
+    "il passo NON è stato segnato come fatto",
+    "Il rifiuto non si può aggirare",
+    "sempre tutte e tre anche se nel percorso ne ricorre solo una",
+    "Non valutare mai se una persona ha diritto a un permesso",
+    "Non chiedere mai nome, cognome, numero di documento",
+    "Resta nel tuo ambito",
+    "Se un elemento è NON VERIFICATO, segnalalo anche nella traduzione",
+    "Non affermare MAI un requisito",
+    "Ti presenti UNA sola volta",
+  ];
+  for (const a of ancore) assert.ok(prompt.includes(a), `manca: ${a}`);
+});
+
 // ---------- sincronizzazione con il prompt pubblicato ----------
 
 test("il prompt conserva la regola del cofounder «resta nel tuo ambito»", () => {
