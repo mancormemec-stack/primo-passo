@@ -4,7 +4,7 @@
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
-  const V = "13";
+  const V = "14";
   const CHIAVI = ["titolo", "sotto", "municipio", "nonScelto", "percorso", "nessunPercorso", "passi", "aiuto", "chiama", "dati", "d1", "d2", "d3", "d4", "d5", "d6",
     "info", "sito", "codice", "licenza", "prototipo", "versione", "cancella", "conferma"];
   const RIGHE = {
@@ -113,6 +113,23 @@
     try { Object.keys(localStorage).filter((k) => k.startsWith("primoPasso.")).forEach((k) => localStorage.removeItem(k)); } catch { /* nulla da cancellare */ }
     location.reload();
   }
+
+  // La riga "lingua" del profilo apre la scelta della lingua premendo il pulsante nascosto #lingua (app.js). Durante una conversazione
+  // quel pulsante è disattivato e il tocco non faceva nulla: ora si chiude la conversazione e si apre subito la scelta della lingua.
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest || !e.target.closest("#profilo-lingua")) return;
+    const lingua = $("lingua");
+    if (!lingua || !lingua.disabled) return; // caso normale: ci pensa il gestore di tema-demo.js
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    const stop = $("stop");
+    if (stop && !stop.disabled) stop.click();
+    let n = 0;
+    const attesa = setInterval(() => {
+      if (!lingua.disabled) { clearInterval(attesa); lingua.click(); }
+      else if (++n > 30) clearInterval(attesa); // dopo ~4,5 s si rinuncia: meglio nulla che un comportamento strano
+    }, 150);
+  }, true);
 
   new MutationObserver(() => disegna()).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   globalThis.addEventListener("pp:municipio", disegna);

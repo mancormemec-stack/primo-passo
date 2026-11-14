@@ -83,3 +83,7 @@ test("la barra in basso (tema-demo.js) ha tutte le voci: se qualcuno ricopia una
   assert.ok(tema.includes("ICONE.mappa") && tema.includes("ICONE.documenti"), "mancano le icone di Mappa e Documenti");
   assert.ok(tema.includes("ppMappa") && tema.includes("ppDocumenti"), "mancano le etichette di Mappa e Documenti (altrimenti restano vuote)");
 });
+
+test("la riga della lingua nel profilo funziona anche durante una conversazione (chiude la conversazione e apre la scelta)", () => {
+  assert.ok(profiloJs.includes('closest("#profilo-lingua")') && profiloJs.includes("lingua.disabled") && profiloJs.includes("stop.click()"));
+});
