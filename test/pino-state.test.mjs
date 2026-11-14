@@ -115,6 +115,10 @@ test("next_step è un successo solo se un passo in più risulta fatto", () => {
   let stato = null;
   const t = createTools(data, { onState: (s) => (stato = s) });
   const prima = contaFatti(stato);
+  // senza documenti dichiarati nemmeno il primo passo si registra: nessun successo
+  const r0 = t.next_step({ path_id: "iscrizione_anagrafica", completati: "a1" });
+  assert.equal(esitoPositivo("next_step", r0, prima, contaFatti(stato)), false);
+  t.check_prerequisites({ path_id: "iscrizione_anagrafica", posseduti: "permesso_o_ricevuta,passaporto,codice_fiscale,dati_occupazione" });
   const r1 = t.next_step({ path_id: "iscrizione_anagrafica", completati: "a1" });
   assert.equal(esitoPositivo("next_step", r1, prima, contaFatti(stato)), true);
   const dopo1 = contaFatti(stato);

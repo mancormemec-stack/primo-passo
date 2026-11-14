@@ -103,8 +103,11 @@ test("pagina e moduli locali portano la stessa versione (niente file vecchi dall
   const riferimenti = [
     ...[...html.matchAll(/(?:src|href)="([\w-]+\.(?:js|css)[^"]*)"/g)].map((m) => m[1]),
     ...["app.js", "pino-regia.js"].flatMap((f) => [...leggi(f).matchAll(/from "\.\/([^"]+)"/g)].map((m) => m[1])),
+    // anche i dati: un percorsi.json vecchio in cache non deve convivere con un tools.js nuovo
+    ...[...leggi("app.js").matchAll(/fetch\("(data\/[^"]+)"/g)].map((m) => m[1]),
   ];
-  assert.ok(riferimenti.length >= 8);
+  assert.ok(riferimenti.length >= 10);
+  assert.ok(riferimenti.some((r) => r.startsWith("data/percorsi.json")) && riferimenti.some((r) => r.startsWith("data/uffici.json")));
   const versioni = new Set(riferimenti.map((r) => r.match(/\?v=(\w+)$/)?.[1] ?? "nessuna"));
   assert.equal(versioni.size, 1, `versioni diverse: ${riferimenti.join(", ")}`);
   assert.ok(!versioni.has("nessuna"), "ogni file locale deve avere ?v=");

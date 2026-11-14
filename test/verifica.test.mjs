@@ -9,6 +9,13 @@ const data = { percorsi: load("percorsi.json"), uffici: load("uffici.json") };
 const percorsi = data.percorsi.percorsi;
 const tutte = (p) => [...p.prerequisiti, ...p.passi, ...p.scadenze];
 
+// Registra i passi uno alla volta, come impone next_step: una chiamata per ogni passo dichiarato.
+function completa(call, pathId, ids) {
+  let r;
+  for (const id of ids.split(",")) r = call("next_step", { path_id: pathId, completati: id });
+  return r;
+}
+
 function setup(dati = data) {
   const fx = { printed: [] };
   const t = createTools(dati, { print: (h) => fx.printed.push(h) });
@@ -107,11 +114,12 @@ test("un passo non si completa fuori ordine", () => {
   assert.equal(r.fatti, 0);
 });
 
-test("senza documenti obbligatori non si completa il passo in cui si consegnano", () => {
+test("senza documenti obbligatori non si completa nemmeno il primo passo (raccogliere i documenti)", () => {
   const { call } = setup();
   const r = call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3" });
-  assert.equal(r.fatti, 2);
-  assert.equal(r.passo.id, "a3");
+  assert.equal(r.fatti, 0);
+  assert.equal(r.passo.id, "a1");
+  assert.equal(r.rifiutati[0].passo, "a1");
   assert.equal(r.rifiutati[0].motivo, "documenti_mancanti");
   assert.ok(r.rifiutati[0].mancanti.some((m) => m.id === "passaporto"));
   assert.match(r.istruzione_rifiuto, /NON sono stati segnati/);
@@ -121,9 +129,12 @@ test("anche un solo documento obbligatorio mancante blocca il passo", () => {
   const { call } = setup();
   const senzaPassaporto = obbligatori("iscrizione_anagrafica").filter((id) => id !== "passaporto").join(",");
   call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: senzaPassaporto });
-  const r = call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3" });
+  const r = completa(call, "iscrizione_anagrafica", "a1");
   assert.deepEqual(r.rifiutati[0].mancanti.map((m) => m.id), ["passaporto"]);
-  assert.equal(r.fatti, 2);
+  assert.equal(r.fatti, 0);
+  // con il documento che mancava, il passo si registra
+  call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: "passaporto" });
+  assert.equal(completa(call, "iscrizione_anagrafica", "a1").fatti, 1);
 });
 
 test("con i documenti obbligatori il passo si completa, anche senza quelli facoltativi", () => {
@@ -133,7 +144,7 @@ test("con i documenti obbligatori il passo si completa, anche senza quelli facol
   const c = call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: ids.join(",") });
   assert.equal(c.ha_tutto, true);
   assert.ok(c.mancanti.some((m) => m.id === "titolo_alloggio"), "resta nell'elenco dei mancanti non obbligatori");
-  const r = call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3" });
+  const r = completa(call, "iscrizione_anagrafica", "a1,a2,a3");
   assert.equal(r.rifiutati, undefined);
   assert.equal(r.passo.id, "a4");
 });
@@ -155,7 +166,7 @@ test("con un id sconosciuto lo stato non cambia: i documenti dichiarati prima re
   const ids = obbligatori("iscrizione_anagrafica").join(",");
   call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: ids });
   call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: "passaporto,xyz" });
-  const r = call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3" });
+  const r = completa(call, "iscrizione_anagrafica", "a1,a2,a3");
   assert.equal(r.rifiutati, undefined, "i documenti validi dichiarati prima valgono ancora");
   assert.equal(r.passo.id, "a4");
 });
@@ -183,7 +194,7 @@ test("in un percorso bloccato da un altro non si segna nessun passo", () => {
   assert.equal(b.fatti, undefined);
   // dopo aver fatto la residenza, la carta riparte dal primo passo: niente è stato segnato di nascosto
   call("check_prerequisites", { path_id: "iscrizione_anagrafica", posseduti: obbligatori("iscrizione_anagrafica").join(",") });
-  call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3,a4,a5" });
+  completa(call, "iscrizione_anagrafica", "a1,a2,a3,a4");
   assert.equal(call("next_step", { path_id: "carta_identita" }).passo.id, "c1");
 });
 
@@ -193,9 +204,16 @@ test("tutti i percorsi: nessun passo con i documenti si completa senza check_pre
     for (const g of gated) {
       const { call } = setup();
       if (p.dipende_da?.some((d) => d.obbligatorio)) continue; // coperto dal test sulle dipendenze
-      const prima = p.passi.slice(0, p.passi.indexOf(g)).map((s) => s.id);
-      const r = call("next_step", { path_id: p.id, completati: [...prima, g.id].join(",") });
-      assert.equal(r.rifiutati?.[0]?.passo, g.id, `${p.id}/${g.id} si è completato senza documenti`);
+      // si dichiarano i passi uno alla volta fino a quello vincolato: senza documenti, a un certo punto si ferma
+      const fino = p.passi.slice(0, p.passi.indexOf(g) + 1).filter((s) => !s.informativo);
+      let rifiuto = null;
+      for (const s of fino) {
+        const r = call("next_step", { path_id: p.id, completati: s.id });
+        rifiuto = r.rifiutati?.find((x) => x.motivo === "documenti_mancanti");
+        if (rifiuto) break;
+      }
+      assert.ok(rifiuto, `${p.id}/${g.id} si è completato senza documenti`);
+      assert.ok(fino.indexOf(p.passi.find((x) => x.id === rifiuto.passo)) <= fino.indexOf(g), `${p.id}: fermato dopo ${g.id}`);
     }
   }
 });

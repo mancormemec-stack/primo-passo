@@ -79,6 +79,8 @@ Un controllo automatico non diventa mai "umano" da solo: l'agente lo dichiara al
 
 Gli strumenti impongono anche i vincoli: i passi si completano solo in ordine, e quelli in cui si presentano i documenti (`richiede_prerequisiti`) solo se i documenti obbligatori (`obbligatorio` diverso da `false`) sono stati dichiarati con `check_prerequisites`. Un id di documento sconosciuto è un errore (con l'elenco degli id validi) e non cambia nulla: prima veniva scartato in silenzio e il documento risultava mancante. I test lo verificano.
 
+**Progressione (Priorità 3, fase 2):** `next_step` registra al massimo UN passo nuovo per chiamata; anche «raccogliere i documenti» (a1) richiede i documenti obbligatori dichiarati; `check_prerequisites` conserva i documenti già dichiarati (per toglierne uno si scrive `-id`). Un passo con `"informativo": true` (oggi a5, «puoi chiedere la CIE») è un'informazione: non si segna, non conta nel «N su M» e non serve per completare il percorso né per sbloccare la carta d'identità, che dipende da a4 (iscrizione). Ogni passo o documento registrato è «dichiarato dall'utente»: la pagina e il foglio lo dicono e non lo presentano mai come verificato.
+
 ## Checklist di verifica (da fare prima della demo)
 
 Per ogni voce di `web/data/percorsi.json` e `web/data/uffici.json` con `"verificato": false`:

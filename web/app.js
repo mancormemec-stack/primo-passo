@@ -1,12 +1,12 @@
 import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.29.0/+esm";
-import { createTools } from "./tools.js?v=4";
-import { creaPino } from "./pino.js?v=4";
-import { creaRegia } from "./pino-regia.js?v=4";
-import { esitoPositivo, contaFatti } from "./pino-state.js?v=4";
+import { createTools } from "./tools.js?v=5";
+import { creaPino } from "./pino.js?v=5";
+import { creaRegia } from "./pino-regia.js?v=5";
+import { esitoPositivo, contaFatti } from "./pino-state.js?v=5";
 import {
   PRINCIPALI, ALTRE, TUTTE, direzione, nomePerAgente, nomeNativo, provataAVoce,
   traduttore, linguaUI, SALUTI, linguaSalvata, salvaLingua,
-} from "./i18n.js?v=4";
+} from "./i18n.js?v=5";
 
 // ID dell'agente ElevenLabs (pubblico per la demo). Si può anche passare come ?agent=...
 const parametri = new URLSearchParams(location.search);
@@ -14,8 +14,8 @@ const AGENT_ID = parametri.get("agent") || "agent_0601m7b42fyaf8ybzmhabg67wy0w";
 
 const $ = (id) => document.getElementById(id);
 const [percorsi, uffici] = await Promise.all([
-  fetch("data/percorsi.json").then((r) => r.json()),
-  fetch("data/uffici.json").then((r) => r.json()),
+  fetch("data/percorsi.json?v=5").then((r) => r.json()),
+  fetch("data/uffici.json?v=5").then((r) => r.json()),
 ]);
 
 // ---------- Stato della pagina ----------
@@ -258,12 +258,30 @@ function renderSteps(state) {
     h.lang = "it";
     const ul = document.createElement("ul");
     ul.lang = "it"; // i passi vengono dai dati verificati, in italiano
+    // L'etichetta è nella lingua dell'interfaccia; il testo del passo resta quello verificato, in italiano.
+    const etichetta = (chiave) => {
+      const tag = document.createElement("small");
+      tag.className = "tag";
+      tag.lang = document.documentElement.lang;
+      tag.textContent = t(chiave);
+      return tag;
+    };
     for (const step of p.passi) {
       const li = document.createElement("li");
       li.dir = "auto";
-      const done = s.completati.includes(step.id);
-      li.textContent = `${done ? "✓" : "○"} ${step.testo}`;
-      if (done) li.className = "done";
+      if (step.informativo) {
+        // Un'informazione non è un passo da fare: niente casella, e distinta nell'aspetto.
+        li.className = "info";
+        li.textContent = `ℹ ${step.testo}`;
+        li.append(etichetta("passo.info"));
+      } else {
+        const done = s.completati.includes(step.id);
+        li.textContent = `${done ? "✓" : "○"} ${step.testo}`;
+        if (done) {
+          li.className = "done";
+          li.append(etichetta("passo.dichiarato")); // registrato sulla parola dell'utente
+        }
+      }
       ul.append(li);
     }
     box.append(h, ul);

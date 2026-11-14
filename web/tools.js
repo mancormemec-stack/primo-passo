@@ -27,6 +27,17 @@ export function riepilogoVerifica(items) {
 
 const tuttiGliElementi = (p) => [...p.prerequisiti, ...p.passi, ...p.scadenze];
 
+// Un passo `informativo` non è un'azione dell'utente: si legge, non si segna come fatto,
+// non conta nel completamento del percorso né nel «N su M».
+export const azioniDi = (p) => p.passi.filter((x) => !x.informativo);
+export const informazioniDi = (p) => p.passi.filter((x) => x.informativo);
+
+// Tutto ciò che si registra è una dichiarazione dell'utente: nessun ufficio l'ha confermato.
+export const ORIGINE = "dichiarato dall'utente";
+const LEGENDA_FOGLIO =
+  "☑ = dichiarato dall'utente: non è verificato da Primo Passo né confermato da un ufficio. ℹ = informazione, non un passo da fare.";
+const NOTA_ORIGINE ="Registrato sulla parola dell'utente («dichiarato dall'utente»): non è verificato da Primo Passo né confermato da un ufficio.";
+
 function avvisoVerifica(n) {
   if (!n.automatico && !n.non_verificato) return undefined;
   return (
@@ -67,7 +78,8 @@ export function createTools(data, effects = {}) {
     return (p.dipende_da || []).map((d) => {
       const dep = getPath(d.percorso);
       const s = state.percorsi[d.percorso];
-      const fatto = s && dep && dep.passi.every((x) => s.completati.includes(x.id));
+      // Un percorso è completato quando lo sono le sue azioni: i passi informativi non contano.
+      const fatto = s && dep && azioniDi(dep).every((x) => s.completati.includes(x.id));
       return {
         percorso: d.percorso,
         titolo: dep?.titolo,
@@ -106,7 +118,7 @@ export function createTools(data, effects = {}) {
         ente: p.ente,
         prima_di_iniziare: dependencies(p),
         prerequisiti: p.prerequisiti.map(itemOut),
-        numero_passi: p.passi.length,
+        numero_passi: azioniDi(p).length,
         scadenze_disponibili: p.scadenze.map((x) => ({ id: x.id, testo: mark(x), stato: statoOf(x), evento: x.evento })),
         verifica,
         avviso_verifica: avvisoVerifica(verifica),
@@ -118,11 +130,15 @@ export function createTools(data, effects = {}) {
     check_prerequisites({ path_id, posseduti }) {
       const p = getPath(path_id);
       if (!p) return unknown(path_id);
+      // I documenti già dichiarati si conservano: ogni chiamata AGGIUNGE quelli nuovi. Per togliere
+      // un documento dichiarato per errore si scrive il suo id preceduto da «-» (es. "-codice_fiscale").
       // Un id sconosciuto non si scarta in silenzio: farebbe risultare "mancante" un documento
       // che l'utente ha (es. "permesso_soggiorno" invece di "permesso_o_ricevuta").
       // Nessun cambiamento di stato finché gli id non sono tutti validi.
       const dati = splitIds(posseduti);
-      const sconosciuti = dati.filter((id) => !p.prerequisiti.some((x) => x.id === id));
+      const daTogliere = dati.filter((x) => x.startsWith("-")).map((x) => x.slice(1).trim());
+      const daAggiungere = dati.filter((x) => !x.startsWith("-"));
+      const sconosciuti = [...daAggiungere, ...daTogliere].filter((id) => !p.prerequisiti.some((x) => x.id === id));
       if (sconosciuti.length) {
         return out({
           errore:
@@ -133,15 +149,17 @@ export function createTools(data, effects = {}) {
         });
       }
       const s = pathState(path_id);
-      s.posseduti = dati;
+      s.posseduti = [...new Set([...s.posseduti, ...daAggiungere])].filter((id) => !daTogliere.includes(id));
       notify();
       const mancanti = p.prerequisiti.filter((x) => !s.posseduti.includes(x.id));
       const obbligatori = mancantiObbligatori(p, s);
       return out({
         ha_tutto: obbligatori.length === 0,
+        dichiarati_dall_utente: s.posseduti,
         mancanti: mancanti.map(itemOut),
         mancanti_obbligatori: obbligatori.map(itemOut),
         dipendenze: dependencies(p).filter((d) => d.stato !== "completato"),
+        nota: NOTA_ORIGINE,
         istruzione: obbligatori.length
           ? "Mancano documenti obbligatori: i passi in cui si presentano i documenti non possono essere segnati come fatti finché non li ha."
           : undefined,
@@ -165,9 +183,15 @@ export function createTools(data, effects = {}) {
       }
       const richiesti = new Set(splitIds(completati));
       const rifiutati = [];
+      const registrati = []; // passi registrati in QUESTA chiamata (al massimo uno)
       p.passi.forEach((step, i) => {
         if (!richiesti.has(step.id) || s.completati.includes(step.id)) return;
-        const prima = p.passi.slice(0, i).filter((x) => !s.completati.includes(x.id));
+        // Un passo informativo si legge, non si segna.
+        if (step.informativo) {
+          rifiutati.push({ passo: step.id, motivo: "informativo" });
+          return;
+        }
+        const prima = p.passi.slice(0, i).filter((x) => !x.informativo && !s.completati.includes(x.id));
         if (prima.length) {
           rifiutati.push({ passo: step.id, motivo: "ordine", da_fare_prima: prima.map((x) => x.id) });
           return;
@@ -179,29 +203,52 @@ export function createTools(data, effects = {}) {
             return;
           }
         }
+        // Un solo passo nuovo per chiamata: niente avanzamenti in blocco per fare prima.
+        if (registrati.length >= 1) {
+          rifiutati.push({ passo: step.id, motivo: "uno_alla_volta" });
+          return;
+        }
         s.completati.push(step.id);
+        registrati.push(step.id);
       });
       notify();
       const rifiuto = rifiutati.length
         ? {
             rifiutati,
             istruzione_rifiuto:
-              "Alcuni passi NON sono stati segnati come fatti: spiega all'utente cosa manca o cosa va fatto prima. Non dire che sono completati.",
+              "Alcuni passi NON sono stati segnati come fatti: spiega all'utente cosa manca o cosa va fatto prima. Non dire che sono completati." +
+              (rifiutati.some((r) => r.motivo === "uno_alla_volta")
+                ? " Si registra UN solo passo per chiamata: richiama next_step per il passo successivo solo se l'utente lo ha dichiarato in modo chiaro."
+                : "") +
+              (rifiutati.some((r) => r.motivo === "informativo")
+                ? " Un passo informativo non è un'azione dell'utente: non si registra, lo si legge come informazione."
+                : ""),
           }
         : {};
-      const prossimo = p.passi.find((x) => !s.completati.includes(x.id));
+      const azioni = azioniDi(p);
+      const comuni = {
+        registrato_ora: registrati.map((id) => ({ id, origine: ORIGINE })),
+        registrati: azioni.filter((x) => s.completati.includes(x.id)).map((x) => x.id),
+        origine_registrazione: NOTA_ORIGINE,
+        fatti: azioni.filter((x) => s.completati.includes(x.id)).length,
+        totale: azioni.length,
+      };
+      const prossimo = azioni.find((x) => !s.completati.includes(x.id));
       if (!prossimo) {
         return out({
           completato: true,
+          ...comuni,
+          informazioni: informazioniDi(p).map((x) => ({ id: x.id, testo: mark(x), stato: statoOf(x) })),
           scadenze_da_ricordare: p.scadenze.map((x) => ({ id: x.id, testo: mark(x), stato: statoOf(x), evento: x.evento })),
-          istruzione: "Proponi create_reminders e prepare_summary.",
+          istruzione:
+            "Hai registrato tutti i passi che l'utente ha dichiarato di aver fatto («dichiarato dall'utente»). Non vuol dire che la pratica sia conclusa o accettata: l'esito lo decide l'ufficio. " +
+            "Le informazioni sono da leggere come tali, non come passi da fare. Proponi create_reminders e prepare_summary.",
           ...rifiuto,
         });
       }
       return out({
         passo: { id: prossimo.id, testo: mark(prossimo), stato: statoOf(prossimo), richiede_prerequisiti: !!prossimo.richiede_prerequisiti },
-        fatti: s.completati.length,
-        totale: p.passi.length,
+        ...comuni,
         ...rifiuto,
       });
     },
@@ -274,7 +321,9 @@ export function createTools(data, effects = {}) {
           errore: `Traduzione mancante o troppo breve. Traduci in ${lingua} TUTTI i documenti e TUTTI i passi qui sotto, nello stesso ordine e senza riassumere, poi richiama prepare_summary con il parametro traduzione.`,
           testi_da_tradurre: {
             documenti: p.prerequisiti.map(mark),
-            passi: p.passi.map(mark),
+            passi: azioniDi(p).map(mark),
+            informazioni: informazioniDi(p).map(mark),
+            legenda: LEGENDA_FOGLIO,
           },
         });
       }
@@ -346,7 +395,9 @@ h1{font-size:20px}h2{font-size:16px;margin-top:20px}ul{list-style:none;padding:0
 .tr{border-top:1px solid #ccc;margin-top:24px;padding-top:12px;white-space:pre-wrap}.nota{font-size:12px;color:#555}</style></head>
 <body><h1>${esc(p.titolo)}</h1><p>${esc(s.ufficio || p.ente)}</p>
 <h2>Documenti da portare</h2><ul>${li(p.prerequisiti, s.posseduti)}</ul>
-<h2>Passi</h2><ul>${li(p.passi, s.completati)}</ul>
+<h2>Passi</h2><ul>${li(azioniDi(p), s.completati)}</ul>
+${informazioniDi(p).length ? `<h2>Informazioni</h2><ul>${informazioniDi(p).map((x) => `<li>ℹ ${esc(mark(x))}</li>`).join("")}</ul>` : ""}
+<p class="nota">${esc(LEGENDA_FOGLIO)}</p>
 ${traduzione ? `<div class="tr"><strong>${esc(lingua || "")}</strong>\n${esc(traduzione)}<p class="nota">Traduzione automatica: in caso di dubbio vale il testo italiano.</p></div>` : ""}
 ${sourcesHtml(p, esc)}
 <p class="nota">Foglio informativo generato da un assistente automatico. Non sostituisce gli uffici. Nessun dato personale è stato salvato.</p>

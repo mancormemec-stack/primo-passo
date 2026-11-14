@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#FAF9F6">
   <title>Primo Passo</title>
-  <link rel="stylesheet" href="pino.css?v=4">
+  <link rel="stylesheet" href="pino.css?v=5">
   <style>
     :root {
       --bg:#FAF9F6; --fg:#202B30; --muted:#5E6A6F; --card:#fff; --line:#ECE8E1; --input:#D9D4CB;
@@ -99,6 +99,8 @@
     #steps h3 { font-size:15px; margin:12px 0 4px; }
     #steps ul { list-style:none; margin:0; padding:0; }
     #steps li { margin:6px 0; padding-inline-start:4px; }
+    #steps li.info { color:var(--muted); font-style:italic; }
+    #steps .tag { display:block; font-size:12px; font-style:normal; color:var(--muted); }
     .done { color:var(--ok); }
     .privacy { text-align:center; margin-top:16px; }
     #foglio { position:fixed; inset:0; z-index:10; background:var(--bg); display:flex; flex-direction:column; }
@@ -161,6 +163,6 @@
     </main>
     <p class="muted privacy" data-t="privacy"></p>
   </div>
-  <script type="module" src="app.js?v=4"></script>
+  <script type="module" src="app.js?v=5"></script>
 </body>
 </html>

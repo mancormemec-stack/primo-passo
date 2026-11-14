@@ -74,27 +74,33 @@ test("ogni informazione nuova arriva con il suo stato", () => {
     for (const d of p.dipende_da || []) {
       possiedi(call, d.percorso);
       const dip = data.percorsi.percorsi.find((x) => x.id === d.percorso);
-      call("next_step", { path_id: d.percorso, completati: dip.passi.map((x) => x.id).join(",") });
+      if (dip.prerequisiti.some((x) => x.obbligatorio !== false)) possiedi(call, d.percorso);
+      for (const x of dip.passi.filter((x) => !x.informativo)) call("next_step", { path_id: d.percorso, completati: x.id });
     }
     possiedi(call, p.id);
     const fatti = [];
-    for (const passo of p.passi) {
+    for (const passo of p.passi.filter((x) => !x.informativo)) {
       const r = call("next_step", { path_id: p.id, completati: fatti.join(",") });
       assert.equal(r.passo.id, passo.id);
       assert.ok(STATI.includes(r.passo.stato), `${p.id}/${passo.id} senza stato`);
       fatti.push(passo.id);
     }
     const fine = call("next_step", { path_id: p.id, completati: fatti.join(",") });
+    assert.equal(fine.completato, true, `${p.id}: i passi informativi non devono impedire il completamento`);
     for (const x of fine.scadenze_da_ricordare) assert.ok(STATI.includes(x.stato), `${p.id}/${x.id}`);
+    for (const x of fine.informazioni) assert.ok(STATI.includes(x.stato), `${p.id}/${x.id}`);
   }
 });
 
 test("le voci non verificate restano marcate nel testo, anche se l'agente non legge lo stato", () => {
   const call = setup();
   possiedi(call, "iscrizione_anagrafica");
-  const r = call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3,a4" });
-  assert.equal(r.passo.stato, "non_verificato");
-  assert.match(r.passo.testo, /NON VERIFICATO/);
+  let r;
+  for (const id of ["a1", "a2", "a3", "a4"]) r = call("next_step", { path_id: "iscrizione_anagrafica", completati: id });
+  // a5 è un'informazione non verificata: resta marcata anche se non è più un passo da segnare
+  assert.equal(r.completato, true);
+  assert.equal(r.informazioni[0].stato, "non_verificato");
+  assert.match(r.informazioni[0].testo, /NON VERIFICATO/);
 });
 
 test("l'ufficio trovato ha il suo stato e l'avviso, ma non è un nuovo avviso di percorso", () => {
@@ -120,7 +126,7 @@ test("i documenti si verificano dopo start_path, con gli id esatti, e gli id sba
 // ---------- Priorità 3, fase 1: avanzamento senza deduzioni ----------
 
 const avanz = regola("- Avanzamento, senza dedurre.");
-const docum = regola("- Quando chiami `check_prerequisites` passa sempre");
+const docum = regola("- Lo strumento `check_prerequisites` conserva i documenti già dichiarati");
 const dichiarati = regola("- Passi dichiarati dall'utente.");
 const parlaDi = regola("- Parla di ciò che l'utente ti ha detto");
 
@@ -149,10 +155,12 @@ test("avanzamento: lo strumento non «conferma» ciò che fa l'utente", () => {
   assert.match(avanz, /Non dire mai che lo strumento «conferma» o «verifica» ciò che fa l'utente/);
 });
 
-test("documenti: si passa sempre l'elenco completo dichiarato finora, con le correzioni", () => {
+test("documenti: lo strumento conserva l'elenco dichiarato; si passano i nuovi e le correzioni con «-»", () => {
   assert.ok(docum, "manca la regola sull'elenco dei documenti");
-  assert.match(docum, /elenco COMPLETO dei documenti che l'utente ha dichiarato finora, non solo quelli nuovi/);
-  assert.match(docum, /se l'utente corregge/);
+  assert.match(docum, /conserva i documenti già dichiarati: ogni chiamata aggiunge quelli nuovi/);
+  assert.match(docum, /non serve ripetere gli altri/);
+  assert.match(docum, /Se l'utente corregge/);
+  assert.match(docum, /con un «-» davanti, per esempio `-codice_fiscale`/);
   assert.match(docum, /«ho tutto» dopo una domanda su tre documenti vale per quei tre/);
 });
 
@@ -229,8 +237,8 @@ test("i documenti si nominano con il nome semplice; il testo completo solo su ri
 test("l'ufficio si dice per intero una volta sola; avviso e «non sostituisco gli uffici» in una frase", () => {
   assert.ok(!/ripeti il nome due volte/.test(prompt));
   assert.match(prompt, /Il nome dell'ufficio lo dici per intero una sola volta/);
-  assert.match(regola("- All'inizio dici"), /nella stessa frase dell'avviso sulle fonti/);
-  assert.match(avviso, /in UNA frase breve/);
+  assert.match(regola("- All'inizio dici"), /nella stessa frase dell'avviso sulle fonti, mai in una frase a parte/);
+  assert.match(avviso, /in UNA SOLA frase breve, la stessa in cui dici che sei un assistente automatico/);
 });
 
 test("regole vecchie sostituite non sono rimaste nel prompt", () => {
@@ -257,6 +265,41 @@ test("le regole della Priorità 1 ci sono ancora", () => {
     "Ti presenti UNA sola volta",
   ];
   for (const a of ancore) assert.ok(prompt.includes(a), `manca: ${a}`);
+});
+
+// ---------- Priorità 3, fase 2: avviso breve, niente domande ripetute, informazioni ----------
+
+test("avviso iniziale: una sola frase, con un esempio che non dice mai «verificato»", () => {
+  assert.match(avviso, /Non aggiungere altre frasi su questo/);
+  const esempio = avviso.match(/«Sono un assistente automatico[^»]*»/)?.[0] || "";
+  assert.ok(esempio, "manca la frase di esempio");
+  assert.equal(esempio.replace(/[«»]/g, "").split(/[.!?]/).filter((x) => x.trim()).length, 1, "l'esempio è UNA sola frase");
+  assert.match(esempio, /non ancora da una persona/);
+  assert.ok(!/verificat|confermat/i.test(esempio.replace(/confermale/, "")), "l'esempio non deve dire verificato");
+  assert.ok(esempio.length < 190, `l'esempio è breve (${esempio.length} caratteri)`);
+});
+
+test("non si ripete una domanda già posta; se ancora ambiguo, una domanda diversa e nulla registrato", () => {
+  const r = regola("- Non ripetere una domanda sullo stesso documento o passaggio");
+  assert.ok(r, "manca la regola sulle domande ripetute");
+  assert.match(r, /dopo averla già posta/);
+  assert.match(r, /fai una domanda diversa e più precisa/);
+  assert.match(r, /non registrare nulla/);
+});
+
+test("le informazioni di next_step non sono passi: non si chiedono, non si registrano, non si contano", () => {
+  const r = regola("- Le `informazioni` che dà `next_step`");
+  assert.ok(r, "manca la regola sulle informazioni");
+  assert.match(r, /non sono passi da fare/);
+  assert.match(r, /non chiedere all'utente se le ha fatte, non registrarle e non contarle nel «N su M»/);
+  assert.match(r, /con il loro stato di verifica/);
+});
+
+test("l'avviso e le regole di affidabilità della Priorità 1 restano (fase 2)", () => {
+  assert.match(avviso, /Poi non ripeterlo nei messaggi successivi della stessa conversazione/);
+  assert.match(avviso, /Non nascondere mai lo stato di un'informazione nuova/);
+  assert.match(avviso, /Non dire mai «verificato», «confermato» o «controllato da una persona» se lo stato non è `umano`/);
+  assert.match(regola("- Segui l'ordine dei passi"), /lo sblocca solo lo strumento, mai una tua frase/);
 });
 
 // ---------- sincronizzazione con il prompt pubblicato ----------

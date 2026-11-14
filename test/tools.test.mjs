@@ -24,6 +24,13 @@ function possiedi(call, pathId) {
   return call("check_prerequisites", { path_id: pathId, posseduti: ids });
 }
 
+// Registra i passi uno alla volta, come impone next_step: una chiamata per ogni passo dichiarato.
+function completa(call, pathId, ids) {
+  let r;
+  for (const id of ids.split(",")) r = call("next_step", { path_id: pathId, completati: id });
+  return r;
+}
+
 test("list_paths elenca tutti i percorsi", () => {
   const { call } = setup();
   const ids = call("list_paths").map((p) => p.id);
@@ -40,9 +47,12 @@ test("solo gli elementi non verificati sono marcati", () => {
   const r = call("start_path", { path_id: "iscrizione_anagrafica" });
   assert.ok(r.prerequisiti.every((p) => !p.testo.includes("NON VERIFICATO")));
   possiedi(call, "iscrizione_anagrafica");
-  const ultimo = call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3,a4" });
-  assert.equal(ultimo.passo.id, "a5");
-  assert.ok(ultimo.passo.testo.includes("NON VERIFICATO"));
+  const ultimo = completa(call, "iscrizione_anagrafica", "a1,a2,a3,a4");
+  // a5 è un'informazione: non si segna, ma si legge con la sua etichetta
+  assert.equal(ultimo.completato, true);
+  assert.equal(ultimo.informazioni[0].id, "a5");
+  assert.ok(ultimo.informazioni[0].testo.includes("NON VERIFICATO"));
+  assert.equal(ultimo.informazioni[0].stato, "non_verificato");
 });
 
 test("check_prerequisites calcola i mancanti", () => {
@@ -56,9 +66,9 @@ test("check_prerequisites calcola i mancanti", () => {
 test("next_step segue l'ordine e poi propone le scadenze", () => {
   const { call } = setup();
   assert.equal(call("next_step", { path_id: "iscrizione_anagrafica" }).passo.id, "a1");
-  assert.equal(call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2" }).passo.id, "a3");
   possiedi(call, "iscrizione_anagrafica");
-  const fine = call("next_step", { path_id: "iscrizione_anagrafica", completati: "a3,a4,a5" });
+  assert.equal(completa(call, "iscrizione_anagrafica", "a1,a2").passo.id, "a3");
+  const fine = completa(call, "iscrizione_anagrafica", "a3,a4");
   assert.equal(fine.completato, true);
   assert.equal(fine.scadenze_da_ricordare[0].id, "aggiorna_dopo_rinnovo");
 });
@@ -67,7 +77,7 @@ test("la carta d'identità è bloccata finché manca la residenza", () => {
   const { call } = setup();
   assert.equal(call("next_step", { path_id: "carta_identita" }).bloccato, true);
   possiedi(call, "iscrizione_anagrafica");
-  call("next_step", { path_id: "iscrizione_anagrafica", completati: "a1,a2,a3,a4,a5" });
+  completa(call, "iscrizione_anagrafica", "a1,a2,a3,a4");
   assert.equal(call("next_step", { path_id: "carta_identita" }).passo.id, "c1");
 });
 
