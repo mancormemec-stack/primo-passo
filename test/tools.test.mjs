@@ -97,6 +97,20 @@ test("create_reminders crea un .ics alla data giusta", () => {
   assert.match(call("create_reminders", { path_id: "rinnovo_permesso_lavoro", scadenza_id: "x", data_evento: "2027-03-31" }).errore, /sconosciuta/);
 });
 
+test("start_path dà le scadenze e il promemoria si crea senza finire il percorso", () => {
+  const { call, fx } = setup();
+  for (const p of data.percorsi.percorsi) {
+    const s = call("start_path", { path_id: p.id });
+    assert.deepEqual(s.scadenze_disponibili.map((x) => x.id), p.scadenze.map((x) => x.id));
+    for (const x of s.scadenze_disponibili) assert.ok(["umano", "automatico", "non_verificato"].includes(x.stato), `${p.id}/${x.id}`);
+  }
+  const p = data.percorsi.percorsi.find((x) => x.scadenze.length);
+  const s = call("start_path", { path_id: p.id });
+  const r = call("create_reminders", { path_id: p.id, scadenza_id: s.scadenze_disponibili[0].id, data_evento: "2027-03-31" });
+  assert.equal(r.creato, true);
+  assert.equal(fx.downloads.length, 1);
+});
+
 test("prepare_summary produce HTML con escaping", () => {
   const { call, fx } = setup();
   const lunga = "<b>pași</b> " + "x".repeat(200);
