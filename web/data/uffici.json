@@ -59,6 +59,15 @@
       "controllo": "automatico",
       "fonte": "https://questure.poliziadistato.it/servizio/orari/5730dc9d12479962542426 ; https://www.poste.it/guida-rilascio-e-rinnovo-permesso-di-soggiorno ; https://www.portaleimmigrazione.it/",
       "verificato_il": "2026-11-13"
+    },
+    "agenzia_entrate": {
+      "nome": "Agenzia delle Entrate - ufficio territoriale (a Roma ce n'è più di uno: va bene uno qualsiasi)",
+      "dove": "Un qualunque ufficio territoriale dell'Agenzia delle Entrate, solo su appuntamento. Chi non ha il codice fiscale non può prenotare dal sito: chiede l'appuntamento con l'e-mail o il telefono dell'ufficio, scritti nella pagina «Rilascio codice fiscale - richiesta appuntamento»: https://www.agenziaentrate.gov.it/portale/-/rilascio-codice-fiscale-richiesta-appuntamento. Indirizzi e orari degli uffici sono sul sito dell'Agenzia.",
+      "come": "La prima volta si va di persona, con il modello AA4/8 firmato e un documento valido. L'Agenzia ha una sezione per gli stranieri, anche in inglese, spagnolo, tedesco e francese: https://www.agenziaentrate.gov.it/portale/agenzia/amministrazione-trasparente/servizi-erogati/carta-servizi/servizi-per-gli-stranieri",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://www.agenziaentrate.gov.it/portale/codice-fiscale-e-tessera-sanitaria/che-cos-cittadini ; https://www.agenziaentrate.gov.it/portale/-/rilascio-codice-fiscale-richiesta-appuntamento ; https://www.agenziaentrate.gov.it/portale/agenzia/amministrazione-trasparente/servizi-erogati/carta-servizi/servizi-per-gli-stranieri",
+      "verificato_il": "2026-11-14"
     }
   },
   "aiuto_gratuito": [

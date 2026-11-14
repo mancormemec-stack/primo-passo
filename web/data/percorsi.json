@@ -105,6 +105,26 @@
       ],
       "scadenze": [],
       "ufficio": "anagrafe_municipio"
+    },
+    {
+      "id": "codice_fiscale",
+      "titolo": "Codice fiscale (per chi non ce l'ha ancora)",
+      "ente": "Agenzia delle Entrate (o Questura, o Sportello unico per l'immigrazione)",
+      "quando_si_applica": "Persona straniera, anche cittadina UE, che vive o soggiorna in Italia e non ha ancora il codice fiscale, che serve per residenza, tessera sanitaria e carta d'identità. Spesso ce l'ha già: il codice fiscale non scade, la Questura lo attribuisce a chi chiede o rinnova il permesso di soggiorno e lo Sportello unico per l'immigrazione a chi entra per lavoro subordinato o ricongiungimento familiare (all'inizio può essere solo di numeri, provvisorio: quello definitivo arriva con il permesso di soggiorno).",
+      "non_si_applica": "Chi ha già il codice fiscale, anche provvisorio, perché è stato attribuito dalla Questura o dallo Sportello unico per l'immigrazione. Chi ha dati sbagliati sul codice fiscale: se è iscritto all'anagrafe si rivolge al Comune, altrimenti a un ufficio dell'Agenzia delle Entrate. Chi si trova all'estero: lo chiede al consolato italiano.",
+      "dipende_da": [],
+      "prerequisiti": [
+        {"id": "documento_riconoscimento", "testo": "Un documento valido, uno a scelta: il passaporto (con il visto, se serve) o un altro documento riconosciuto in Italia; il permesso di soggiorno valido; l'attestazione d'identità con foto rilasciata dal consolato del tuo Paese in Italia; la carta d'identità italiana", "verificato": true, "controllo": "automatico", "fonte": "https://www.agenziaentrate.gov.it/portale/codice-fiscale-e-tessera-sanitaria/che-cos-cittadini ; https://www.agenziaentrate.gov.it/portale/documents/20143/233505/Folder_CodiceFiscaleStranieri_08%2B03%2B23.pdf/218dc638-ced1-3b2d-f5f2-912686b1f7fe", "verificato_il": "2026-11-14"}
+      ],
+      "passi": [
+        {"id": "cf1", "richiede_prerequisiti": true, "testo": "Raccogli i documenti dei prerequisiti.", "verificato": true, "fonte": "interno", "verificato_il": null},
+        {"id": "cf2", "testo": "Scarica e compila il modello AA4/8, poi firmalo: lo trovi nel sito dell'Agenzia delle Entrate, pagina «Modello e istruzioni AA4/8». La richiesta va motivata e, se non sei cittadino UE, devi poter dimostrare di avere il diritto di stare in Italia, anche solo per un periodo (per esempio con il permesso di soggiorno o la ricevuta del rinnovo)", "verificato": true, "controllo": "automatico", "fonte": "https://www.agenziaentrate.gov.it/portale/documents/20143/233505/Folder_CodiceFiscaleStranieri_08%2B03%2B23.pdf/218dc638-ced1-3b2d-f5f2-912686b1f7fe ; https://www.agenziaentrate.gov.it/portale/web/english/nse/individuals/tax-identification-number-for-foreign-citizens", "verificato_il": "2026-11-14"},
+        {"id": "cf3", "testo": "Prenota un appuntamento a un qualunque ufficio territoriale dell'Agenzia delle Entrate. Chi non ha ancora il codice fiscale non può prenotare dal sito: chiede l'appuntamento con l'e-mail dell'ufficio o con il numero di telefono dedicato, che trovi nella pagina «Rilascio codice fiscale - richiesta appuntamento»", "verificato": true, "controllo": "automatico", "fonte": "https://www.agenziaentrate.gov.it/portale/-/rilascio-codice-fiscale-richiesta-appuntamento ; https://www.agenziaentrate.gov.it/portale/codice-fiscale-e-tessera-sanitaria/che-cos-cittadini", "verificato_il": "2026-11-14"},
+        {"id": "cf4", "testo": "Vai all'appuntamento di persona, con il modello AA4/8 firmato e il documento. Alla prima richiesta bisogna presentarsi allo sportello, per controllare l'identità", "verificato": true, "controllo": "automatico", "fonte": "https://www.agenziaentrate.gov.it/portale/web/english/nse/individuals/tax-identification-number-for-foreign-citizens ; https://www.agenziaentrate.gov.it/portale/documents/20143/233505/Folder_CodiceFiscaleStranieri_08%2B03%2B23.pdf/218dc638-ced1-3b2d-f5f2-912686b1f7fe", "verificato_il": "2026-11-14"},
+        {"id": "cf5", "informativo": true, "testo": "Dopo l'attribuzione ricevi il certificato di attribuzione del codice fiscale, che puoi usare subito. A casa arriva poi la tessera sanitaria, se sei iscritto al Servizio Sanitario Nazionale, oppure il tesserino del codice fiscale. Vale solo il codice rilasciato dall'Agenzia delle Entrate: non quelli «calcolati» da siti o programmi", "verificato": true, "controllo": "automatico", "fonte": "https://www.agenziaentrate.gov.it/portale/codice-fiscale-e-tessera-sanitaria/che-cos-cittadini ; https://www.agenziaentrate.gov.it/portale/documents/20143/233505/Folder_CodiceFiscaleStranieri_08%2B03%2B23.pdf/218dc638-ced1-3b2d-f5f2-912686b1f7fe", "verificato_il": "2026-11-14"}
+      ],
+      "scadenze": [],
+      "ufficio": "agenzia_entrate"
     }
   ]
 }
