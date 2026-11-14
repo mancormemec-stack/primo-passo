@@ -107,9 +107,11 @@ export function createTools(data, effects = {}) {
         prima_di_iniziare: dependencies(p),
         prerequisiti: p.prerequisiti.map(itemOut),
         numero_passi: p.passi.length,
+        scadenze_disponibili: p.scadenze.map((x) => ({ id: x.id, testo: mark(x), stato: statoOf(x), evento: x.evento })),
         verifica,
         avviso_verifica: avvisoVerifica(verifica),
-        istruzione: "Chiedi all'utente quali prerequisiti ha, poi chiama check_prerequisites.",
+        istruzione:
+          "Chiedi all'utente quali prerequisiti ha, poi chiama check_prerequisites. Le scadenze di scadenze_disponibili si possono ricordare con create_reminders appena l'utente dà la data dell'evento, senza aspettare la fine del percorso.",
       });
     },
 
