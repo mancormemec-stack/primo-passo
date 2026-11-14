@@ -57,7 +57,7 @@
       "come": "La domanda di rinnovo si presenta con il kit a uno sportello postale 'Sportello Amico'. Dopo la spedizione ricevi una lettera con data, ora e luogo dell'appuntamento in Questura (se non è possibile fissarlo, arriva una raccomandata). Controlla la data della convocazione sul Portale Immigrazione con i codici della ricevuta prima di andare.",
       "verificato": true,
       "controllo": "automatico",
-      "fonte": "https://questure.poliziadistato.it/servizio/orari/5730dc9d12479962542426 ; https://www.poste.it/guida-rilascio-e-rinnovo-permesso-di-soggiorno ; https://portaleimmigrazione.it/",
+      "fonte": "https://questure.poliziadistato.it/servizio/orari/5730dc9d12479962542426 ; https://www.poste.it/guida-rilascio-e-rinnovo-permesso-di-soggiorno ; https://www.portaleimmigrazione.it/",
       "verificato_il": "2026-11-13"
     }
   },
@@ -68,7 +68,7 @@
       "contatto": "Elenco di Patronati e Comuni per provincia e CAP: https://www.portaleimmigrazione.it/ITA/ricercastrutture.html ; Contact center del Portale Immigrazione 800 200 309. ACLI Roma, Patronato: via Prospero Alpino 20, 00154 Roma, tel. 06 57087052, roma@patronato.acli.it",
       "verificato": true,
       "controllo": "automatico",
-      "fonte": "https://portaleimmigrazione.it/ ; https://www.portaleimmigrazione.it/ITA/nuovaProcedura.html ; https://www.acliromaservizi.it/servizio/permesso-e-carta-di-soggiorno/",
+      "fonte": "https://www.portaleimmigrazione.it/ ; https://www.portaleimmigrazione.it/ITA/nuovaProcedura.html ; https://www.acliromaservizi.it/servizio/permesso-e-carta-di-soggiorno/",
       "verificato_il": "2026-11-13"
     },
     {
