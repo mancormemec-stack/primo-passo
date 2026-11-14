@@ -137,7 +137,7 @@
   }
   async function cercaPosizione() {
     try {
-      const { locateInBrowser } = await import("./tools.js?v=8");
+      const { locateInBrowser } = await import("./tools.js?v=9");
       const r = await locateInBrowser();
       if (r && r.stato === "ok" && r.municipio && MUNICIPI_OK.test(r.municipio)) {
         globalThis.__ppMunicipio = r.municipio;
