@@ -110,7 +110,7 @@
 #dock .mic svg { width: 32px; height: 32px; }
 #app[data-pino="thinking"] #dock .mic { background: #173F46; }
 #app[data-vista="pino"] .chat { display: none; }
-#app[data-vista="pino"][data-chat] .chat { display: flex; flex-direction: column; position: absolute; z-index: 6; inset: 96px 12px 200px; margin: 0; box-shadow: 0 14px 40px rgb(32 43 48 / .28); }
+#app[data-vista="pino"][data-chat] .chat { display: flex; flex-direction: column; position: absolute; z-index: 6; top: var(--chat-top, 150px); left: 12px; right: 12px; bottom: var(--chat-fondo, 200px); margin: 0; box-shadow: 0 14px 40px rgb(32 43 48 / .28); }
 #app[data-chat] #log { flex: 1; max-height: none; }
 #app:not([data-vista="pino"]) #fumetto, #app:not([data-vista="pino"]) #onde, #app:not([data-vista="pino"]) #dock { display: none; }
 #tabbar { position: static; margin: 10px 0 0; height: 60px; padding: 6px; border-radius: 999px; }

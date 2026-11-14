@@ -170,6 +170,13 @@
     const t = testoFumetto();
     if (fu.textContent !== t) fu.textContent = t;
     fu.hidden = !t;
+    const top = (fu.hidden ? 60 : fu.offsetTop + fu.offsetHeight + 12) + "px";
+    if (app.style.getPropertyValue("--chat-top") !== top) app.style.setProperty("--chat-top", top);
+    const dk = $("dock");
+    if (dk && dk.offsetHeight) {
+      const fondo = Math.max(120, app.scrollHeight - dk.offsetTop + 30) + "px";
+      if (app.style.getPropertyValue("--chat-fondo") !== fondo) app.style.setProperty("--chat-fondo", fondo);
+    }
     const st = statoPino();
     if (app.dataset.pino !== st) app.dataset.pino = st;
     const mic = document.querySelector('#dock .mic');
