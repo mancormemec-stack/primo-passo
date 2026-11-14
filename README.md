@@ -34,7 +34,7 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
 
 ### Interfaccia e Pino
 
-- **Prima schermata:** la lingua è obbligatoria (6 lingue provate più ricerca tra le altre 83). La scelta resta solo in questo browser; `?lang=it` la salta in demo, "Cambia lingua" la riapre.
+- **Prima schermata:** la lingua è obbligatoria: la ricerca sta sotto Pino e si sceglie tra tutte le 89 lingue, ognuna con la sua bandiera (le 6 principali in griglia, le altre in un elenco scorrevole). La scelta resta solo in questo browser; `?lang=it` la salta in demo, "Cambia lingua" la riapre.
 - **Pino** ([web/pino.js](web/pino.js), [web/pino.css](web/pino.css)) è un unico SVG, lo stesso del prototipo Lovable, usato in tutte le schermate: cambia solo `data-stato`. Anteprima dei cinque stati: [web/pino.html](web/pino.html).
 - **Stati:** li decide [web/pino-state.js](web/pino-state.js) solo da eventi reali, senza DOM (testato):
   - idle: nessuna sessione;
@@ -57,7 +57,7 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
    - provate prima `node scripts/crea-agente.mjs --dry-run`, che non invia nulla;
    - poi lanciate lo script con la chiave come variabile d'ambiente, nel terminale (non salvatela in nessun file): `ELEVENLABS_API_KEY=... node scripts/crea-agente.mjs`.
 
-   Lo script crea gli 8 client tool definiti in [agent/tools.json](agent/tools.json) e l'agente con il prompt di [agent/prompt-sistema.md](agent/prompt-sistema.md), e stampa l'ID dell'agente.
+   Lo script crea i 9 client tool definiti in [agent/tools.json](agent/tools.json) e l'agente con il prompt di [agent/prompt-sistema.md](agent/prompt-sistema.md), e stampa l'ID dell'agente.
 
    **Il modo manuale** è descritto in [agent/tool-elevenlabs.md](agent/tool-elevenlabs.md). Il webhook `check_updates` verso Exa va comunque configurato a mano dal pannello, perché usa un Secret.
 **Aggiornare l'agente già creato:** dopo ogni modifica a `agent/prompt-sistema.md` lanciate `ELEVENLABS_API_KEY=... node scripts/aggiorna-agente.mjs` (provate prima con `--dry-run`). Lo script aggiorna prompt, modello LLM e domini ammessi, rinomina l'agente in Pino e svuota il primo messaggio: il saluto lo genera l'LLM nella lingua scelta, quando l'app manda il messaggio di avvio `[AVVIO]`.
@@ -131,7 +131,7 @@ Ordine di prova, 2-3 prove di fila per ciascuna:
 4. **Arabo** e **spagnolo** (Perù, Ecuador).
 5. Cinese e hindi, se c'è tempo.
 
-La prima schermata ha 89 lingue (elenco in `web/i18n.js`): le 6 principali e, sotto "Altre lingue", il bengalese più quelle che ElevenLabs elenca per i modelli v4 (`eleven_v4` e `eleven_v4_turbo`), in ordine alfabetico. Nell'agente ne sono abilitate 88 (`language_presets`, tutte con primo messaggio vuoto: il saluto lo scrive l'LLM). Mancano fula, lingala, cebuano e kamba, i cui codici ElevenLabs rifiuta, e albanese e singalese, che non risultano nelle liste. In testo ho provato, per esempio, spagnolo, urdu, curdo sorani, wolof e cantonese; a voce nessuna lingua nuova è stata provata. Una lingua nuova va aggiunta sia in `web/i18n.js` sia nell'agente, e serve un modello vocale v3 o v4: Flash v2.5 e Multilingual v2 non coprono, per esempio, bengalese, urdu, persiano o swahili.
+La prima schermata ha 89 lingue (elenco in `web/i18n.js`): le 6 principali in griglia e, nell'elenco sotto la ricerca, il bengalese più quelle che ElevenLabs elenca per i modelli v4 (`eleven_v4` e `eleven_v4_turbo`), in ordine alfabetico. Nell'agente ne sono abilitate 88 (`language_presets`, tutte con primo messaggio vuoto: il saluto lo scrive l'LLM). Mancano fula, lingala, cebuano e kamba, i cui codici ElevenLabs rifiuta, e albanese e singalese, che non risultano nelle liste. In testo ho provato, per esempio, spagnolo, urdu, curdo sorani, wolof e cantonese; a voce nessuna lingua nuova è stata provata. Una lingua nuova va aggiunta sia in `web/i18n.js` sia nell'agente, e serve un modello vocale v3 o v4: Flash v2.5 e Multilingual v2 non coprono, per esempio, bengalese, urdu, persiano o swahili.
 
 Per ogni lingua controllate: l'agente fa la domanda sulla cittadinanza UE una sola volta, il `NON VERIFICATO` viene detto, il foglio tradotto contiene tutti i documenti e tutti i passi.
 

@@ -1,4 +1,4 @@
-// Crea su ElevenLabs gli 8 client tool e l'agente "Primo Passo".
+// Crea su ElevenLabs i 9 client tool e l'agente "Primo Passo".
 //
 // Uso (la chiave resta solo nella vostra shell, mai nel codice):
 //   ELEVENLABS_API_KEY=... node scripts/crea-agente.mjs

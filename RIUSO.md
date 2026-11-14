@@ -13,7 +13,7 @@ Non servono server, database, account per gli utenti né altre chiavi.
 ## Passi (30-45 minuti)
 
 1. **Copia la repository:** fai un fork (o clonala) e dalla cartella lancia `npm test`. Se i test passano, i dati e gli strumenti sono a posto.
-2. **Crea il tuo agente:** `ELEVENLABS_API_KEY=... node scripts/crea-agente.mjs --dry-run` per provare senza inviare nulla, poi lo stesso comando senza `--dry-run`. La chiave si mette solo come variabile d'ambiente nel terminale e non va mai salvata in un file. Lo script crea gli 8 strumenti di [agent/tools.json](agent/tools.json) e l'agente con il prompt di [agent/prompt-sistema.md](agent/prompt-sistema.md), e stampa l'ID dell'agente.
+2. **Crea il tuo agente:** `ELEVENLABS_API_KEY=... node scripts/crea-agente.mjs --dry-run` per provare senza inviare nulla, poi lo stesso comando senza `--dry-run`. La chiave si mette solo come variabile d'ambiente nel terminale e non va mai salvata in un file. Lo script crea i 9 strumenti di [agent/tools.json](agent/tools.json) e l'agente con il prompt di [agent/prompt-sistema.md](agent/prompt-sistema.md), e stampa l'ID dell'agente.
 3. **Imposta l'agente:** lo script crea la base; il resto si applica dal pannello ElevenLabs (o via API) con i valori della tabella qui sotto.
 4. **Aggiungi le lingue:** l'interfaccia ne offre 89. L'agente deve avere come lingue aggiuntive i codici dell'elenco qui sotto (italiano è la lingua di base), con il primo messaggio vuoto.
 5. **Collega il sito all'agente:** scrivi l'ID in `web/app.js` (costante `AGENT_ID`) oppure apri la pagina con `?agent=ID`. Finché non lo fai, il sito prova a usare l'agente originale, che accetta richieste solo dal suo dominio.
