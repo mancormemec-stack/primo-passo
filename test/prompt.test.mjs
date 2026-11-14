@@ -349,3 +349,9 @@ test("l'impronta ignora spazi e righe vuote che l'editor di ElevenLabs cambia", 
   assert.notDeepEqual(impronta("a\nb"), impronta("a\nc"));
   assert.ok(impronta(prompt).len > 1000);
 });
+
+test("avvio: se l'utente parla insieme a [AVVIO] Pino risponde anche a lui, non solo alla presentazione", () => {
+  assert.match(prompt, /insieme a \[AVVIO\] \(o subito dopo, prima che tu abbia parlato\) c'è già qualcosa detto dall'utente/);
+  assert.match(prompt, /a «come stai\?»: «Bene, grazie!»/);
+  assert.match(prompt, /non più di due frasi brevi/);
+});
