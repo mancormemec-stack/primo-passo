@@ -10,19 +10,45 @@
     lingua: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.7 2.6 15.3 0 18M12 3c-2.6 2.7-2.6 15.3 0 18"/></svg>',
   };
 
-  // ---------- Barra in basso: Pino, Percorso, Lingua ----------
+  // ---------- Barra in basso come nella demo: Pino, Percorso, Profilo ----------
+  // Tre viste dello stesso schermo: si mostra una parte alla volta, nulla viene ricreato.
+  const SVG = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
+  ICONE.profilo = SVG('<circle cx="12" cy="8" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/>');
+  const VOCI = ["pino", "percorso", "profilo"];
+  function testo(id, vuoto) { const e = $(id); return (e && e.textContent.trim()) || vuoto; }
   function etichette() {
     const nav = $("tabbar");
     if (!nav) return;
-    const titoloPercorso = ($("steps") && $("steps").querySelector("h2") && $("steps").querySelector("h2").textContent.trim()) || "Percorso";
-    const lingua = ($("lingua-nome") && $("lingua-nome").textContent.trim()) || "Lingua";
-    const mappa = { pino: "Pino", percorso: titoloPercorso, lingua };
+    const h2 = $("steps") && $("steps").querySelector("h2");
+    const mappa = { pino: "Pino", percorso: (h2 && h2.textContent.trim()) || "Percorso", profilo: testo("lingua-nome", "Profilo") };
     nav.querySelectorAll("button").forEach((b) => {
       const t = mappa[b.dataset.voce];
       const span = b.querySelector("span");
       if (span && span.textContent !== t) span.textContent = t;
       b.setAttribute("aria-label", t);
     });
+    const riga = $("profilo-lingua");
+    if (riga) { const n = riga.querySelector(".nome"); if (n && n.textContent !== mappa.profilo) n.textContent = mappa.profilo; }
+  }
+  function vista(v) {
+    const app = $("app");
+    if (!app) return;
+    app.dataset.vista = v;
+    const nav = $("tabbar");
+    if (nav) nav.querySelectorAll("button").forEach((b) => b.setAttribute("aria-selected", b.dataset.voce === v ? "true" : "false"));
+    if (v === "percorso") { const b = nav && nav.querySelector('[data-voce="percorso"]'); if (b) b.classList.remove("novita"); }
+    if (app.scrollTo) app.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0 });
+  }
+  function profilo() {
+    if ($("profilo")) return;
+    const main = $("app").querySelector("main");
+    if (!main) return;
+    const sec = document.createElement("section");
+    sec.id = "profilo"; sec.className = "card";
+    sec.innerHTML = '<button id="profilo-lingua" type="button" class="riga press">' + ICONE.lingua + '<span class="nome"></span><span class="freccia" aria-hidden="true">›</span></button>';
+    sec.querySelector("button").addEventListener("click", () => { const l = $("lingua"); if (l) l.click(); });
+    main.appendChild(sec);
   }
   function barra() {
     const app = $("app");
@@ -31,19 +57,22 @@
       const nav = document.createElement("nav");
       nav.id = "tabbar";
       nav.setAttribute("aria-label", "Primo Passo");
-      const azioni = {
-        pino: () => { if (app.scrollTo) app.scrollTo({ top: 0, behavior: "smooth" }); window.scrollTo({ top: 0, behavior: "smooth" }); },
-        percorso: () => { const s = $("steps"); if (s) s.scrollIntoView({ behavior: "smooth", block: "start" }); },
-        lingua: () => { const l = $("lingua"); if (l) l.click(); },
-      };
-      for (const voce of ["pino", "percorso", "lingua"]) {
+      for (const voce of VOCI) {
         const b = document.createElement("button");
         b.type = "button"; b.dataset.voce = voce; b.className = "press";
         b.innerHTML = ICONE[voce] + "<span></span>";
-        b.addEventListener("click", azioni[voce]);
+        b.addEventListener("click", () => vista(voce));
         nav.appendChild(b);
       }
       app.appendChild(nav);
+      profilo();
+      vista(app.dataset.vista || "pino");
+      const steps = $("steps");
+      if (steps) new MutationObserver(() => {
+        if (app.dataset.vista === "percorso") return;
+        const b = nav.querySelector('[data-voce="percorso"]');
+        if (b && steps.querySelector("li")) b.classList.add("novita");
+      }).observe(steps, { childList: true, subtree: true });
     }
     etichette();
   }
