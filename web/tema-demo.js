@@ -4,6 +4,34 @@
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
+
+  // ---------- Muto del microfono ----------
+  // Spegne le tracce audio del microfono (silenzio), cosi' se l'utente parla con qualcuno Pino non viene interrotto.
+  const mic = { muto: false, tracce: new Set() };
+  function applicaMuto() {
+    mic.tracce.forEach((t) => { if (t.readyState === "ended") mic.tracce.delete(t); else if (t.enabled === mic.muto) t.enabled = !mic.muto; });
+  }
+  try {
+    const md = navigator.mediaDevices;
+    if (md && md.getUserMedia) {
+      const orig = md.getUserMedia.bind(md);
+      md.getUserMedia = async (c) => {
+        const st = await orig(c);
+        st.getAudioTracks().forEach((t) => { mic.tracce.add(t); if (mic.muto) t.enabled = false; });
+        return st;
+      };
+    }
+  } catch (e) { /* senza muto l'app funziona lo stesso */ }
+  setInterval(() => { if (mic.muto) applicaMuto(); }, 400);
+  const T_MUTO = {
+    it: ["Muto", "Microfono spento: Pino non ti sente"], en: ["Mute", "Microphone off: Pino cannot hear you"],
+    es: ["Silenciar", "Micr\u00F3fono apagado: Pino no te oye"], fr: ["Muet", "Micro coup\u00E9 : Pino ne t\u2019entend pas"],
+    ro: ["F\u0103r\u0103 sunet", "Microfon oprit: Pino nu te aude"],
+    ar: ["\u0643\u062A\u0645", "\u0627\u0644\u0645\u064A\u0643\u0631\u0648\u0641\u0648\u0646 \u0645\u0637\u0641\u0623: \u0644\u0627 \u064A\u0633\u0645\u0639\u0643 Pino"],
+    uk: ["\u0411\u0435\u0437 \u0437\u0432\u0443\u043A\u0443", "\u041C\u0456\u043A\u0440\u043E\u0444\u043E\u043D \u0432\u0438\u043C\u043A\u043D\u0435\u043D\u043E: Pino \u0442\u0435\u0431\u0435 \u043D\u0435 \u0447\u0443\u0454"],
+  };
+  const langDoc = () => (document.documentElement.lang || "en").toLowerCase().split("-")[0];
+  const testiMuto = () => T_MUTO[langDoc()] || T_MUTO.en;
   const ICONE = {
     pino: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5"/><path d="M6.5 10.5V19h11v-8.5"/></svg>',
     percorso: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="6" r="2.2"/><circle cx="18" cy="18" r="2.2"/><path d="M8.2 6H14a3 3 0 0 1 0 6h-4a3 3 0 0 0 0 6h5.8"/></svg>',
@@ -80,6 +108,62 @@
     });
   }
 
+
+  // ---------- Posizione all'apertura (solo con il consenso dell'utente) ----------
+  const T_POS = {
+    it: ["Posso usare la tua posizione?", "Cos\u00EC ti indico l\u2019ufficio pi\u00F9 vicino a te. Non la salvo: la uso solo per capire il tuo Municipio.", "S\u00EC, usa la posizione", "Non ora", "Municipio"],
+    en: ["Can I use your location?", "So I can point you to the office nearest to you. I don\u2019t save it: I only use it to find your Municipio.", "Yes, use my location", "Not now", "Municipio"],
+    es: ["\u00BFPuedo usar tu ubicaci\u00F3n?", "As\u00ED te indico la oficina m\u00E1s cercana. No la guardo: solo la uso para saber tu Municipio.", "S\u00ED, usar mi ubicaci\u00F3n", "Ahora no", "Municipio"],
+    fr: ["Puis-je utiliser votre position ?", "Pour vous indiquer le bureau le plus proche. Je ne l\u2019enregistre pas : je l\u2019utilise seulement pour trouver votre Municipio.", "Oui, utiliser ma position", "Pas maintenant", "Municipio"],
+    ro: ["Pot folosi loca\u021Bia ta?", "Ca s\u0103 \u021Bi arat biroul cel mai apropiat. Nu o salvez: o folosesc doar ca s\u0103 aflu Municipio-ul t\u0103u.", "Da, folose\u0219te loca\u021Bia", "Nu acum", "Municipio"],
+    ar: ["\u0647\u0644 \u064A\u0645\u0643\u0646\u0646\u064A \u0627\u0633\u062A\u062E\u062F\u0627\u0645 \u0645\u0648\u0642\u0639\u0643\u061F", "\u0644\u0623\u062F\u0644\u0651\u0643 \u0639\u0644\u0649 \u0623\u0642\u0631\u0628 \u0645\u0643\u062A\u0628. \u0644\u0627 \u0623\u062D\u0641\u0638\u0647: \u0623\u0633\u062A\u062E\u062F\u0645\u0647 \u0641\u0642\u0637 \u0644\u0645\u0639\u0631\u0641\u0629 \u0628\u0644\u062F\u064A\u062A\u0643.", "\u0646\u0639\u0645\u060C \u0627\u0633\u062A\u062E\u062F\u0645 \u0645\u0648\u0642\u0639\u064A", "\u0644\u064A\u0633 \u0627\u0644\u0622\u0646", "Municipio"],
+    uk: ["\u041C\u043E\u0436\u0443 \u0432\u0438\u043A\u043E\u0440\u0438\u0441\u0442\u0430\u0442\u0438 \u0442\u0432\u043E\u0454 \u043C\u0456\u0441\u0446\u0435\u0437\u043D\u0430\u0445\u043E\u0434\u0436\u0435\u043D\u043D\u044F?", "\u0429\u043E\u0431 \u043F\u043E\u043A\u0430\u0437\u0430\u0442\u0438 \u043D\u0430\u0439\u0431\u043B\u0438\u0436\u0447\u0438\u0439 \u043E\u0444\u0456\u0441. \u042F \u043D\u0435 \u0437\u0431\u0435\u0440\u0456\u0433\u0430\u044E \u0457\u0457: \u043B\u0438\u0448\u0435 \u0432\u0438\u0437\u043D\u0430\u0447\u0430\u044E Municipio.", "\u0422\u0430\u043A, \u0432\u0438\u043A\u043E\u0440\u0438\u0441\u0442\u0430\u0442\u0438", "\u041D\u0435 \u0437\u0430\u0440\u0430\u0437", "Municipio"],
+  };
+  const testiPos = () => T_POS[langDoc()] || T_POS.en;
+  const MUNICIPI_OK = /^(I|II|III|IV|V|VI|VII|VIII|IX|X|XI|XII|XIII|XIV|XV)$/;
+  let posChiesta = false;
+  function chipMunicipio(m) {
+    let c = $("chip-municipio");
+    if (!m) { if (c) c.remove(); return; }
+    if (!c) {
+      c = document.createElement("button");
+      c.id = "chip-municipio"; c.type = "button"; c.className = "press";
+      c.addEventListener("click", () => { globalThis.__ppMunicipio = undefined; chipMunicipio(null); });
+      const head = $("app").querySelector(".barra");
+      if (head) head.appendChild(c);
+    }
+    c.textContent = "\u{1F4CD} " + testiPos()[4] + " " + m + " \u00D7";
+    c.setAttribute("aria-label", testiPos()[4] + " " + m);
+  }
+  async function cercaPosizione() {
+    try {
+      const { locateInBrowser } = await import("./tools.js?v=7");
+      const r = await locateInBrowser();
+      if (r && r.stato === "ok" && r.municipio && MUNICIPI_OK.test(r.municipio)) {
+        globalThis.__ppMunicipio = r.municipio;
+        chipMunicipio(r.municipio);
+      }
+    } catch (e) { /* senza posizione Pino chiede il quartiere */ }
+  }
+  function chiediPosizione() {
+    const app = $("app");
+    if (posChiesta || !app || app.hidden || $("benvenuto")) return;
+    posChiesta = true;
+    const t = testiPos();
+    const box = document.createElement("div");
+    box.id = "posizione"; box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
+    box.innerHTML = '<div class="scheda"><div class="icona">' + SVG('<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.4"/>') +
+      '</div><h2></h2><p></p><button type="button" class="cta press si"></button><button type="button" class="link press no"></button></div>';
+    box.querySelector("h2").textContent = t[0];
+    box.querySelector("p").textContent = t[1];
+    box.querySelector(".si").textContent = t[2];
+    box.querySelector(".no").textContent = t[3];
+    box.querySelector(".si").addEventListener("click", () => { box.remove(); cercaPosizione(); });
+    box.querySelector(".no").addEventListener("click", () => box.remove());
+    app.appendChild(box);
+    box.querySelector(".si").focus({ preventScroll: true });
+  }
+
   // ---------- Barra in basso come nella demo: Pino, Percorso, Profilo ----------
   // Tre viste dello stesso schermo: si mostra una parte alla volta, nulla viene ricreato.
   const SVG = (d) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + "</svg>";
@@ -87,6 +171,7 @@
   ICONE.tastiera = SVG('<rect x="2.5" y="5.5" width="19" height="13" rx="3"/><path d="M6.5 10h.01M10 10h.01M14 10h.01M17.5 10h.01M7.5 14h9"/>');
   ICONE.mic = SVG('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/>');
   ICONE.stop = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2.5"/></svg>';
+  ICONE.micOff = SVG('<rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 11.4 4.3M18.5 11a6.4 6.4 0 0 1-.3 1.9M12 17.5V21M3 3l18 18"/>');
   const VOCI = ["pino", "percorso", "profilo"];
   function testo(id, vuoto) { const e = $(id); return (e && e.textContent.trim()) || vuoto; }
   function etichette() {
@@ -151,12 +236,18 @@
     dock.id = "dock";
     dock.innerHTML = '<button type="button" class="lato press" data-az="scrivi">' + ICONE.tastiera + '</button>' +
       '<button type="button" class="mic press" data-az="mic">' + ICONE.mic + '</button>' +
-      '<button type="button" class="lato press" data-az="lingua">' + ICONE.lingua + '</button>';
+      '<button type="button" class="lato press" data-az="muto" aria-pressed="false">' + ICONE.mic + '</button>';
     dock.addEventListener("click", (e) => {
       const b = e.target.closest("button"); if (!b) return;
       const az = b.dataset.az;
       if (az === "scrivi") { const t = $("text"); if (t && !t.disabled) t.click(); app.dataset.chat = "aperta"; }
-      if (az === "lingua") { const l = $("lingua"); if (l) l.click(); }
+      if (az === "muto") {
+        mic.muto = !mic.muto; applicaMuto();
+        b.setAttribute("aria-pressed", mic.muto ? "true" : "false");
+        b.innerHTML = mic.muto ? ICONE.micOff : ICONE.mic;
+        b.classList.toggle("spento", mic.muto);
+        $("app").classList.toggle("muto", mic.muto);
+      }
       if (az === "mic") {
         const stop = $("stop"), voce = $("voice");
         if (stop && !stop.disabled && statoPino() !== "idle") stop.click(); else if (voce && !voce.disabled) voce.click();
@@ -188,8 +279,8 @@
     }
     const sc = document.querySelector('#dock [data-az="scrivi"]'), tx = $("text");
     if (sc && tx) sc.setAttribute("aria-label", tx.textContent.replace(/\s+/g, " ").trim());
-    const li = document.querySelector('#dock [data-az="lingua"]'), ln = $("lingua-nome");
-    if (li && ln) li.setAttribute("aria-label", ln.textContent.trim());
+    const mu = document.querySelector('#dock [data-az="muto"]');
+    if (mu) mu.setAttribute("aria-label", mic.muto ? testiMuto()[1] : testiMuto()[0]);
   }
 
   // ---------- Aggiungi alla home (installazione come app) ----------
@@ -328,8 +419,103 @@ ul { padding-left: 20px; }
 li { margin: 5px 0; }
 .nota { margin-top: 14px; padding: 10px 12px; border-radius: 12px; background: #FBF0DA; color: #8A5300; font-size: 13px; }
 .tr { margin-top: 16px; padding: 12px 14px; border: 1.5px dashed #173F46; border-radius: 14px; background: #fff; color: #173F46; }
+li.chk { list-style: none; margin: 8px 0; }
+ul:has(li.chk) { padding-left: 0; }
+li.chk label { display: flex; align-items: flex-start; gap: 12px; min-height: 44px; padding: 8px 10px; border-radius: 14px; background: #fff; border: 1px solid #ECE8E1; cursor: pointer; }
+li.chk input { flex: none; width: 24px; height: 24px; margin: 1px 0 0; accent-color: #F06424; }
+li.chk input:checked + span { color: #5E6A6F; }
+li.inf { list-style: none; margin: 8px 0; padding: 8px 10px; border-radius: 14px; background: #E6EEEE; color: #173F46; }
+ul:has(li.inf) { padding-left: 0; }
+#avanza { margin: 12px 20px 4px; }
+#avanza .barra { height: 8px; border-radius: 99px; background: #ECE8E1; overflow: hidden; }
+#avanza .barra i { display: block; height: 100%; width: 0; background: #368568; transition: width .25s; }
+#avanza small { display: block; margin-top: 4px; color: #5E6A6F; font-weight: 800; font-size: 13px; }
+#operatore { margin: 14px 20px 0; padding: 12px 14px; border: 1.5px dashed #173F46; border-radius: 14px; background: #fff; }
+#operatore small { display: block; margin-bottom: 4px; color: #B8450F; font: 800 11px "Bricolage Grotesque", sans-serif; letter-spacing: .1em; text-transform: uppercase; }
+#operatore p { margin: 0; font-size: 17px; font-weight: 700; color: #173F46; }
+body { padding-bottom: 86px; }
+#azioni { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 10px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); background: rgba(255,253,248,.96); border-top: 1px solid #ECE8E1; }
+#azioni button, #azioni a { flex: 1; min-height: 48px; display: grid; place-items: center; border: 0; border-radius: 999px; font: 800 16px "Nunito Sans", sans-serif; text-decoration: none; }
+#azioni .primo { background: #F06424; color: #fff; }
+#azioni .secondo { background: #E6EEEE; color: #173F46; }
+@media print { #azioni, #avanza { display: none; } li.chk label { border: 0; padding: 0; } }
 @media print { html { background: #fff; } body { margin: 0; max-width: none; box-shadow: none; border-radius: 0; } }
 `;
+
+  // ---------- Foglio da telefono: spunte da toccare, avanzamento, condividi, mappa ----------
+  const T_FOGLIO = {
+    it: ["Condividi", "Mappa", "Da dire all\u2019operatore", "Buongiorno, ho bisogno di questo servizio: ", ". Ho con me i documenti elencati.", "pronti"],
+    en: ["Share", "Map", "To say to the officer", "Buongiorno, ho bisogno di questo servizio: ", ". Ho con me i documenti elencati.", "ready"],
+    es: ["Compartir", "Mapa", "Para decir al funcionario", "Buongiorno, ho bisogno di questo servizio: ", ". Ho con me i documenti elencati.", "listos"],
+    fr: ["Partager", "Carte", "\u00C0 dire \u00E0 l\u2019agent", "Buongiorno, ho bisogno di questo servizio: ", ". Ho con me i documenti elencati.", "pr\u00EAts"],
+    ro: ["Partajeaz\u0103", "Hart\u0103", "De spus func\u021Bionarului", "Buongiorno, ho bisogno di questo servizio: ", ". Ho con me i documenti elencati.", "gata"],
+    ar: ["\u0645\u0634\u0627\u0631\u0643\u0629", "\u062E\u0631\u064A\u0637\u0629", "\u0644\u062A\u0642\u0648\u0644\u0647 \u0644\u0644\u0645\u0648\u0638\u0641", "Buongiorno, ho bisogno di questo servizio: ", ". Ho con me i documenti elencati.", "\u062C\u0627\u0647\u0632"],
+    uk: ["\u041F\u043E\u0434\u0456\u043B\u0438\u0442\u0438\u0441\u044F", "\u041C\u0430\u043F\u0430", "\u0429\u043E \u0441\u043A\u0430\u0437\u0430\u0442\u0438 \u043F\u0440\u0430\u0446\u0456\u0432\u043D\u0438\u043A\u0443", "Buongiorno, ho bisogno di questo servizio: ", ". Ho con me i documenti elencati.", "\u0433\u043E\u0442\u043E\u0432\u043E"],
+  };
+  function potenzia(d) {
+    if (d.getElementById("azioni")) return;
+    const T = T_FOGLIO[langDoc()] || T_FOGLIO.en;
+    const titolo = (d.querySelector("h1") || {}).textContent || "Primo Passo";
+    // Spunte vere al posto dei simboli
+    let tot = 0;
+    d.querySelectorAll("li").forEach((li) => {
+      const m = /^([\u2611\u2610])\s*/.exec(li.textContent);
+      if (m) {
+        const testo = li.textContent.replace(/^[\u2611\u2610]\s*/, "");
+        li.textContent = "";
+        li.className = "chk";
+        const lab = d.createElement("label"), inp = d.createElement("input"), sp = d.createElement("span");
+        inp.type = "checkbox"; inp.checked = m[1] === "\u2611";
+        sp.textContent = testo;
+        lab.appendChild(inp); lab.appendChild(sp); li.appendChild(lab);
+        tot++;
+      } else if (/^\u2139/.test(li.textContent)) {
+        li.textContent = li.textContent.replace(/^\u2139\s*/, "");
+        li.className = "inf";
+      }
+    });
+    // Avanzamento (si aggiorna quando si tocca una spunta)
+    const av = d.createElement("div");
+    av.id = "avanza";
+    av.innerHTML = '<div class="barra"><i></i></div><small></small>';
+    const ban = d.getElementById("banner");
+    if (ban) ban.insertAdjacentElement("afterend", av);
+    const agg = () => {
+      const n = d.querySelectorAll("li.chk input:checked").length;
+      av.querySelector("i").style.width = (tot ? Math.round((n / tot) * 100) : 0) + "%";
+      av.querySelector("small").textContent = n + "/" + tot + " " + T[5];
+    };
+    d.addEventListener("change", agg);
+    agg();
+    // Frase da mostrare all'operatore (italiano), costruita solo dal titolo del percorso
+    const op = d.createElement("div");
+    op.id = "operatore";
+    op.innerHTML = "<small></small><p></p>";
+    op.querySelector("small").textContent = T[2];
+    op.querySelector("p").textContent = "\u00AB" + T[3] + titolo + T[4] + "\u00BB";
+    av.insertAdjacentElement("afterend", op);
+    // Barra azioni fissa in basso
+    const bar = d.createElement("div");
+    bar.id = "azioni";
+    const sh = d.createElement("button");
+    sh.type = "button"; sh.className = "primo"; sh.textContent = T[0];
+    sh.addEventListener("click", async () => {
+      const righe = [titolo, ""];
+      d.querySelectorAll("li.chk").forEach((li) => righe.push((li.querySelector("input").checked ? "\u2611 " : "\u2610 ") + li.textContent));
+      const testo = righe.join("\n");
+      try {
+        if (navigator.share) await navigator.share({ title: titolo, text: testo });
+        else if (navigator.clipboard) await navigator.clipboard.writeText(testo);
+      } catch (e) { /* annullato dall'utente */ }
+    });
+    bar.appendChild(sh);
+    if (uffici.length) {
+      const a = d.createElement("a");
+      a.className = "secondo"; a.href = uffici[0].link; a.target = "_blank"; a.rel = "noopener noreferrer"; a.textContent = "\u{1F4CD} " + T[1];
+      bar.appendChild(a);
+    }
+    d.body.appendChild(bar);
+  }
   function foglio() {
     const frame = document.querySelector("#foglio iframe");
     if (!frame || frame.dataset.tema) return;
@@ -353,6 +539,7 @@ li { margin: 5px 0; }
           col.appendChild(small); col.appendChild(h1);
           ban.appendChild(ico); ban.appendChild(col);
         }
+        potenzia(d);
       } catch (e) { /* se il foglio non si puo' stilare resta com'e' */ }
     };
     frame.addEventListener("load", inietta);
@@ -360,7 +547,7 @@ li { margin: 5px 0; }
   }
 
   let attesa = 0;
-  function aggiorna() { attesa = 0; try { statusbar(); onboarding(); welcomeTesti(); barra(); contatori(); foglio(); } catch (e) { /* mai bloccare l'app */ } }
+  function aggiorna() { attesa = 0; try { statusbar(); onboarding(); welcomeTesti(); barra(); chiediPosizione(); contatori(); foglio(); } catch (e) { /* mai bloccare l'app */ } }
   const osserva = new MutationObserver(() => { if (!attesa) attesa = requestAnimationFrame(aggiorna); });
   function parti() {
     aggiorna();

@@ -123,17 +123,24 @@ export function createTools(data, effects = {}) {
     state,
 
     list_paths() {
-      return out(
-        percorsi.map((p) => ({
-          id: p.id,
-          titolo: p.titolo,
-          ente: p.ente,
-          quando_si_applica: p.quando_si_applica,
-          non_si_applica: p.non_si_applica,
-          avviso: p._avviso,
-          verifica: riepilogoVerifica(tuttiGliElementi(p)),
-        }))
-      );
+      // Se all'apertura l'utente ha accettato la posizione, l'app conosce gia' il Municipio (solo in memoria).
+      const noto = (effects.municipioNoto ?? (() => globalThis.__ppMunicipio))();
+      const lista = percorsi.map((p) => ({
+        id: p.id,
+        titolo: p.titolo,
+        ente: p.ente,
+        quando_si_applica: p.quando_si_applica,
+        non_si_applica: p.non_si_applica,
+        avviso: p._avviso,
+        verifica: riepilogoVerifica(tuttiGliElementi(p)),
+      }));
+      if (!noto || !uffici.municipi[noto]) return out(lista);
+      return out({
+        municipio_utente: noto,
+        nota_municipio:
+          "Il Municipio arriva dalla posizione che l'utente ha accettato di usare all'apertura (stima da OpenStreetMap). Usalo per find_office senza chiedere il permesso: di' in UNA frase che dalla posizione risulta questo Municipio e che l'utente può correggerlo. Non dire mai posizione o indirizzo.",
+        percorsi: lista,
+      });
     },
 
     start_path({ path_id }) {
