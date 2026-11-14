@@ -34,7 +34,7 @@ function completa(call, pathId, ids) {
 test("list_paths elenca tutti i percorsi", () => {
   const { call } = setup();
   const ids = call("list_paths").map((p) => p.id);
-  assert.deepEqual(ids, ["iscrizione_anagrafica", "iscrizione_ssn", "rinnovo_permesso_lavoro", "carta_identita", "codice_fiscale"]);
+  assert.deepEqual(ids, ["iscrizione_anagrafica", "iscrizione_ssn", "rinnovo_permesso_lavoro", "carta_identita", "codice_fiscale", "primo_permesso_lavoro", "iscrizione_ssn_volontaria", "spid", "cittadinanza_residenza"]);
 });
 
 test("percorso sconosciuto restituisce errore e non inventa", () => {
@@ -221,4 +221,24 @@ test("codice_fiscale: percorso con fonti ufficiali, ufficio e link alla mappa de
   assert.equal(o.verificato, false, "controllo automatico: non diventa verificato da solo");
   const voci = data.percorsi.percorsi.find((p) => p.id === "codice_fiscale");
   for (const x of [...voci.prerequisiti, ...voci.passi]) if (x.fonte !== "interno") assert.match(x.fonte, /agenziaentrate\.gov\.it/, x.id);
+});
+
+test("nuovi percorsi: fonti ufficiali, ufficio e nessun passo verificato da una persona", () => {
+  const { call } = setup();
+  const nuovi = ["primo_permesso_lavoro", "iscrizione_ssn_volontaria", "spid", "cittadinanza_residenza"];
+  const ok = /(interno\.gov\.it|prefettura\.it|cliclavoro\.gov\.it|poliziadistato\.it|poste\.it|regione\.toscana\.it|aslroma[123]\.it|spid\.gov\.it|agid\.gov\.it)/;
+  for (const id of nuovi) {
+    const r = call("start_path", { path_id: id });
+    assert.ok(r.prerequisiti.length >= 1, id);
+    const p = data.percorsi.percorsi.find((x) => x.id === id);
+    for (const x of [...p.prerequisiti, ...p.passi]) {
+      if (x.fonte === "interno") continue;
+      assert.match(x.fonte, ok, `${id}/${x.id}: fonte non ufficiale`);
+      assert.notEqual(x.controllo, "umano", `${id}/${x.id}: lo stato umano lo mette solo una persona`);
+    }
+    const o = call("find_office", { path_id: id, municipio: "VIII" });
+    assert.ok(o.ufficio && Array.isArray(o.mappe), id);
+  }
+  assert.ok(call("find_office", { path_id: "primo_permesso_lavoro", municipio: "I" }).mappe[0].link.includes("Stendhal"));
+  assert.equal(call("find_office", { path_id: "spid", municipio: "I" }).mappe.length, 0);
 });
