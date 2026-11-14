@@ -57,3 +57,23 @@
 #tabbar button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
 #tabbar button svg { width: 22px; height: 22px; }
 #tabbar button:hover, #tabbar button:focus-visible { background: var(--peach); color: var(--primary-text); }
+
+/* Viste come nella demo: Pino, Percorso, Profilo (una alla volta) */
+#app[data-vista="percorso"] .palco, #app[data-vista="percorso"] .chat,
+#app[data-vista="profilo"] .palco, #app[data-vista="profilo"] .chat,
+#app[data-vista="pino"] #steps, #app[data-vista="profilo"] #steps { display: none; }
+#profilo { display: none; padding: 6px; }
+#app[data-vista="profilo"] #profilo { display: block; }
+#profilo .riga { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 8px 12px; border: 0; border-radius: 16px; background: none; color: var(--fg); font-size: 16px; font-weight: 800; text-align: start; }
+#profilo .riga svg { width: 22px; height: 22px; flex: none; color: var(--primary-text); }
+#profilo .riga .nome { flex: 1; min-width: 0; }
+#profilo .riga .freccia { color: var(--muted); font-size: 22px; }
+#profilo .riga:hover, #profilo .riga:focus-visible { background: var(--peach); }
+:dir(rtl) #profilo .freccia { transform: scaleX(-1); }
+#tabbar button { position: relative; }
+#tabbar button[aria-selected="true"] { background: var(--peach); color: var(--primary-text); }
+#tabbar button.novita::after { content: ""; position: absolute; top: 8px; inset-inline-end: calc(50% - 20px); width: 9px; height: 9px; border-radius: 50%; background: var(--primary); border: 2px solid var(--card); }
+/* La barra resta sempre in fondo, anche nelle viste corte */
+#app { display: flex; flex-direction: column; }
+#app > main { flex: 1 0 auto; }
+#app[data-vista="profilo"] .barra .chip { visibility: hidden; }
