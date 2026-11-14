@@ -191,6 +191,50 @@
     const li = document.querySelector('#dock [data-az="lingua"]'), ln = $("lingua-nome");
     if (li && ln) li.setAttribute("aria-label", ln.textContent.trim());
   }
+
+  // ---------- Aggiungi alla home (installazione come app) ----------
+  const T_INST = {
+    it: ["Aggiungi alla home", "Tocca Condividi, poi «Aggiungi alla schermata Home».", "Dal menu del browser scegli «Installa app» o «Aggiungi alla schermata Home»."],
+    en: ["Add to home screen", "Tap Share, then “Add to Home Screen”.", "In the browser menu choose “Install app” or “Add to Home screen”."],
+    es: ["Añadir a la pantalla de inicio", "Toca Compartir y luego « Añadir a pantalla de inicio».", "En el menú del navegador elige «Instalar app» o «Añadir a pantalla de inicio»."],
+    fr: ["Ajouter à l’écran d’accueil", "Touchez Partager, puis « Sur l’écran d’accueil ».", "Dans le menu du navigateur, choisissez « Installer l’application » ou « Ajouter à l’écran d’accueil »."],
+    ro: ["Adaugă pe ecranul principal", "Atinge Partajare, apoi „Adaugă pe ecranul principal”.", "Din meniul browserului alege „Instalează aplicația” sau „Adaugă pe ecranul principal”."],
+    ar: ["أضف إلى الشاشة الرئيسية", "اضغط مشاركة ثم «إضافة إلى الشاشة الرئيسية».", "من قائمة المتصفح اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية»."],
+    uk: ["Додати на головний екран", "Натисни «Поділитися», потім «На початковий екран».", "У меню браузера обери «Встановити застосунок» або «Додати на головний екран»."],
+  };
+  let promptInstall = null;
+  window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); promptInstall = e; });
+  window.addEventListener("appinstalled", () => { promptInstall = null; const r = $("profilo-installa"); if (r) r.hidden = true; });
+  const giaInstallata = () => (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+  const eIOS = () => /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  function testiInstalla() {
+    const lang = ((document.documentElement.lang || "en").toLowerCase().split("-")[0]);
+    return T_INST[lang] || T_INST.en;
+  }
+  function installa() {
+    const sec = $("profilo");
+    if (!sec || $("profilo-installa") || giaInstallata()) return;
+    const riga = document.createElement("button");
+    riga.id = "profilo-installa"; riga.type = "button"; riga.className = "riga press";
+    riga.innerHTML = SVG('<rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/>') + '<span class="nome"></span>';
+    const nota = document.createElement("p");
+    nota.id = "installa-nota"; nota.className = "muted"; nota.hidden = true;
+    riga.addEventListener("click", async () => {
+      if (promptInstall) { promptInstall.prompt(); try { await promptInstall.userChoice; } catch (e) { /* nulla */ } promptInstall = null; return; }
+      const t = testiInstalla();
+      nota.textContent = eIOS() ? t[1] : t[2];
+      nota.hidden = !nota.hidden;
+    });
+    sec.appendChild(riga); sec.appendChild(nota);
+  }
+  function installaTesti() {
+    const r = $("profilo-installa");
+    if (!r) return;
+    const n = r.querySelector(".nome"), t = testiInstalla()[0];
+    if (n && n.textContent !== t) n.textContent = t;
+    const nota = $("installa-nota");
+    if (nota && !nota.hidden) nota.textContent = eIOS() ? testiInstalla()[1] : testiInstalla()[2];
+  }
   function barra() {
     const app = $("app");
     if (!app || app.hidden) return;
@@ -207,6 +251,7 @@
       }
       app.appendChild(nav);
       profilo();
+      installa();
       casa();
       vista(app.dataset.vista || "pino");
       const steps = $("steps");
@@ -217,6 +262,7 @@
       }).observe(steps, { childList: true, subtree: true });
     }
     etichette();
+    installaTesti();
     if ($("fumetto")) casaAggiorna();
   }
 
