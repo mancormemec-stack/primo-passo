@@ -3,7 +3,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   PRINCIPALI, ALTRE, TUTTE, RTL, direzione, nomePerAgente, nomeNativo, provataAVoce,
-  TESTI, linguaUI, traduttore, linguaSalvata, salvaLingua,
+  TESTI, linguaUI, traduttore, traduzioneAutomatica, linguaSalvata, salvaLingua,
 } from "../web/i18n.js";
 
 test("le lingue sono le stesse 89 del menu di prima, senza doppioni", () => {
@@ -31,12 +31,34 @@ test("i segnaposto {nome} restano in ogni traduzione", () => {
   }
 });
 
-test("le lingue principali e il bengali hanno l'interfaccia tradotta, le altre l'inglese", () => {
-  for (const l of PRINCIPALI) assert.equal(linguaUI(l.code), l.code);
-  assert.equal(linguaUI("bn"), "bn");
-  assert.equal(linguaUI("de"), "en");
-  assert.equal(traduttore("de")("stato.listening"), "I'm listening");
+test("tutte le 89 lingue hanno l'interfaccia tradotta (nessuna ricade sull'inglese)", () => {
+  assert.deepEqual(Object.keys(TESTI).sort(), [...TUTTE].sort());
+  for (const c of TUTTE) assert.equal(linguaUI(c), c, c);
+  assert.equal(linguaUI("xx"), "en", "una lingua sconosciuta cade ancora sull'inglese");
+  assert.equal(traduttore("de")("stato.listening"), "Ich höre zu");
   assert.equal(traduttore("ar")("sys.promemoria", { nome: "x.ics" }), "تم تنزيل التذكير: x.ics");
+  assert.equal(traduttore("zh")("sys.promemoria", { nome: "x.ics" }), "提醒已下载：x.ics");
+});
+
+test("le traduzioni non sono copie dell'inglese o dell'italiano e dichiarano di essere automatiche", () => {
+  for (const c of TUTTE) {
+    if (c === "en" || c === "it") continue;
+    for (const k of ["onb.title", "onb.sub", "stato.listening", "err.rete", "foglio.titolo", "trad.auto"]) {
+      assert.notEqual(TESTI[c][k], TESTI.en[k], `${c}.${k} uguale all'inglese`);
+      assert.notEqual(TESTI[c][k], TESTI.it[k], `${c}.${k} uguale all'italiano`);
+    }
+    assert.ok(traduzioneAutomatica(c), c);
+  }
+  assert.equal(traduzioneAutomatica("it"), false);
+  assert.equal(traduzioneAutomatica("en"), false);
+});
+
+test("nei testi in arabo/persiano/urdu/ebraico... non finisce per sbaglio un'altra scrittura", () => {
+  const scritture = { ar: /[؀-ۿ]/, fa: /[؀-ۿ]/, ur: /[؀-ۿ]/, ps: /[؀-ۿ]/, sd: /[؀-ۿ]/, ckb: /[؀-ۿ]/, he: /[֐-׿]/,
+    ru: /[Ѐ-ӿ]/, bg: /[Ѐ-ӿ]/, sr: /[Ѐ-ӿ]/, mk: /[Ѐ-ӿ]/, hi: /[ऀ-ॿ]/, zh: /[一-鿿]/, ja: /[぀-ヿ一-鿿]/, ko: /[가-힯]/, th: /[฀-๿]/ };
+  for (const [c, re] of Object.entries(scritture)) {
+    for (const k of ["onb.title", "stato.listening", "foglio.titolo"]) assert.match(TESTI[c][k], re, `${c}.${k}`);
+  }
 });
 
 test("arabo, ebraico, persiano, urdu, pashto, sindhi e curdo si scrivono da destra", () => {
@@ -102,7 +124,7 @@ test("pagina e moduli locali portano la stessa versione (niente file vecchi dall
   const html = leggi("index.html");
   const riferimenti = [
     ...[...html.matchAll(/(?:src|href)="([\w-]+\.(?:js|css)[^"]*)"/g)].map((m) => m[1]),
-    ...["app.js", "pino-regia.js"].flatMap((f) => [...leggi(f).matchAll(/from "\.\/([^"]+)"/g)].map((m) => m[1])),
+    ...["app.js", "pino-regia.js", "i18n.js"].flatMap((f) => [...leggi(f).matchAll(/from "\.\/([^"]+)"/g)].map((m) => m[1])),
     // anche i dati: un percorsi.json vecchio in cache non deve convivere con un tools.js nuovo
     ...[...leggi("app.js").matchAll(/fetch\("(data\/[^"]+)"/g)].map((m) => m[1]),
   ];

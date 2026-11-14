@@ -1,6 +1,8 @@
 // Testi dell'interfaccia e direzione della scrittura.
-// Le 7 lingue principali hanno l'interfaccia tradotta (testi scritti per la demo: vanno rivisti
-// da madrelingua). Per tutte le altre l'interfaccia è in inglese, ma Pino PARLA la lingua scelta.
+// Tutte le 89 lingue hanno l'interfaccia tradotta, ma SOLO italiano e inglese sono scritti da noi:
+// le altre sono traduzioni automatiche non riviste da madrelingua (lo dichiara la pagina).
+// Pino PARLA la lingua scelta con l'agente; le lingue provate a voce restano poche.
+import { AUTO } from "./i18n-auto.js?v=6";
 
 // Lingue principali: provate a voce (tranne il bengali, ancora da provare).
 export const PRINCIPALI = [
@@ -90,6 +92,7 @@ const it = {
   "foglio.titolo": "Foglio da portare allo sportello",
   "foglio.stampa": "Stampa / salva PDF",
   "foglio.chiudi": "Chiudi",
+  "trad.auto": "Interfaccia tradotta automaticamente: non ancora rivista da madrelingua.",
 };
 
 const en = {
@@ -127,6 +130,7 @@ const en = {
   "foglio.titolo": "Sheet to bring to the counter",
   "foglio.stampa": "Print / save PDF",
   "foglio.chiudi": "Close",
+  "trad.auto": "Automatic translation, not yet reviewed by native speakers.",
 };
 
 const ro = {
@@ -164,6 +168,7 @@ const ro = {
   "foglio.titolo": "Foaie de dus la ghișeu",
   "foglio.stampa": "Tipărește / salvează PDF",
   "foglio.chiudi": "Închide",
+  "trad.auto": "Traducere automată, încă nerevizuită de vorbitori nativi.",
 };
 
 const ar = {
@@ -201,6 +206,7 @@ const ar = {
   "foglio.titolo": "ورقة تأخذها إلى الشبّاك",
   "foglio.stampa": "اطبع / احفظ PDF",
   "foglio.chiudi": "إغلاق",
+  "trad.auto": "ترجمة آلية، لم يراجعها بعد ناطقون أصليون.",
 };
 
 const uk = {
@@ -238,6 +244,7 @@ const uk = {
   "foglio.titolo": "Аркуш для віконця",
   "foglio.stampa": "Друк / зберегти PDF",
   "foglio.chiudi": "Закрити",
+  "trad.auto": "Автоматичний переклад, ще не перевірений носіями мови.",
 };
 
 const fil = {
@@ -275,6 +282,7 @@ const fil = {
   "foglio.titolo": "Papel na dadalhin sa counter",
   "foglio.stampa": "I-print / i-save ang PDF",
   "foglio.chiudi": "Isara",
+  "trad.auto": "Awtomatikong salin, hindi pa nasusuri ng mga katutubong tagapagsalita.",
 };
 
 const bn = {
@@ -312,11 +320,16 @@ const bn = {
   "foglio.titolo": "কাউন্টারে নেওয়ার কাগজ",
   "foglio.stampa": "প্রিন্ট / PDF সেভ",
   "foglio.chiudi": "বন্ধ করুন",
+  "trad.auto": "স্বয়ংক্রিয় অনুবাদ, মাতৃভাষীরা এখনো পর্যালোচনা করেননি।",
 };
 
-export const TESTI = { it, en, ro, ar, uk, fil, bn };
+// Le 7 lingue scritte per la demo + le 82 automatiche di i18n-auto.js (tutte da rivedere).
+export const TESTI = { ...AUTO, it, en, ro, ar, uk, fil, bn };
 
-// Lingua dei testi dell'interfaccia: tradotta se c'è, altrimenti inglese.
+// Italiano e inglese sono scritti da noi; tutte le altre interfacce sono traduzioni automatiche.
+export const traduzioneAutomatica = (code) => code !== "it" && code !== "en";
+
+// Lingua dei testi dell'interfaccia: ora ce l'hanno tutte; l'inglese resta la rete di sicurezza.
 export const linguaUI = (code) => (TESTI[code] ? code : "en");
 
 export function traduttore(code) {

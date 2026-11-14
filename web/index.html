@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#FAF9F6">
   <title>Primo Passo</title>
-  <link rel="stylesheet" href="pino.css?v=5">
+  <link rel="stylesheet" href="pino.css?v=6">
   <style>
     :root {
       --bg:#FAF9F6; --fg:#202B30; --muted:#5E6A6F; --card:#fff; --line:#ECE8E1; --input:#D9D4CB;
@@ -138,6 +138,7 @@
     <p id="nota-lingua" class="nota" hidden data-t="onb.nonProvata"></p>
     <button id="avanti" class="cta press" type="button" disabled><span data-t="onb.avanti"></span><span class="freccia" aria-hidden="true">→</span></button>
     <p class="muted privacy" data-t="privacy"></p>
+    <p class="muted privacy nota-trad" hidden data-t="trad.auto"></p>
   </section>
 
   <!-- Conversazione: Pino al centro -->
@@ -162,7 +163,8 @@
       <aside class="card" id="steps"><h2 data-t="percorso"></h2><p class="muted" data-t="percorso.vuoto"></p></aside>
     </main>
     <p class="muted privacy" data-t="privacy"></p>
+    <p class="muted privacy nota-trad" hidden data-t="trad.auto"></p>
   </div>
-  <script type="module" src="app.js?v=5"></script>
+  <script type="module" src="app.js?v=6"></script>
 </body>
 </html>

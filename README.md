@@ -41,11 +41,11 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
   - speaking: modalità parla di ElevenLabs, con la bocca che segue il volume in uscita;
   - success: 1,5 s, solo quando uno strumento ha davvero segnato un passo o creato foglio o promemoria.
 - **Lingue dell'interfaccia** ([web/i18n.js](web/i18n.js)):
-  - tradotte in it, en, ro, ar, uk, fil e bn, con testi scritti per la demo che vanno rivisti da madrelingua;
-  - le altre lingue hanno l'interfaccia in inglese, ma Pino parla la lingua scelta;
+  - tutte le 89 lingue hanno l'interfaccia tradotta. Solo italiano e inglese sono scritti da noi: le altre 87 sono **traduzioni automatiche, scritte da un'IA e non riviste da madrelingua** ([web/i18n-auto.js](web/i18n-auto.js) per le 82 aggiunte; ro, ar, uk, fil e bn in `i18n.js`). La pagina lo dichiara (testo `trad.auto`, nella lingua scelta) e non va presentato come «lingue provate». Le più incerte sono le lingue con poche risorse (luganda, wolof, shona, occitano, asturiano, maori, sindhi, pashto, curdo sorani): vanno riviste per prime;
+  - Pino parla la lingua scelta con l'agente: a voce sono provate solo poche lingue (vedi sotto), il resto è da provare;
   - arabo, ebraico, persiano, urdu, pashto, sindhi e curdo sorani vanno da destra a sinistra;
   - i passi del percorso restano in italiano, perché vengono dai dati verificati.
-- **Cache:** pagina e moduli locali hanno `?v=N`. Se cambiate un file in `web/`, aumentate N in `index.html`, `app.js` e `pino-regia.js`: il test lo controlla. Senza, per 10 minuti GitHub Pages può servire un `app.js` vecchio con la pagina nuova.
+- **Cache:** pagina e moduli locali hanno `?v=N`. Se cambiate un file in `web/`, aumentate N in `index.html`, `app.js`, `pino-regia.js` e `i18n.js`: il test lo controlla. Senza, per 10 minuti GitHub Pages può servire un `app.js` vecchio con la pagina nuova.
 
 ## Setup (circa 30 minuti)
 

@@ -1,6 +1,6 @@
 // Collega gli eventi reali della conversazione ai Pino della pagina.
 // Lo stato lo decide pino-state.js; qui ci sono solo timer, volume della voce e DOM.
-import { inizio, evento, vista, prossimaScadenza } from "./pino-state.js?v=5";
+import { inizio, evento, vista, prossimaScadenza } from "./pino-state.js?v=6";
 
 const ora = () => performance.now();
 
