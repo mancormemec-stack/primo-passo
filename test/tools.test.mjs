@@ -199,3 +199,14 @@ test("find_office dà un link alla mappa per ogni ufficio", () => {
   const ana = call("find_office", { path_id: "iscrizione_anagrafica", municipio: "I" });
   assert.match(decodeURIComponent(ana.mappe[0].link), /Anagrafe Municipio I Roma/);
 });
+
+test("list_paths: se l'app conosce gia' il Municipio lo dice, altrimenti resta una lista", () => {
+  const senza = JSON.parse(createTools(data, { municipioNoto: () => undefined }).list_paths());
+  assert.ok(Array.isArray(senza));
+  const con = JSON.parse(createTools(data, { municipioNoto: () => "VIII" }).list_paths());
+  assert.equal(con.municipio_utente, "VIII");
+  assert.ok(con.percorsi.length > 0);
+  assert.match(con.nota_municipio, /senza chiedere il permesso/);
+  const falso = JSON.parse(createTools(data, { municipioNoto: () => "XX" }).list_paths());
+  assert.ok(Array.isArray(falso), "un Municipio non valido non si usa");
+});
