@@ -48,6 +48,7 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
   - arabo, ebraico, persiano, urdu, pashto, sindhi e curdo sorani vanno da destra a sinistra;
   - nella prima schermata la ricerca della lingua sta sotto Pino e ogni lingua ha la sua bandiera ([flag-icons](https://github.com/lipis/flag-icons), MIT, in `web/flags/` con la licenza). La bandiera è solo un'indicazione: le lingue non sono paesi (arabo = Lega Araba, catalano e galiziano = bandiere regionali). I nomi in scrittura da destra a sinistra restano allineati a sinistra come gli altri;
   - i passi del percorso restano in italiano, perché vengono dai dati verificati.
+- **Scheda Documenti** ([web/documenti.js](web/documenti.js), [web/documenti.css](web/documenti.css)): è un **mockup concettuale** preso dalla demo Lovable, e lo dichiara («Mockup concettuale · Dati di esempio»). Non carica file, non salva nulla e non riconosce documenti. Una cosa è vera: i collegamenti tra documenti e percorsi vengono dai prerequisiti reali di `web/data/percorsi.json` (con obbligatorio/facoltativo); lo stato «caricato / da aggiungere» è inventato. Tradotta in it, en, es, fr, ro, ar, uk; le altre lingue la mostrano in inglese.
 - **Cache:** pagina e moduli locali hanno `?v=N`. Se cambiate un file in `web/`, aumentate N in `index.html`, `app.js`, `pino-regia.js` e `i18n.js` (e negli import di `flags.js`/`i18n-auto.js`): il test lo controlla. Senza, per 10 minuti GitHub Pages può servire un `app.js` vecchio con la pagina nuova.
 
 ## Setup (circa 30 minuti)

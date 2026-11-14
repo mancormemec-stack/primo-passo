@@ -1,0 +1,105 @@
+/* Scheda "Documenti": mockup concettuale con stati di esempio (come nella demo Lovable). Solo presentazione. */
+#documenti { display: none; padding: 0; }
+#app[data-vista="documenti"] #documenti { display: block; }
+#app[data-vista="documenti"] .palco, #app[data-vista="documenti"] .chat, #app[data-vista="documenti"] #steps { display: none; }
+
+.dc-vista { display: flex; flex-direction: column; gap: 14px; }
+.dc-corpo { display: flex; flex-direction: column; gap: 14px; }
+#documenti h2, #documenti h3 { font-family: var(--font-display, inherit); margin: 0; }
+#documenti .muted { color: var(--muted); }
+
+/* Intestazione con avanzamento */
+.dc-testa { border-radius: 22px; padding: 16px 16px 18px; background: var(--petrol); color: #fff; }
+@media (prefers-color-scheme: dark) { .dc-testa { background: #0E2A2F; } }
+.dc-testa h2 { font-size: 26px; font-weight: 800; line-height: 1.1; margin-top: 8px; color: #fff; }
+.dc-sotto { margin: 4px 0 0; font-size: 14px; opacity: .92; }
+.dc-riepilogo { margin: 14px 0 6px; font-weight: 800; font-size: 15px; }
+.dc-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--peach); color: var(--primary-text); font-size: 11px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.dc-pill svg { width: 14px; height: 14px; }
+.dc-barra { display: block; height: 6px; border-radius: 999px; background: rgb(255 255 255 / .22); overflow: hidden; }
+.dc-barra > span { display: block; height: 100%; width: 100%; transform-origin: left; background: var(--primary); border-radius: 999px; transition: transform .35s; }
+[dir="rtl"] .dc-barra > span { transform-origin: right; }
+.dc-percorso .dc-barra { background: var(--line); }
+
+/* Elenco / Per percorso */
+.dc-segmenti { display: grid; grid-template-columns: 1fr 1fr; padding: 4px; border-radius: 999px; background: color-mix(in oklab, var(--line) 70%, transparent); }
+.dc-segmenti button { min-height: 40px; border: 0; border-radius: 999px; background: none; color: var(--muted); font: 800 14px inherit; font-family: inherit; }
+.dc-segmenti button[aria-checked="true"] { background: var(--card); color: var(--fg); box-shadow: var(--shadow); }
+
+.dc-avviso { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 20px; background: var(--peach); }
+.dc-pino { flex: none; width: 56px; height: auto; }
+.dc-avviso h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--primary-text); font-weight: 800; }
+.dc-avviso p { margin: 2px 0 0; font-weight: 700; line-height: 1.35; }
+.dc-btn { margin-top: 10px; min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--primary); color: #fff; font: 800 14px inherit; font-family: inherit; }
+.dc-btn.grande { width: 100%; min-height: 52px; font-size: 16px; margin-top: 4px; box-shadow: 0 8px 22px rgb(240 100 36 / .28); }
+
+.dc-gruppo { margin: 0 0 8px; font-size: 12px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.dc-lista, .dc-usi { display: flex; flex-direction: column; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.dc-riga { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px; border: 0; border-radius: 18px; background: var(--card); box-shadow: var(--shadow); color: var(--fg); text-align: start; font: inherit; }
+.dc-icona { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 12px; background: color-mix(in oklab, var(--line) 70%, transparent); color: var(--muted); }
+.dc-icona.ok { background: var(--ok-bg); color: var(--ok); }
+.dc-icona svg { width: 22px; height: 22px; }
+.dc-testo { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.dc-testo strong { font-size: 15.5px; line-height: 1.25; }
+.dc-testo small { color: var(--muted); font-weight: 700; font-size: 13px; }
+.dc-vai { flex: none; color: var(--muted); }
+.dc-vai svg { width: 20px; height: 20px; }
+[dir="rtl"] .dc-vai svg, [dir="rtl"] .dc-indietro svg { transform: scaleX(-1); }
+
+.dc-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 800; }
+.dc-chip svg { width: 14px; height: 14px; flex: none; }
+.dc-chip.ok, .dc-doc.ok { background: var(--ok-bg); color: var(--ok); }
+.dc-chip.warn, .dc-doc.warn { background: var(--warn-bg); color: var(--warn); }
+
+.dc-aggiungi { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px; border: 2px dashed var(--primary); border-radius: 999px; background: none; color: var(--primary-text); font: 800 16px inherit; font-family: inherit; }
+.dc-aggiungi svg { width: 20px; height: 20px; }
+.dc-nota { margin: 0; text-align: center; color: var(--muted); font-size: 13.5px; }
+.dc-pie { margin: 4px 0 0; text-align: center; color: var(--muted); font-size: 12px; }
+
+/* Per percorso */
+.dc-percorso { padding: 14px; border-radius: 20px; background: var(--card); box-shadow: var(--shadow); }
+.dc-percorso > header { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.dc-percorso h3 { font-size: 16.5px; line-height: 1.2; }
+.dc-percorso header p { margin: 2px 0 0; color: var(--muted); font-weight: 700; font-size: 13px; }
+.dc-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.dc-doc { display: inline-flex; align-items: center; gap: 5px; min-height: 36px; padding: 4px 12px; border: 0; border-radius: 999px; font: 700 13px inherit; font-family: inherit; text-align: start; }
+.dc-doc svg { width: 14px; height: 14px; flex: none; }
+.dc-doc em { font-style: normal; font-weight: 600; opacity: .8; }
+
+/* Dettaglio */
+.dc-barra-top { display: flex; align-items: center; gap: 10px; }
+.dc-barra-top h2 { font-size: 22px; font-weight: 800; color: var(--petrol); }
+.dc-indietro { display: grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 12px; background: var(--card); color: var(--fg); box-shadow: var(--shadow); }
+.dc-indietro svg { width: 20px; height: 20px; }
+.dc-titolo-doc { display: flex; align-items: center; gap: 12px; }
+.dc-titolo-doc h3 { font-size: 21px; line-height: 1.15; }
+.dc-spec { position: relative; aspect-ratio: 1.586 / 1; border-radius: 20px; overflow: hidden; background: var(--petrol); box-shadow: var(--shadow); }
+@media (prefers-color-scheme: dark) { .dc-spec { background: #0E2A2F; } }
+.dc-spec-int { display: flex; gap: 12px; height: 100%; padding: 16px; }
+.dc-spec .foto { flex: 0 0 34%; border-radius: 12px; background: rgb(255 255 255 / .16); }
+.dc-spec .righe { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+.dc-spec .righe i { display: block; height: 8px; border-radius: 999px; background: rgb(255 255 255 / .22); }
+.dc-spec .righe i:first-child { width: 70%; height: 10px; background: rgb(255 255 255 / .36); }
+.dc-spec .righe i:nth-child(3) { width: 85%; } .dc-spec .righe i:nth-child(4) { width: 60%; }
+.dc-bollo { position: absolute; inset: 0; display: grid; place-items: center; font: 800 25px var(--font-display, inherit); letter-spacing: .18em; text-transform: uppercase; color: rgb(253 235 223 / .75); }
+.dc-bollo::after { content: ""; }
+.dc-spec.vuoto { display: grid; place-items: center; background: color-mix(in oklab, var(--line) 60%, transparent); border: 2px dashed var(--input); box-shadow: none; color: var(--muted); }
+.dc-spec.vuoto > div:first-child svg { width: 38px; height: 38px; }
+.dc-spec.vuoto { gap: 8px; align-content: center; justify-items: center; }
+.dc-schede { margin: 0; border-radius: 20px; background: var(--card); box-shadow: var(--shadow); }
+.dc-schede > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 8px 16px; }
+.dc-schede > div + div { border-top: 1px solid var(--line); }
+.dc-schede dt { font-weight: 800; }
+.dc-schede dd { margin: 0; text-align: end; font-size: 14px; }
+.dc-vista .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* La scheda è più alta dello schermo. Su schermi piccoli scorre la pagina (la barra in basso resta attaccata);
+   dentro il telefono dei computer scorre solo la scheda, così la barra e il testo sotto restano al loro posto. */
+#app[data-vista="documenti"] > main { flex: 0 0 auto; min-height: min-content; }
+@media (min-width: 880px) and (min-height: 720px) {
+  #app[data-vista="documenti"] > main { flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+  #app[data-vista="documenti"] > main::-webkit-scrollbar { display: none; }
+}
+
+/* Con quattro voci la barra è più stretta: etichette un po' più piccole, senza tagliarle */
+#tabbar button span { font-size: 11.5px; padding: 0; }
