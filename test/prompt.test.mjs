@@ -208,10 +208,23 @@ test("voce: una sola risposta per turno, dopo i risultati degli strumenti", () =
   assert.match(regola("- Sii proattivo"), /senza dire nulla prima/);
 });
 
-test("voce: massimo 3 frasi (~250 caratteri), una sola domanda, dettagli solo se richiesti", () => {
-  assert.match(voce, /Massimo 3 frasi \(circa 250 caratteri\) e una sola domanda, alla fine/);
-  assert.match(voce, /Costi, indirizzi, orari ed eccezioni solo se l'utente li chiede/);
+test("voce: 2-3 frasi (fino a 5 nel piano), una sola domanda, dettagli solo se richiesti", () => {
+  assert.match(voce, /Di norma 2-3 frasi; quando dai il piano .* fino a 5 frasi brevi \(circa 450 caratteri\)\. Una sola domanda, alla fine/);
+  assert.match(voce, /costi ed eccezioni solo se l'utente li chiede/);
   assert.match(voce, /«Vuoi i dettagli\?»/);
+});
+
+test("piano concreto: aiuto subito, documenti, dove andare, avviso sulle fonti in fondo", () => {
+  assert.match(prompt, /Piano concreto/);
+  assert.match(prompt, /dai il piano in una volta sola/);
+  assert.match(prompt, /L'avviso sulle fonti, quando serve, va in fondo alla prima risposta sostanziale, mai all'inizio/);
+});
+
+test("posizione: si chiede il permesso, locate_user solo dopo il sì, mai coordinate o indirizzo", () => {
+  assert.match(prompt, /Posso usare la tua posizione/);
+  assert.match(prompt, /Chiamare `locate_user` solo dopo un sì/);
+  assert.match(prompt, /chiedi il quartiere o il Municipio, senza insistere/);
+  assert.match(prompt, /Non dire mai le coordinate né l'indirizzo dell'utente/);
 });
 
 test("voce: niente aperture di cortesia, più domande insieme una alla volta, niente ripetizioni", () => {

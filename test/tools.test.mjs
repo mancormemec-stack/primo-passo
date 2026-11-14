@@ -161,3 +161,41 @@ test("handoff restituisce aiuto gratuito", () => {
   assert.ok(r.dove_chiedere.length > 0);
   assert.deepEqual(fx.handoffs, ["richiesta di asilo"]);
 });
+
+// ---------- Posizione e mappe ----------
+const conPosizione = (esito) => {
+  const t = createTools(data, { locate: async () => esito });
+  return async () => JSON.parse(await t.locate_user());
+};
+
+test("locate_user: con il permesso restituisce il Municipio e dice che la posizione non si salva", async () => {
+  const r = await conPosizione({ stato: "ok", citta: "Roma", municipio: "VIII" })();
+  assert.equal(r.stato, "ok");
+  assert.equal(r.municipio, "VIII");
+  assert.match(r.istruzione, /non è stata salvata/);
+  assert.doesNotMatch(JSON.stringify(r), /lat|lon|coordinat/i, "non deve esporre coordinate");
+});
+
+test("locate_user: permesso negato, fuori Roma ed errore chiedono il quartiere, senza inventare", async () => {
+  for (const [esito, stato] of [
+    [{ stato: "permesso_negato" }, "permesso_negato"],
+    [{ stato: "ok", citta: "Milano" }, "fuori_roma"],
+    [{ stato: "ok", citta: "Roma", municipio: "XX" }, "fuori_roma"],
+    [{ stato: "errore" }, "errore"],
+    [{ stato: "non_disponibile" }, "non_disponibile"],
+  ]) {
+    const r = await conPosizione(esito)();
+    assert.equal(r.stato, stato);
+    assert.equal(r.municipio, undefined);
+    assert.match(r.istruzione, /quartiere o Municipio/);
+  }
+});
+
+test("find_office dà un link alla mappa per ogni ufficio", () => {
+  const { call } = setup();
+  const asl = call("find_office", { path_id: "iscrizione_ssn", municipio: "VIII" });
+  assert.equal(asl.mappe.length, asl.sportelli_vicini.elenco.length);
+  assert.ok(asl.mappe.every((m) => m.link.startsWith("https://www.google.com/maps/search/?api=1&query=")));
+  const ana = call("find_office", { path_id: "iscrizione_anagrafica", municipio: "I" });
+  assert.match(decodeURIComponent(ana.mappe[0].link), /Anagrafe Municipio I Roma/);
+});
