@@ -68,6 +68,33 @@
       "controllo": "automatico",
       "fonte": "https://www.agenziaentrate.gov.it/portale/codice-fiscale-e-tessera-sanitaria/che-cos-cittadini ; https://www.agenziaentrate.gov.it/portale/-/rilascio-codice-fiscale-richiesta-appuntamento ; https://www.agenziaentrate.gov.it/portale/agenzia/amministrazione-trasparente/servizi-erogati/carta-servizi/servizi-per-gli-stranieri",
       "verificato_il": "2026-11-14"
+    },
+    "sportello_unico": {
+      "nome": "Sportello unico per l'immigrazione - Prefettura di Roma",
+      "dove": "Via Stendhal 1 (EUR, viale della Civiltà Romana), piano terra. Riceve lunedì, mercoledì e venerdì dalle 9:00 alle 12:00 (si entra fino alle 11:30), su convocazione. Per informazioni sulla pratica: PEC immigrazione.prefrm@pec.interno.it. Le pagine della Prefettura cambiano spesso: controlla prima di andare.",
+      "come": "Per il primo ingresso l'appuntamento si prenota con SPID sul sito nullaostalavoro.dlci.interno.it. Allo sportello si firma il contratto di soggiorno e la richiesta del permesso; la richiesta poi si consegna alle Poste (kit postale).",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://prefettura.interno.gov.it/it/prefetture/roma/area-4-bis-sportello-unico-immigrazione ; https://www1.prefettura.it/roma/contenuti/Prenota_appuntamento_on_line-70779.htm",
+      "verificato_il": "2026-11-14"
+    },
+    "spid": {
+      "nome": "Gestore SPID (online) o ufficio pubblico abilitato",
+      "dove": "Online, sul sito del gestore di identità digitale che scegli. In alternativa un ufficio pubblico abilitato che identifica gratuitamente: li trovi dal link «Scopri gli uffici abilitati» nella pagina https://www.spid.gov.it/cos-e-spid/come-attivare-spid/",
+      "come": "La registrazione si fa sul sito del gestore; il riconoscimento può essere di persona, via webcam, audio-video con bonifico, oppure con CIE, CNS o firma digitale.",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://www.spid.gov.it/cos-e-spid/come-attivare-spid/ ; https://www.agid.gov.it/it/argomenti/spid.html",
+      "verificato_il": "2026-11-14"
+    },
+    "cittadinanza": {
+      "nome": "Prefettura (istruttoria della domanda online)",
+      "dove": "La domanda si fa online sul portale del Ministero dell'Interno: https://cittadinanza.dlci.interno.it . Viene trasmessa alla Prefettura per l'istruttoria; il giuramento, se la pratica va a buon fine, si fa in Comune.",
+      "come": "Si entra nel portale con SPID o CIE, si compila il modulo e si allegano i documenti, la ricevuta dei 250 euro e la marca da bollo telematica.",
+      "verificato": true,
+      "controllo": "automatico",
+      "fonte": "https://libertaciviliimmigrazione.dlci.interno.gov.it/cittadinanza-invia-la-tua-domanda ; https://libertaciviliimmigrazione.dlci.interno.gov.it/temi/concessione-della-cittadinanza-italiana-residenza-sul-territorio-italiano-ai-sensi-dellart-9",
+      "verificato_il": "2026-11-14"
     }
   },
   "aiuto_gratuito": [

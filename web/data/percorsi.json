@@ -125,6 +125,100 @@
       ],
       "scadenze": [],
       "ufficio": "agenzia_entrate"
+    },
+    {
+      "id": "primo_permesso_lavoro",
+      "titolo": "Primo permesso di soggiorno per lavoro subordinato (dopo l'ingresso con visto)",
+      "ente": "Sportello unico per l'immigrazione della Prefettura, poi Questura (domanda tramite Poste - kit postale)",
+      "quando_si_applica": "Persona non UE entrata in Italia con visto d'ingresso per lavoro subordinato e con il nulla osta al lavoro: la richiesta di nulla osta la fa il datore di lavoro allo Sportello unico, non il lavoratore.",
+      "non_si_applica": "Chi è già in Italia con un permesso e deve rinnovarlo (percorso di rinnovo). Altri motivi di ingresso, come famiglia, studio, lavoro autonomo o ricerca: non coperti. Cittadini UE.",
+      "dipende_da": [],
+      "prerequisiti": [
+        {"id": "passaporto", "testo": "Il passaporto con il visto d'ingresso: serve l'originale e le fotocopie delle pagine con i dati, con il visto e con il timbro di frontiera", "verificato": true, "controllo": "automatico", "fonte": "https://prefettura.interno.gov.it/sites/default/files/31/2024-06/_vademecum_lavoro_-_istruzioni_per_l_ingresso_in_italia.pdf ; https://prefettura.interno.gov.it/it/prefetture/padova/primo-ingresso-lavoro-subordinato", "verificato_il": "2026-11-14"},
+        {"id": "documenti_lavoro", "testo": "Il nulla osta al lavoro rilasciato dallo Sportello unico (ne servono due fotocopie) e il visto d'ingresso per lavoro", "verificato": true, "controllo": "automatico", "fonte": "https://prefettura.interno.gov.it/sites/default/files/31/2024-06/_vademecum_lavoro_-_istruzioni_per_l_ingresso_in_italia.pdf ; https://cliclavoro.gov.it/focus-on/stranieri-in-italia/lavoratori-extra-ue/il-lavoro-subordinato", "verificato_il": "2026-11-14"},
+        {"id": "alloggio_o_residenza", "testo": "I documenti dell'alloggio: il titolo che mostra che hai la casa (contratto di affitto, comodato o proprietà), la ricevuta della dichiarazione di ospitalità o cessione di fabbricato presentata alla Pubblica Sicurezza (entro 48 ore dall'ingresso) e il certificato di idoneità dell'alloggio, o la ricevuta della richiesta", "verificato": true, "controllo": "automatico", "fonte": "https://prefettura.interno.gov.it/sites/default/files/31/2024-06/_vademecum_lavoro_-_istruzioni_per_l_ingresso_in_italia.pdf ; https://prefettura.interno.gov.it/it/prefetture/padova/primo-ingresso-lavoro-subordinato ; https://www2.immigrazione.regione.toscana.it/?pa_prov=FI&procedimento=1915&q=procedimentiamministrativi", "verificato_il": "2026-11-14"},
+        {"id": "marca_bollo", "testo": "Una marca da bollo da 16 euro, da applicare sulla richiesta del permesso", "verificato": true, "controllo": "automatico", "fonte": "https://prefettura.interno.gov.it/sites/default/files/31/2024-06/_vademecum_lavoro_-_istruzioni_per_l_ingresso_in_italia.pdf ; https://prefettura.interno.gov.it/it/prefetture/padova/primo-ingresso-lavoro-subordinato ; https://www2.immigrazione.regione.toscana.it/?pa_prov=FI&procedimento=1915&q=procedimentiamministrativi", "verificato_il": "2026-11-14"},
+        {"id": "bollettini", "testo": "Le ricevute dei pagamenti alle Poste: 30,46 euro per il permesso elettronico, 30,00 euro per il servizio postale e il contributo (40 euro fino a un anno, 50 euro da oltre un anno a due anni)", "verificato": true, "controllo": "automatico", "fonte": "https://www2.immigrazione.regione.toscana.it/?pa_prov=FI&procedimento=1915&q=procedimentiamministrativi ; https://www.poste.it/guida-rilascio-e-rinnovo-permesso-di-soggiorno ; https://www.poliziadistato.it/articolo/come-dove-e-quanto-costa", "verificato_il": "2026-11-14"},
+        {"id": "foto", "testo": "Quattro foto tessera su sfondo bianco, da portare in Questura alla convocazione", "verificato": true, "controllo": "automatico", "fonte": "https://www2.immigrazione.regione.toscana.it/?pa_prov=FI&procedimento=1915&q=procedimentiamministrativi", "verificato_il": "2026-11-14"}
+      ],
+      "passi": [
+        {"id": "pp1", "richiede_prerequisiti": true, "testo": "Raccogli i documenti dei prerequisiti.", "verificato": true, "fonte": "interno", "verificato_il": null},
+        {"id": "pp2", "testo": "Entro 8 giorni dall'ingresso in Italia prenota l'appuntamento allo Sportello unico per l'immigrazione. A Roma il primo ingresso si prenota entrando con SPID nel sito nullaostalavoro.dlci.interno.it; se il nulla osta lo ha chiesto un datore di lavoro, può prenotare lui", "verificato": true, "controllo": "automatico", "fonte": "https://cliclavoro.gov.it/focus-on/stranieri-in-italia/lavoratori-extra-ue/il-lavoro-subordinato ; https://www2.immigrazione.regione.toscana.it/?pa_prov=FI&procedimento=1915&q=procedimentiamministrativi ; https://www1.prefettura.it/roma/contenuti/Prenota_appuntamento_on_line-70779.htm", "verificato_il": "2026-11-14"},
+        {"id": "pp3", "testo": "Vai all'appuntamento allo Sportello unico: firmi il contratto di soggiorno per lavoro, senza poterlo modificare, e la richiesta del permesso. Ricevi il certificato di attribuzione del codice fiscale e la busta in cui mettere la richiesta", "verificato": true, "controllo": "automatico", "fonte": "https://cliclavoro.gov.it/focus-on/stranieri-in-italia/lavoratori-extra-ue/il-lavoro-subordinato ; https://www2.immigrazione.regione.toscana.it/?pa_prov=FI&procedimento=1915&q=procedimentiamministrativi", "verificato_il": "2026-11-14"},
+        {"id": "pp4", "testo": "Porta la richiesta, in busta aperta, a uno sportello postale abilitato («Sportello Amico»), con le ricevute dei bollettini e il passaporto in originale. Conserva la RICEVUTA delle Poste: vale come prova della domanda (anagrafe, ASL, lavoro) e riporta i codici per seguire la pratica sul Portale Immigrazione", "verificato": true, "controllo": "automatico", "fonte": "https://www2.immigrazione.regione.toscana.it/?pa_prov=FI&procedimento=1915&q=procedimentiamministrativi ; https://www.poste.it/guida-rilascio-e-rinnovo-permesso-di-soggiorno", "verificato_il": "2026-11-14"},
+        {"id": "pp5", "testo": "Quando la Questura ti convoca, vai con quattro foto tessera su sfondo bianco e il passaporto", "verificato": true, "controllo": "automatico", "fonte": "https://www2.immigrazione.regione.toscana.it/?pa_prov=FI&procedimento=1915&q=procedimentiamministrativi", "verificato_il": "2026-11-14"},
+        {"id": "pp6", "informativo": true, "testo": "Il nulla osta vale al massimo 6 mesi dal rilascio, e il contratto di soggiorno va firmato entro 8 giorni dall'ingresso: se non ti presenti, il nulla osta può essere revocato", "verificato": true, "controllo": "automatico", "fonte": "https://cliclavoro.gov.it/focus-on/stranieri-in-italia/lavoratori-extra-ue/il-lavoro-subordinato ; https://prefettura.interno.gov.it/sites/default/files/31/2024-06/_vademecum_lavoro_-_istruzioni_per_l_ingresso_in_italia.pdf", "verificato_il": "2026-11-14"},
+        {"id": "pp7", "informativo": true, "testo": "Chi ha più di 16 anni, entra per la prima volta e chiede un permesso di almeno un anno firma anche l'Accordo di integrazione", "verificato": true, "controllo": "automatico", "fonte": "https://www2.immigrazione.regione.toscana.it/?pa_prov=FI&procedimento=1915&q=procedimentiamministrativi", "verificato_il": "2026-11-14"}
+      ],
+      "scadenze": [],
+      "ufficio": "sportello_unico"
+    },
+    {
+      "id": "iscrizione_ssn_volontaria",
+      "titolo": "Iscrizione volontaria al Servizio Sanitario Nazionale (studenti e altri casi)",
+      "ente": "ASL competente per il Municipio",
+      "quando_si_applica": "Persona con permesso di soggiorno di più di tre mesi che non ha diritto all'iscrizione obbligatoria, per esempio con un permesso di studio o una persona alla pari; anche cittadini UE residenti senza copertura sanitaria del loro Paese. L'iscrizione è a pagamento.",
+      "non_si_applica": "Chi lavora (subordinato o autonomo) o è iscritto alle liste di collocamento: ha diritto all'iscrizione obbligatoria (percorso tessera sanitaria). Chi è senza permesso di soggiorno: ha diritto alle cure urgenti ed essenziali.",
+      "dipende_da": [],
+      "prerequisiti": [
+        {"id": "documento_riconoscimento", "testo": "Un documento di riconoscimento valido", "verificato": true, "controllo": "automatico", "fonte": "https://www.aslroma2.it/index.php/component/content/article/141-assistenza-agli-stranieri", "verificato_il": "2026-11-14"},
+        {"id": "codice_fiscale", "testo": "Il codice fiscale", "verificato": true, "controllo": "automatico", "fonte": "https://www.aslroma2.it/index.php/component/content/article/141-assistenza-agli-stranieri", "verificato_il": "2026-11-14"},
+        {"id": "permesso_o_ricevuta", "testo": "Una copia del permesso di soggiorno o, se è in rinnovo, il kit (la ricevuta) del rinnovo", "verificato": true, "controllo": "automatico", "fonte": "https://www.aslroma2.it/index.php/component/content/article/141-assistenza-agli-stranieri", "verificato_il": "2026-11-14"},
+        {"id": "bollettini", "testo": "La ricevuta del pagamento del contributo con il modello F24", "verificato": true, "controllo": "automatico", "fonte": "https://www.aslroma2.it/index.php/component/content/article/141-assistenza-agli-stranieri ; https://www.aslroma3.it/wp-content/uploads/2024/04/Iscrizione-volontaria-pdf.pdf", "verificato_il": "2026-11-14"}
+      ],
+      "passi": [
+        {"id": "iv1", "richiede_prerequisiti": true, "testo": "Raccogli i documenti dei prerequisiti.", "verificato": true, "fonte": "interno", "verificato_il": null},
+        {"id": "iv2", "testo": "Versa il contributo annuale con il modello F24: codice tributo 8846, codice regione 08 (Lazio), anno di riferimento uguale all'anno in cui ti iscrivi. Per uno studente con permesso di studio, che non ha altri redditi oltre a borse di studio o sussidi di enti pubblici italiani, è forfettario: 700 euro. Per le persone alla pari: 1.200 euro. Negli altri casi si calcola sul reddito dell'anno prima (7,50% fino a 20.658,28 euro, 4% sulla parte oltre, fino a 51.645,69 euro) e non può essere meno di 2.000 euro. Vale per l'anno solare, dal 1 gennaio al 31 dicembre, e non si divide in mesi. Gli importi cambiano nel tempo: confermali sul sito della tua ASL", "verificato": true, "controllo": "automatico", "fonte": "https://www.aslroma2.it/index.php/component/content/article/141-assistenza-agli-stranieri ; https://www.aslroma3.it/wp-content/uploads/2024/04/Iscrizione-volontaria-pdf.pdf", "verificato_il": "2026-11-14"},
+        {"id": "iv3", "testo": "Compila il modulo «Richiesta di iscrizione volontaria al Servizio Sanitario Regionale» e portalo allo sportello della ASL con i documenti e la ricevuta del versamento. Se sei studente porta anche l'autocertificazione di iscrizione al corso di studio", "verificato": true, "controllo": "automatico", "fonte": "https://www.aslroma2.it/index.php/component/content/article/141-assistenza-agli-stranieri", "verificato_il": "2026-11-14"},
+        {"id": "iv4", "informativo": true, "testo": "Se hai familiari a carico, per studenti e persone alla pari il contributo forfettario non vale: si usa il calcolo sul reddito, con minimo di 2.000 euro, e l'assistenza si estende ai familiari", "verificato": true, "controllo": "automatico", "fonte": "https://www.aslroma2.it/index.php/component/content/article/141-assistenza-agli-stranieri ; https://www.aslroma3.it/wp-content/uploads/2024/04/Iscrizione-volontaria-pdf.pdf", "verificato_il": "2026-11-14"},
+        {"id": "iv5", "informativo": true, "testo": "Una volta iscritto puoi scegliere il medico di base, come per gli altri iscritti", "verificato": true, "controllo": "automatico", "fonte": "https://www.aslroma1.it/assistenza-agli-stranieri-2", "verificato_il": "2026-11-14"}
+      ],
+      "scadenze": [],
+      "ufficio": "asl"
+    },
+    {
+      "id": "spid",
+      "titolo": "SPID (identità digitale) per chi vive in Italia",
+      "ente": "Gestore di identità digitale riconosciuto da AgID",
+      "quando_si_applica": "Persona maggiorenne che vive in Italia e ha un documento di riconoscimento italiano valido. SPID serve per entrare nei servizi online della pubblica amministrazione, per esempio il portale del Ministero dell'Interno.",
+      "non_si_applica": "Chi non ha ancora un documento italiano: con il permesso di soggiorno non si può chiedere SPID, ma si può avere la carta d'identità, che serve per chiederlo (percorso carta d'identità). Minorenni.",
+      "dipende_da": [{"percorso": "carta_identita", "obbligatorio": false, "nota": "Per chi ha il permesso di soggiorno, la carta d'identità è il documento italiano necessario per chiedere SPID."}],
+      "prerequisiti": [
+        {"id": "documento_riconoscimento", "testo": "Un documento di riconoscimento italiano in corso di validità: carta d'identità, passaporto o patente. Il permesso di soggiorno non basta", "verificato": true, "controllo": "automatico", "fonte": "https://www.spid.gov.it/cos-e-spid/come-attivare-spid/ ; https://www.agid.gov.it/it/argomenti/spid.html", "verificato_il": "2026-11-14"},
+        {"id": "codice_fiscale", "testo": "La tessera sanitaria o il tesserino del codice fiscale (o il certificato di attribuzione di uno dei due)", "verificato": true, "controllo": "automatico", "fonte": "https://www.spid.gov.it/cos-e-spid/come-attivare-spid/ ; https://www.agid.gov.it/it/argomenti/spid.html", "verificato_il": "2026-11-14"}
+      ],
+      "passi": [
+        {"id": "sp1", "richiede_prerequisiti": true, "testo": "Raccogli i documenti dei prerequisiti.", "verificato": true, "fonte": "interno", "verificato_il": null},
+        {"id": "sp2", "testo": "Tieni pronti un indirizzo e-mail e un numero di cellulare personali, non di lavoro. Possono anche non essere intestati a te, ma devono essere solo tuoi e diversi per ogni identità SPID", "verificato": true, "controllo": "automatico", "fonte": "https://www.agid.gov.it/it/argomenti/spid.html", "verificato_il": "2026-11-14"},
+        {"id": "sp3", "testo": "Scegli un gestore di identità digitale riconosciuto da AgID e registrati sul suo sito: inserisci i dati anagrafici e crea le credenziali. Poi fai il riconoscimento: di persona, via webcam, in audio-video con bonifico, oppure con CIE, CNS o firma digitale. Alcune modalità sono gratuite e altre a pagamento: controlla i costi del gestore prima di scegliere. In alternativa puoi farti identificare gratuitamente in una pubblica amministrazione abilitata", "verificato": true, "controllo": "automatico", "fonte": "https://www.spid.gov.it/cos-e-spid/come-attivare-spid/", "verificato_il": "2026-11-14"},
+        {"id": "sp4", "informativo": true, "testo": "I tempi di rilascio dipendono dal gestore. Una volta ottenuto, usare SPID per i servizi online della pubblica amministrazione e dei privati è gratuito per i cittadini", "verificato": true, "controllo": "automatico", "fonte": "https://www.spid.gov.it/cos-e-spid/come-attivare-spid/", "verificato_il": "2026-11-14"}
+      ],
+      "scadenze": [],
+      "ufficio": "spid"
+    },
+    {
+      "id": "cittadinanza_residenza",
+      "titolo": "Cittadinanza italiana per residenza (cittadini non UE)",
+      "ente": "Ministero dell'Interno (domanda online) e Prefettura",
+      "quando_si_applica": "Persona non UE con residenza legale in Italia da almeno 10 anni.",
+      "non_si_applica": "Cittadini UE (bastano 4 anni di residenza legale), apolidi e rifugiati (5 anni), nati in Italia, ascendenti di cittadini italiani: regole diverse, non coperte. Chi non ha ancora 10 anni di residenza legale.",
+      "dipende_da": [{"percorso": "spid", "obbligatorio": false, "nota": "La domanda online si fa entrando con SPID o con la CIE."}],
+      "prerequisiti": [
+        {"id": "documento_riconoscimento", "testo": "Documento di riconoscimento: il passaporto e la carta d'identità", "verificato": true, "controllo": "automatico", "fonte": "https://libertaciviliimmigrazione.dlci.interno.gov.it/cittadinanza-invia-la-tua-domanda ; https://www1.prefettura.it/reggioemilia/contenuti/18132186.htm", "verificato_il": "2026-11-14"},
+        {"id": "permesso_o_ricevuta", "testo": "Il permesso di soggiorno", "verificato": true, "controllo": "automatico", "fonte": "https://www1.prefettura.it/reggioemilia/contenuti/18132186.htm", "verificato_il": "2026-11-14"},
+        {"id": "marca_bollo", "testo": "Una marca da bollo da 16 euro (telematica, solo per le domande presentate in Italia)", "verificato": true, "controllo": "automatico", "fonte": "https://libertaciviliimmigrazione.dlci.interno.gov.it/cittadinanza-invia-la-tua-domanda ; https://www1.prefettura.it/reggioemilia/contenuti/18132186.htm", "verificato_il": "2026-11-14"},
+        {"id": "bollettini", "testo": "La ricevuta del versamento del contributo di 250 euro", "verificato": true, "controllo": "automatico", "fonte": "https://libertaciviliimmigrazione.dlci.interno.gov.it/cittadinanza-invia-la-tua-domanda ; https://www1.prefettura.it/reggioemilia/contenuti/18132186.htm", "verificato_il": "2026-11-14"}
+      ],
+      "passi": [
+        {"id": "ci1", "richiede_prerequisiti": true, "testo": "Raccogli i documenti dei prerequisiti.", "verificato": true, "fonte": "interno", "verificato_il": null},
+        {"id": "ci2", "testo": "Procurati l'atto di nascita e il certificato penale del tuo Paese, e degli altri Paesi dove hai vissuto: legalizzati o con apostille e tradotti in italiano. Il certificato penale vale 6 mesi; non serve a chi è arrivato in Italia prima dei 14 anni. Controlla che nome, cognome, luogo e data di nascita siano uguali su tutti i documenti", "verificato": true, "controllo": "automatico", "fonte": "https://libertaciviliimmigrazione.dlci.interno.gov.it/cittadinanza-invia-la-tua-domanda ; https://www1.prefettura.it/reggioemilia/contenuti/18132186.htm", "verificato_il": "2026-11-14"},
+        {"id": "ci3", "testo": "Procurati la certificazione di conoscenza della lingua italiana di livello B1 o superiore, oppure un titolo di studio riconosciuto. Non serve a chi ha firmato l'accordo di integrazione o ha il permesso UE per soggiornanti di lungo periodo", "verificato": true, "controllo": "automatico", "fonte": "https://libertaciviliimmigrazione.dlci.interno.gov.it/cittadinanza-invia-la-tua-domanda ; https://www1.prefettura.it/reggioemilia/contenuti/18132186.htm", "verificato_il": "2026-11-14"},
+        {"id": "ci4", "testo": "Controlla il reddito: serve un reddito adeguato, stabile e costante, valutato nei tre anni prima della domanda e fino alla fine della pratica. Porta le dichiarazioni dei redditi degli ultimi tre anni", "verificato": true, "controllo": "automatico", "fonte": "https://www1.prefettura.it/reggioemilia/contenuti/18132186.htm", "verificato_il": "2026-11-14"},
+        {"id": "ci5", "testo": "Fai la domanda online sul portale del Ministero dell'Interno (cittadinanza.dlci.interno.it), entrando con SPID o CIE. Compili il modulo e allegati documento, atto di nascita, certificato penale, certificato di lingua, ricevuta dei 250 euro e gli estremi della marca da bollo. La domanda viene poi trasmessa alla Prefettura per l'istruttoria", "verificato": true, "controllo": "automatico", "fonte": "https://libertaciviliimmigrazione.dlci.interno.gov.it/cittadinanza-invia-la-tua-domanda", "verificato_il": "2026-11-14"},
+        {"id": "ci6", "informativo": true, "testo": "Per le domande presentate dal 20 dicembre 2020 il termine per concludere la pratica è di 24 mesi, prorogabili fino a 36", "verificato": true, "controllo": "automatico", "fonte": "https://libertaciviliimmigrazione.dlci.interno.gov.it/temi/concessione-della-cittadinanza-italiana-residenza-sul-territorio-italiano-ai-sensi-dellart-9", "verificato_il": "2026-11-14"}
+      ],
+      "scadenze": [],
+      "ufficio": "cittadinanza"
     }
   ]
 }
