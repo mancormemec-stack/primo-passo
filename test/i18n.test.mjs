@@ -134,3 +134,26 @@ test("pagina e moduli locali portano la stessa versione (niente file vecchi dall
   assert.equal(versioni.size, 1, `versioni diverse: ${riferimenti.join(", ")}`);
   assert.ok(!versioni.has("nessuna"), "ogni file locale deve avere ?v=");
 });
+
+test("ogni lingua ha la sua bandiera e il file esiste (flag-icons, MIT, con licenza inclusa)", async () => {
+  const { existsSync } = await import("node:fs");
+  const { BANDIERA } = await import("../web/flags.js");
+  for (const c of TUTTE) {
+    assert.ok(BANDIERA[c], `${c}: manca la bandiera`);
+    assert.ok(existsSync(new URL(`../web/flags/${BANDIERA[c]}.svg`, import.meta.url)), `${c}: manca il file ${BANDIERA[c]}.svg`);
+  }
+  assert.equal(Object.keys(BANDIERA).length, TUTTE.length);
+  assert.ok(existsSync(new URL("../web/flags/LICENSE", import.meta.url)), "manca la licenza delle bandiere");
+});
+
+test("la ricerca della lingua sta sotto Pino e non dentro un menu chiuso; gli id dell'onboarding usati da app.js esistono nella pagina", async () => {
+  const { readFileSync } = await import("node:fs");
+  const html = readFileSync(new URL("../web/index.html", import.meta.url), "utf8");
+  const js = readFileSync(new URL("../web/app.js", import.meta.url), "utf8");
+  assert.ok(html.indexOf('id="onb-pino"') < html.indexOf('id="cerca"') && html.indexOf('id="cerca"') < html.indexOf('id="lingue"'));
+  assert.ok(!/id="altre"|id="altre-apri"/.test(html));
+  for (const id of ["cerca", "lingue", "altre-lista", "nessuna", "nota-lingua", "avanti", "onb-domanda", "saluto"]) {
+    assert.ok(html.includes(`id="${id}"`), `manca #${id}`);
+  }
+  for (const id of ["altre", "altre-apri"]) assert.ok(!js.includes(`$("${id}")`), `app.js usa ancora #${id}, rimosso dalla pagina`);
+});

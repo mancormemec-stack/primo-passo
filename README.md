@@ -44,8 +44,9 @@ Agente ElevenLabs: LLM + riconoscimento vocale + sintesi vocale
   - tutte le 89 lingue hanno l'interfaccia tradotta. Solo italiano e inglese sono scritti da noi: le altre 87 sono **traduzioni automatiche, scritte da un'IA e non riviste da madrelingua** ([web/i18n-auto.js](web/i18n-auto.js) per le 82 aggiunte; ro, ar, uk, fil e bn in `i18n.js`). La pagina lo dichiara (testo `trad.auto`, nella lingua scelta) e non va presentato come «lingue provate». Le più incerte sono le lingue con poche risorse (luganda, wolof, shona, occitano, asturiano, maori, sindhi, pashto, curdo sorani): vanno riviste per prime;
   - Pino parla la lingua scelta con l'agente: a voce sono provate solo poche lingue (vedi sotto), il resto è da provare;
   - arabo, ebraico, persiano, urdu, pashto, sindhi e curdo sorani vanno da destra a sinistra;
+  - nella prima schermata la ricerca della lingua sta sotto Pino e ogni lingua ha la sua bandiera ([flag-icons](https://github.com/lipis/flag-icons), MIT, in `web/flags/` con la licenza). La bandiera è solo un'indicazione: le lingue non sono paesi (arabo = Lega Araba, catalano e galiziano = bandiere regionali). I nomi in scrittura da destra a sinistra restano allineati a sinistra come gli altri;
   - i passi del percorso restano in italiano, perché vengono dai dati verificati.
-- **Cache:** pagina e moduli locali hanno `?v=N`. Se cambiate un file in `web/`, aumentate N in `index.html`, `app.js`, `pino-regia.js` e `i18n.js`: il test lo controlla. Senza, per 10 minuti GitHub Pages può servire un `app.js` vecchio con la pagina nuova.
+- **Cache:** pagina e moduli locali hanno `?v=N`. Se cambiate un file in `web/`, aumentate N in `index.html`, `app.js`, `pino-regia.js` e `i18n.js` (e negli import di `flags.js`/`i18n-auto.js`): il test lo controlla. Senza, per 10 minuti GitHub Pages può servire un `app.js` vecchio con la pagina nuova.
 
 ## Setup (circa 30 minuti)
 

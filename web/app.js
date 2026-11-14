@@ -1,12 +1,13 @@
 import { Conversation } from "https://cdn.jsdelivr.net/npm/@elevenlabs/client@1.29.0/+esm";
-import { createTools } from "./tools.js?v=6";
-import { creaPino } from "./pino.js?v=6";
-import { creaRegia } from "./pino-regia.js?v=6";
-import { esitoPositivo, contaFatti } from "./pino-state.js?v=6";
+import { createTools } from "./tools.js?v=7";
+import { BANDIERA } from "./flags.js?v=7";
+import { creaPino } from "./pino.js?v=7";
+import { creaRegia } from "./pino-regia.js?v=7";
+import { esitoPositivo, contaFatti } from "./pino-state.js?v=7";
 import {
   PRINCIPALI, ALTRE, TUTTE, direzione, nomePerAgente, nomeNativo, provataAVoce,
   traduttore, linguaUI, traduzioneAutomatica, SALUTI, linguaSalvata, salvaLingua,
-} from "./i18n.js?v=6";
+} from "./i18n.js?v=7";
 
 // ID dell'agente ElevenLabs (pubblico per la demo). Si può anche passare come ?agent=...
 const parametri = new URLSearchParams(location.search);
@@ -14,8 +15,8 @@ const AGENT_ID = parametri.get("agent") || "agent_0601m7b42fyaf8ybzmhabg67wy0w";
 
 const $ = (id) => document.getElementById(id);
 const [percorsi, uffici] = await Promise.all([
-  fetch("data/percorsi.json?v=6").then((r) => r.json()),
-  fetch("data/uffici.json?v=6").then((r) => r.json()),
+  fetch("data/percorsi.json?v=7").then((r) => r.json()),
+  fetch("data/uffici.json?v=7").then((r) => r.json()),
 ]);
 
 // ---------- Stato della pagina ----------
@@ -302,13 +303,21 @@ function tessera(code, testo, sotto) {
   b.setAttribute("aria-checked", "false");
   b.dataset.code = code;
   b.lang = code;
-  b.dir = direzione(code);
+  const bandiera = document.createElement("img");
+  bandiera.className = "bandiera";
+  bandiera.alt = "";
+  bandiera.setAttribute("aria-hidden", "true");
+  bandiera.loading = "lazy";
+  bandiera.width = bandiera.height = 24;
+  if (BANDIERA[code]) bandiera.src = `flags/${BANDIERA[code]}.svg`;
   const nome = document.createElement("span");
+  nome.className = "nome";
+  nome.dir = direzione(code); // la scrittura va nel verso giusto, ma il nome resta allineato a sinistra come gli altri
   nome.textContent = testo;
-  if (sotto) nome.append(Object.assign(document.createElement("small"), { textContent: sotto }));
+  if (sotto) nome.append(Object.assign(document.createElement("small"), { textContent: sotto, dir: "ltr" }));
   const spunta = Object.assign(document.createElement("span"), { className: "spunta", textContent: "✓" });
   spunta.setAttribute("aria-hidden", "true");
-  b.append(nome, spunta);
+  b.append(bandiera, nome, spunta);
   b.onclick = () => scegli(code);
   return b;
 }
@@ -326,18 +335,17 @@ function scegli(code) {
   setTimeout(() => onbPino.stato("idle"), 900);
 }
 
-$("altre-apri").onclick = () => {
-  const apri = $("altre").hidden;
-  $("altre").hidden = !apri;
-  $("altre-apri").setAttribute("aria-expanded", String(apri));
-  if (apri) $("cerca").focus();
-};
+// Ricerca sotto Pino: filtra tutte le lingue (nome nella lingua, nome inglese o codice, senza accenti).
+const senzaAccenti = (x) => x.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+const INGLESE_PRINCIPALI = { it: "Italian", en: "English", ro: "Romanian", ar: "Arabic", uk: "Ukrainian", fil: "Filipino" };
 $("cerca").oninput = () => {
-  const q = $("cerca").value.trim().toLowerCase();
+  const q = senzaAccenti($("cerca").value.trim());
   let visibili = 0;
-  for (const b of $("altre-lista").children) {
-    const l = ALTRE.find((x) => x.code === b.dataset.code);
-    const ok = !q || `${l.inglese} ${l.nativo} ${l.code}`.toLowerCase().includes(q);
+  for (const b of [...$("lingue").children, ...$("altre-lista").children]) {
+    const l = ALTRE.find((x) => x.code === b.dataset.code) || PRINCIPALI.find((x) => x.code === b.dataset.code);
+    const nome = l.nativo || l.nome;
+    const inglese = l.inglese || INGLESE_PRINCIPALI[l.code] || "";
+    const ok = !q || senzaAccenti(`${nome} ${inglese} ${l.code}`).includes(q);
     b.hidden = !ok;
     visibili += ok;
   }
@@ -351,10 +359,6 @@ function mostraOnboarding() {
   for (const b of document.querySelectorAll(".tessera")) b.setAttribute("aria-checked", String(b.dataset.code === scelta));
   $("avanti").disabled = !scelta;
   $("nota-lingua").hidden = !scelta || provataAVoce(scelta);
-  if (scelta && !PRINCIPALI.some((l) => l.code === scelta)) {
-    $("altre").hidden = false;
-    $("altre-apri").setAttribute("aria-expanded", "true");
-  }
   let i = 0;
   clearInterval(timerSaluti);
   timerSaluti = setInterval(() => {

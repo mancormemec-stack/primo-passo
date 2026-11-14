@@ -2,7 +2,7 @@
 // Tutte le 89 lingue hanno l'interfaccia tradotta, ma SOLO italiano e inglese sono scritti da noi:
 // le altre sono traduzioni automatiche non riviste da madrelingua (lo dichiara la pagina).
 // Pino PARLA la lingua scelta con l'agente; le lingue provate a voce restano poche.
-import { AUTO } from "./i18n-auto.js?v=6";
+import { AUTO } from "./i18n-auto.js?v=7";
 
 // Lingue principali: provate a voce (tranne il bengali, ancora da provare).
 export const PRINCIPALI = [
