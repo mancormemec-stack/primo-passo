@@ -289,3 +289,118 @@ test("sbloccare un percorso richiede le azioni dichiarate: nessuna scorciatoia c
   passo(call, RES, "a1", "a2", "a3");
   assert.equal(call("next_step", { path_id: "carta_identita" }).bloccato, true);
 });
+
+// ---------- correzione 1: richieste fatte mentre il percorso è bloccato ----------
+
+const CIE = "carta_identita";
+const sblocca = (call) => {
+  docs(call, RES);
+  passo(call, RES, "a1", "a2", "a3", "a4");
+};
+
+test("caso della prova dal vivo: «segna la prenotazione» mentre la carta è bloccata NON si recupera da sola dopo lo sblocco", () => {
+  const { call } = setup();
+  // 1. «Sono già residente… segna come fatta la prenotazione»: la carta è bloccata
+  const bloccata = call("next_step", { path_id: CIE, completati: "c1" });
+  assert.equal(bloccata.bloccato, true);
+  assert.match(bloccata.richiesta_non_conservata, /NON vale e NON resta in attesa/);
+  assert.equal(bloccata.registrati, undefined, "niente è stato registrato");
+  // 2. l'utente dichiara i passi della residenza e la carta si sblocca
+  sblocca(call);
+  // 3. Pino prova a recuperare la richiesta di prima, senza che l'utente l'abbia confermata di nuovo
+  const recupero = call("next_step", { path_id: CIE, completati: "c1" });
+  assert.equal(recupero.rifiutati[0].passo, "c1");
+  assert.equal(recupero.rifiutati[0].motivo, "richiesta_durante_il_blocco");
+  assert.deepEqual(recupero.registrato_ora, []);
+  assert.equal(recupero.fatti, 0, "la prenotazione NON risulta fatta");
+  assert.match(recupero.istruzione_rifiuto, /richiesto mentre il percorso era bloccato/);
+  assert.match(recupero.istruzione_rifiuto, /aspetta la sua risposta esplicita/);
+  assert.match(recupero.istruzione_rifiuto, /Non recuperare richieste precedenti/);
+  // 4. solo dopo una conferma esplicita dell'utente, una NUOVA chiamata registra il passo
+  const confermato = call("next_step", { path_id: CIE, completati: "c1" });
+  assert.deepEqual(confermato.registrato_ora.map((x) => x.id), ["c1"]);
+  assert.equal(confermato.fatti, 1);
+});
+
+test("più passi richiesti durante il blocco: ognuno richiede la sua conferma", () => {
+  const { call } = setup();
+  call("next_step", { path_id: CIE, completati: "c1,c2,c3" });
+  sblocca(call);
+  docs(call, CIE);
+  const primo = call("next_step", { path_id: CIE, completati: "c1" });
+  assert.equal(primo.rifiutati[0].motivo, "richiesta_durante_il_blocco");
+  assert.equal(call("next_step", { path_id: CIE, completati: "c1" }).fatti, 1);
+  const secondo = call("next_step", { path_id: CIE, completati: "c1,c2" });
+  assert.equal(secondo.rifiutati[0].passo, "c2");
+  assert.equal(secondo.rifiutati[0].motivo, "richiesta_durante_il_blocco");
+  assert.equal(secondo.fatti, 1);
+  assert.equal(call("next_step", { path_id: CIE, completati: "c2" }).fatti, 2);
+});
+
+test("guardare lo stato mentre il percorso è bloccato (senza completati) non crea nessuna richiesta da rifiutare", () => {
+  const { call } = setup();
+  assert.equal(call("next_step", { path_id: CIE }).bloccato, true);
+  assert.equal(call("next_step", { path_id: CIE, completati: "" }).richiesta_non_conservata, undefined);
+  sblocca(call);
+  const r = call("next_step", { path_id: CIE, completati: "c1" });
+  assert.deepEqual(r.registrato_ora.map((x) => x.id), ["c1"], "una richiesta fatta DOPO lo sblocco vale subito");
+  assert.equal(r.rifiutati, undefined);
+});
+
+test("la richiesta durante il blocco non cambia lo stato né sblocca nulla", () => {
+  const { call, fx } = setup();
+  call("next_step", { path_id: CIE, completati: "c1,c2,c3" });
+  call("next_step", { path_id: CIE, completati: "c1,c2,c3" });
+  const stato = fx.states.at(-1)?.percorsi?.[CIE];
+  assert.deepEqual(stato?.completati ?? [], []);
+  assert.equal(call("next_step", { path_id: CIE }).bloccato, true, "resta bloccata");
+});
+
+test("una richiesta durante il blocco non toglie i controlli: l'ordine vale ancora", () => {
+  const { call } = setup();
+  call("next_step", { path_id: CIE, completati: "c2" });
+  sblocca(call);
+  const r = call("next_step", { path_id: CIE, completati: "c2" });
+  assert.equal(r.rifiutati[0].motivo, "ordine", "c2 non può precedere c1");
+  assert.deepEqual(r.rifiutati[0].da_fare_prima, ["c1"]);
+  assert.equal(r.fatti, 0);
+});
+
+test("una richiesta durante il blocco non aggira i documenti obbligatori della carta", () => {
+  const { call } = setup();
+  call("next_step", { path_id: CIE, completati: "c1,c2" });
+  sblocca(call);
+  call("next_step", { path_id: CIE, completati: "c1" }); // rifiutato (richiesta durante il blocco)
+  call("next_step", { path_id: CIE, completati: "c1" }); // c1 registrato dopo conferma
+  call("next_step", { path_id: CIE, completati: "c1,c2" }); // c2: richiesta durante il blocco, rifiutata
+  const r = call("next_step", { path_id: CIE, completati: "c1,c2" }); // confermata, ma mancano i documenti
+  assert.equal(r.rifiutati[0].motivo, "documenti_mancanti");
+  assert.equal(r.fatti, 1);
+});
+
+// ---------- convenzione «-id» ----------
+
+test("«-id» è davvero supportato: si toglie, anche con spazi, e si può rimettere", () => {
+  const { call } = setup();
+  docs(call, RES);
+  const senza = docs(call, RES, "- codice_fiscale , -passaporto");
+  assert.deepEqual(senza.mancanti_obbligatori.map((m) => m.id).sort(), ["codice_fiscale", "passaporto"]);
+  assert.equal(senza.ha_tutto, false);
+  assert.equal(call("next_step", { path_id: RES, completati: "a1" }).fatti, 0, "senza i documenti obbligatori nessun avanzamento");
+  const dinuovo = docs(call, RES, "codice_fiscale,passaporto");
+  assert.equal(dinuovo.ha_tutto, true);
+  assert.equal(call("next_step", { path_id: RES, completati: "a1" }).fatti, 1);
+});
+
+test("«-id» di un documento mai dichiarato non fa danni; togliere un documento non annulla un passo già registrato", () => {
+  const { call } = setup();
+  const r = docs(call, RES, "-codice_fiscale");
+  assert.equal(r.ha_tutto, false);
+  assert.ok(!r.dichiarati_dall_utente.includes("codice_fiscale"));
+  docs(call, RES);
+  passo(call, RES, "a1");
+  docs(call, RES, "-codice_fiscale");
+  assert.equal(call("next_step", { path_id: RES }).fatti, 1);
+  assert.equal(call("next_step", { path_id: RES, completati: "a2" }).fatti, 2, "a2 non richiede i documenti");
+  assert.equal(call("next_step", { path_id: RES, completati: "a3" }).rifiutati[0].motivo, "documenti_mancanti", "a3 sì");
+});

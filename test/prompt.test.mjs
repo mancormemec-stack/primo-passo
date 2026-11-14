@@ -279,12 +279,35 @@ test("avviso iniziale: una sola frase, con un esempio che non dice mai «verific
   assert.ok(esempio.length < 190, `l'esempio è breve (${esempio.length} caratteri)`);
 });
 
-test("non si ripete una domanda già posta; se ancora ambiguo, una domanda diversa e nulla registrato", () => {
-  const r = regola("- Non ripetere una domanda sullo stesso documento o passaggio");
+test("domande: mai la stessa in turni consecutivi, nemmeno con altre parole; ambiguo = una domanda diversa, nulla registrato", () => {
+  const r = regola("- Non ripetere la stessa domanda sullo stesso documento o passaggio");
   assert.ok(r, "manca la regola sulle domande ripetute");
-  assert.match(r, /dopo averla già posta/);
-  assert.match(r, /fai una domanda diversa e più precisa/);
-  assert.match(r, /non registrare nulla/);
+  assert.match(r, /in turni consecutivi, nemmeno con parole diverse/);
+  assert.match(r, /fai UNA domanda diversa e più precisa/);
+  assert.match(r, /e non registrare nulla/);
+});
+
+test("domande: se l'utente non risponde non si registra, non si rifà la domanda e si offre un altro punto o più tardi", () => {
+  const r = regola("- Non ripetere la stessa domanda sullo stesso documento o passaggio");
+  assert.match(r, /Se l'utente non risponde, o risponde ad altro, non registrare il passo, non rifare la domanda/);
+  assert.match(r, /chiedi se preferisce affrontare un altro punto o proseguire più tardi/);
+  assert.ok(!/dopo averla già posta/.test(prompt), "la vecchia formulazione è stata sostituita");
+});
+
+test("richieste fatte mentre il percorso è bloccato: non valgono, non si recuperano, si richiede conferma esplicita", () => {
+  const r = regola("- Una richiesta di segnare un passo fatta mentre un percorso è bloccato");
+  assert.ok(r, "manca la regola sulle richieste durante il blocco");
+  assert.match(r, /non vale e non resta in attesa/);
+  assert.match(r, /non recuperarla mai da sola/);
+  assert.match(r, /Chiedi di nuovo all'utente se ha davvero fatto quel passo, aspetta la sua risposta esplicita e solo dopo chiama `next_step`/);
+  assert.match(r, /`richiesta_durante_il_blocco`/);
+});
+
+test("i controlli sui documenti obbligatori e sull'ordine restano nel prompt (correzioni finali)", () => {
+  const r = regola("- Se `next_step` risponde con `rifiutati`");
+  assert.match(r, /ESATTAMENTE quelli di `mancanti_obbligatori`/);
+  assert.match(r, /Il rifiuto non si può aggirare/);
+  assert.match(regola("- Avanzamento, senza dedurre."), /solo se l'utente dice chiaramente/);
 });
 
 test("le informazioni di next_step non sono passi: non si chiedono, non si registrano, non si contano", () => {

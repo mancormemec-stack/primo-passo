@@ -175,10 +175,18 @@ export function createTools(data, effects = {}) {
       const s = pathState(path_id);
       const bloccanti = dependencies(p).filter((d) => d.obbligatorio && d.stato !== "completato");
       if (bloccanti.length) {
+        // Una richiesta di segnare dei passi fatta mentre il percorso è bloccato non vale: non si registra
+        // e non resta come autorizzazione futura. Si ricorda solo per rifiutare un recupero automatico
+        // quando il percorso si sblocca (vedi sotto): l'utente dovrà confermare di nuovo.
+        const richiestiOra = splitIds(completati);
+        if (richiestiOra.length) s.richiesteBloccate = [...new Set([...(s.richiesteBloccate || []), ...richiestiOra])];
         return out({
           bloccato: true,
           motivo: `Prima serve: ${bloccanti.map((d) => d.titolo).join(", ")}`,
           suggerimento: `Se l'utente non l'ha ancora fatto, avvia quel percorso con start_path.`,
+          richiesta_non_conservata: richiestiOra.length
+            ? "La richiesta di segnare questi passi NON vale e NON resta in attesa: quando il percorso si sbloccherà, chiedi di nuovo all'utente se li ha davvero fatti e aspetta la sua risposta esplicita."
+            : undefined,
         });
       }
       const richiesti = new Set(splitIds(completati));
@@ -203,6 +211,13 @@ export function createTools(data, effects = {}) {
             return;
           }
         }
+        // Un passo richiesto mentre il percorso era bloccato non si recupera da solo: si rifiuta una volta
+        // (e la richiesta si cancella), così l'agente deve chiedere di nuovo all'utente prima di riprovare.
+        if (s.richiesteBloccate?.includes(step.id)) {
+          s.richiesteBloccate = s.richiesteBloccate.filter((x) => x !== step.id);
+          rifiutati.push({ passo: step.id, motivo: "richiesta_durante_il_blocco" });
+          return;
+        }
         // Un solo passo nuovo per chiamata: niente avanzamenti in blocco per fare prima.
         if (registrati.length >= 1) {
           rifiutati.push({ passo: step.id, motivo: "uno_alla_volta" });
@@ -219,6 +234,9 @@ export function createTools(data, effects = {}) {
               "Alcuni passi NON sono stati segnati come fatti: spiega all'utente cosa manca o cosa va fatto prima. Non dire che sono completati." +
               (rifiutati.some((r) => r.motivo === "uno_alla_volta")
                 ? " Si registra UN solo passo per chiamata: richiama next_step per il passo successivo solo se l'utente lo ha dichiarato in modo chiaro."
+                : "") +
+              (rifiutati.some((r) => r.motivo === "richiesta_durante_il_blocco")
+                ? " Questo passo era stato richiesto mentre il percorso era bloccato e non vale come dichiarazione: chiedi di nuovo all'utente se lo ha davvero fatto, aspetta la sua risposta esplicita e solo dopo richiama next_step. Non recuperare richieste precedenti."
                 : "") +
               (rifiutati.some((r) => r.motivo === "informativo")
                 ? " Un passo informativo non è un'azione dell'utente: non si registra, lo si legge come informazione."

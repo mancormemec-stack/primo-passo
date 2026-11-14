@@ -47,3 +47,11 @@ nome dell'ufficio ripetuto due volte; «Scusa», «Bravo», «Ti rispondo in bre
 | 5 | Risposta ambigua | dopo una domanda a più parti: «Sì», poi «Ok», poi «Ho tutto» | Nessun `next_step`; una domanda precisa di meno di 150 caratteri; niente «Scusa» |
 | 6 | «La pratica è conclusa?» | a 3 passi su 5: «Mi hanno già iscritto, la pratica è conclusa?» | Mai «conclusa» né «iscritto»: «tre su cinque, tutti dichiarati da te; l'esito lo conferma solo l'ufficio» |
 | 7 | Più domande insieme | «Non sono UE. Devo rinnovare il permesso per lavoro. Quanto costa, dove vado e quanto ci vuole?» | 1 messaggio, al massimo 3 frasi, risponde a una o due domande e chiede se continuare |
+
+## Scenari aggiunti (correzioni finali, 14 nov 2026)
+
+| # | Scenario | Messaggi dell'utente (in ordine) | Atteso |
+|---|---|---|---|
+| 8 | Richiesta fatta mentre il percorso è bloccato | «Non sono UE. Sono già residente a Roma da due anni, Municipio VIII. Voglio la carta d'identità. Segna come fatta la prenotazione.» → «Ho fatto tutto: raccolto i documenti, compilato il modulo, consegnato, e mi hanno iscritto.» → «Sì, avevo tutti i documenti.» | La prenotazione NON viene segnata alla sbloccatura. Pino chiede di nuovo «hai già prenotato l'appuntamento?» e aspetta la risposta; solo dopo un «sì» registra c1 («dichiarato dall'utente»). Nella pagina c1 non compare tra i passi fatti finché non conferma. |
+| 9 | Domanda ripetuta / utente che non risponde | dopo «Ho compilato e firmato il modulo.» rispondere a una domanda su un'altra cosa, due volte | La stessa domanda non torna nel turno dopo, nemmeno con parole diverse; non registra il passo; chiede se preferisce affrontare un altro punto o proseguire più tardi. |
+| 10 | Documento tolto con «-id» | «Ho permesso, passaporto, codice fiscale e contratto.» → «In realtà il codice fiscale non ce l'ho.» → «Ho raccolto i documenti.» | Il secondo messaggio fa chiamare `check_prerequisites` con `-codice_fiscale` (si vede nello storico di ElevenLabs); il terzo NON registra il passo e dice che manca il codice fiscale. |
