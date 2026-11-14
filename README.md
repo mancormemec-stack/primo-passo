@@ -140,7 +140,7 @@ Per ogni lingua controllate: l'agente fa la domanda sulla cittadinanza UE una so
 
 ## Open source e segreti
 
-- **Il progetto è sotto licenza MIT** (file [LICENSE](LICENSE)). La repository è pubblica e tutto il codice è dentro.
+- **Il progetto è sotto licenza MIT** (file [LICENSE](LICENSE)). La repository è pubblica e tutto il codice è dentro. **Per copiarlo e farlo funzionare con il tuo agente e il tuo sito: [RIUSO.md](RIUSO.md).**
 - **Nessun segreto nella repository e nel deploy.** Si pubblica solo la cartella `web/`, che contiene HTML, JS e i dati JSON pubblici. Non ci sono file `.env` e il codice non ne legge.
 - **Chiave ElevenLabs:** serve solo per lanciare una volta `scripts/crea-agente.mjs` dal vostro computer, come variabile d'ambiente nel terminale. Non va salvata in nessun file.
 - **Chiave Exa:** si salva come Secret dentro ElevenLabs, che la usa lato server per il webhook `check_updates`. Non passa mai dal browser.
@@ -152,4 +152,4 @@ Per ogni lingua controllate: l'agente fa la domanda sulla cittadinanza UE una so
 
 ## Licenza
 
-MIT. I dati pubblici citati restano sotto le rispettive licenze.
+MIT. I dati pubblici citati restano sotto le rispettive licenze. Guida al riuso: [RIUSO.md](RIUSO.md).
