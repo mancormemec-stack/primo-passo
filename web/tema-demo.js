@@ -130,7 +130,7 @@
       c.id = "chip-municipio"; c.type = "button"; c.className = "press";
       c.addEventListener("click", () => { globalThis.__ppMunicipio = undefined; chipMunicipio(null); });
       const head = $("app").querySelector(".barra");
-      if (head) head.appendChild(c);
+      if (head) head.insertAdjacentElement("afterend", c);
     }
     c.textContent = "\u{1F4CD} " + testiPos()[4] + " " + m + " \u00D7";
     c.setAttribute("aria-label", testiPos()[4] + " " + m);
@@ -236,7 +236,7 @@
     dock.id = "dock";
     dock.innerHTML = '<button type="button" class="lato press" data-az="scrivi">' + ICONE.tastiera + '</button>' +
       '<button type="button" class="mic press" data-az="mic">' + ICONE.mic + '</button>' +
-      '<button type="button" class="lato press" data-az="muto" aria-pressed="false">' + ICONE.mic + '</button>';
+      '<button type="button" class="lato press" data-az="muto" aria-pressed="false">' + ICONE.micOff + '</button>';
     dock.addEventListener("click", (e) => {
       const b = e.target.closest("button"); if (!b) return;
       const az = b.dataset.az;
@@ -244,7 +244,6 @@
       if (az === "muto") {
         mic.muto = !mic.muto; applicaMuto();
         b.setAttribute("aria-pressed", mic.muto ? "true" : "false");
-        b.innerHTML = mic.muto ? ICONE.micOff : ICONE.mic;
         b.classList.toggle("spento", mic.muto);
         $("app").classList.toggle("muto", mic.muto);
       }
@@ -254,6 +253,8 @@
       }
     });
     main.appendChild(dock);
+    const nascosti = app.querySelector(".azioni");
+    if (nascosti) { nascosti.setAttribute("aria-hidden", "true"); nascosti.querySelectorAll("button").forEach((b) => { b.tabIndex = -1; }); }
   }
   function casaAggiorna() {
     const app = $("app");
@@ -368,6 +369,22 @@
     uffici = (d.mappe || []).filter((m) => m && /^https:\/\/www\.google\.com\/maps\//.test(m.link));
     disegnaUfficio();
   });
+
+  // ---------- Percorso vuoto: dice cosa fare e porta a Pino ----------
+  function percorsoVuoto() {
+    const st = $("steps");
+    if (!st) return;
+    if (st.querySelector("li")) return;
+    if ($("vuoto-vai")) return;
+    const voce = $("voice"), did = $("didascalia");
+    const etichetta = (did && did.textContent.trim()) || (voce && (voce.getAttribute("aria-label") || "").trim()) || "Pino";
+    const b = document.createElement("button");
+    b.id = "vuoto-vai"; b.type = "button"; b.className = "cta press";
+    b.innerHTML = ICONE.mic + "<span></span>";
+    b.querySelector("span").textContent = etichetta;
+    b.addEventListener("click", () => vista("pino"));
+    st.appendChild(b);
+  }
   function barra() {
     const app = $("app");
     if (!app || app.hidden) return;
@@ -547,7 +564,7 @@ body { padding-bottom: 86px; }
   }
 
   let attesa = 0;
-  function aggiorna() { attesa = 0; try { statusbar(); onboarding(); welcomeTesti(); barra(); chiediPosizione(); contatori(); foglio(); } catch (e) { /* mai bloccare l'app */ } }
+  function aggiorna() { attesa = 0; try { statusbar(); onboarding(); welcomeTesti(); barra(); chiediPosizione(); percorsoVuoto(); contatori(); foglio(); } catch (e) { /* mai bloccare l'app */ } }
   const osserva = new MutationObserver(() => { if (!attesa) attesa = requestAnimationFrame(aggiorna); });
   function parti() {
     aggiorna();

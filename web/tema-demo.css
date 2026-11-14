@@ -190,3 +190,37 @@
 #posizione .cta { width: 100%; margin-top: 8px; }
 #posizione .link { align-self: center; text-decoration: none; font-weight: 800; padding: 12px; }
 #chip-municipio { position: absolute; inset-inline-end: 0; top: 50%; transform: translateY(-50%); padding: 4px 10px; border: 0; border-radius: 999px; background: var(--peach); color: var(--primary-text); font-size: 12px; font-weight: 800; }
+
+/* ===== Correzioni dall'audit ===== */
+/* Pino si adatta all'altezza dello schermo: i comandi restano in vista */
+#app .pino-btn { width: min(250px, 36dvh); height: min(250px, 36dvh); }
+#app .pino-btn .pino { height: min(250px, 36dvh); }
+#app[data-vista="pino"] .palco { min-height: min(250px, 36dvh); }
+/* La barra in basso resta sempre visibile sui telefoni */
+@media (max-width: 879px), (max-height: 719px) {
+  #tabbar { position: sticky; bottom: calc(6px + env(safe-area-inset-bottom)); z-index: 6; margin-bottom: 2px; }
+}
+/* Nomi delle lingue: mai spezzati a meta' parola */
+.tessera .nome { overflow-wrap: break-word; word-break: normal; hyphens: auto; font-size: 15px; }
+.tessera { min-width: 0; }
+.griglia { grid-template-columns: repeat(auto-fit, minmax(138px, 1fr)); }
+/* Chip del Municipio sotto l'intestazione */
+#chip-municipio { position: static; transform: none; display: block; margin: 0 auto 6px; padding: 5px 12px; }
+/* Percorso vuoto */
+#steps > p.muted { padding: 26px 12px 8px; text-align: center; font-size: 15px; }
+#vuoto-vai { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; max-width: 320px; margin: 10px auto 18px; padding: 0 18px; }
+#vuoto-vai svg { width: 22px; height: 22px; }
+/* Orizzontale su telefono: Pino a sinistra, comandi a destra */
+@media (max-height: 520px) and (orientation: landscape) and (max-width: 1000px) {
+  .colonna { max-width: 900px; padding-top: 8px; }
+  .barra { min-height: 34px; }
+  #app > main { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: auto 1fr auto; column-gap: 20px; align-items: stretch; }
+  #app[data-vista="pino"] .palco { grid-column: 1; grid-row: 1 / span 3; margin: 0; width: 100%; min-height: 0; background-size: 100% 55%; }
+  #app .pino-btn, #app .pino-btn .pino { width: auto; height: min(210px, 62dvh); aspect-ratio: 1; }
+  #fumetto { grid-column: 2; grid-row: 1; margin: 2px 0 8px; max-height: 120px; }
+  #onde { grid-column: 2; grid-row: 2; align-self: end; margin: 0; }
+  #dock { grid-column: 2; grid-row: 3; }
+  #app[data-vista="pino"] #fumetto[hidden] + .palco::before { display: none; }
+  #app[data-vista="pino"] .palco::before { display: none; }
+  .privacy { margin-top: 6px; }
+}
