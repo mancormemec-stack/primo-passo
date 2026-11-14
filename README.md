@@ -1,5 +1,7 @@
 # Primo Passo
 
+<p align="center"><img src="assets/primo-passo-cover.jpg" alt="Primo Passo: Pino ti guida tra residenza, tessera sanitaria e permesso di soggiorno a Roma, nella tua lingua" width="800"></p>
+
 Pino è l'agente multilingue, anche vocale, che orienta le persone straniere a Roma tra le pratiche: residenza, tessera sanitaria, rinnovo del permesso. Il Comune è la porta d'ingresso; da lì l'agente orienta verso ASL e Questura.
 
 L'agente conosce solo **percorsi verificati a mano**. Su questi:
