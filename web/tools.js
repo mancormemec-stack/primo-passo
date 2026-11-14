@@ -53,6 +53,35 @@ const mark = (item) => (statoOf(item) === "non_verificato" ? `${item.testo} ${NV
 
 const out = (obj) => JSON.stringify(obj, null, 1);
 
+// ---------- Posizione (solo con il consenso dell'utente) ----------
+// Il browser chiede il permesso. Le coordinate, arrotondate a circa 100 m, vanno a OpenStreetMap
+// (Nominatim) solo per ricavare il Municipio. Non vengono salvate da Primo Passo.
+export async function locateInBrowser() {
+  if (typeof navigator === "undefined" || !navigator.geolocation) return { stato: "non_disponibile" };
+  let pos;
+  try {
+    pos = await new Promise((ok, no) =>
+      navigator.geolocation.getCurrentPosition(ok, no, { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 }),
+    );
+  } catch (e) {
+    return { stato: e && e.code === 1 ? "permesso_negato" : "errore" };
+  }
+  const lat = Math.round(pos.coords.latitude * 1000) / 1000;
+  const lon = Math.round(pos.coords.longitude * 1000) / 1000;
+  try {
+    const r = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=14&addressdetails=1&accept-language=it&lat=${lat}&lon=${lon}`,
+    );
+    const a = ((await r.json()).address) || {};
+    const m = /^Municipio Roma\s+([IVX]+)$/i.exec(a.suburb || a.city_district || "");
+    return { stato: "ok", citta: a.city || a.town || a.village || "", municipio: m ? m[1].toUpperCase() : undefined };
+  } catch {
+    return { stato: "errore" };
+  }
+}
+
+const mappaUrl = (q) => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+
 export function createTools(data, effects = {}) {
   const { percorsi } = data.percorsi;
   const uffici = data.uffici;
@@ -286,6 +315,18 @@ export function createTools(data, effects = {}) {
         : undefined;
       // La mappa Municipio -> ASL fa parte della risposta: se non è verificata, l'ufficio non lo è.
       const su = p.ufficio === "asl" && !uffici.mappa_verificata ? "non_verificato" : statoOf(u);
+      // Link alla mappa: il telefono parte dalla posizione dell'utente, quindi mostra l'ufficio più vicino.
+      const mappe =
+        p.ufficio === "asl" && info.sportelli_asl
+          ? info.sportelli_asl.map((x) => ({ nome: x.nome, link: mappaUrl(`${x.nome}, ${x.indirizzo}, Roma`) }))
+          : p.ufficio === "questura"
+            ? [{ nome: fill(u.nome), link: mappaUrl("Questura di Roma Ufficio Immigrazione, Via Teofilo Patini 23, Roma") }]
+            : p.ufficio === "asl"
+              ? [{ nome: fill(u.nome), link: mappaUrl(`Sportello scelta del medico ${info.asl} Roma`) }]
+              : [{ nome: fill(u.nome), link: mappaUrl(`Anagrafe Municipio ${m} Roma`) }];
+      if (typeof CustomEvent !== "undefined" && typeof globalThis.dispatchEvent === "function") {
+        globalThis.dispatchEvent(new CustomEvent("pp:ufficio", { detail: { ufficio: fill(u.nome), mappe } }));
+      }
       const sportelli = p.ufficio === "asl" && info.sportelli_asl
         ? { elenco: info.sportelli_asl, nota: info.sportelli_nota, fonte: info.sportelli_fonte }
         : undefined;
@@ -295,6 +336,8 @@ export function createTools(data, effects = {}) {
         come: u.come,
         contatti_municipio: contatti,
         sportelli_vicini: sportelli,
+        mappe,
+        istruzione_mappa: "Il link apre la mappa del telefono: l'utente vede l'ufficio più vicino a lui. Dillo in una frase e mostrane il nome; non leggere l'indirizzo se non ce l'hai dai tool.",
         stato: su,
         // `verificato` vale solo se una persona ha controllato la fonte.
         verificato: su === "umano",
@@ -348,6 +391,26 @@ export function createTools(data, effects = {}) {
       const html = buildSummaryHtml(p, s, lingua, traduzione);
       effects.print?.(html);
       return out({ creato: true, istruzione: "Di' all'utente che può stamparlo o salvarlo come PDF e portarlo allo sportello." });
+    },
+
+    // Chiamalo solo dopo che l'utente ha detto di sì alla richiesta di usare la posizione.
+    async locate_user() {
+      const r = await (effects.locate ?? locateInBrowser)();
+      if (r.stato === "permesso_negato")
+        return out({ stato: r.stato, istruzione: "L'utente non ha dato il permesso. Non insistere: chiedigli in quale quartiere o Municipio vive." });
+      if (r.stato !== "ok")
+        return out({ stato: r.stato, istruzione: "Non è stato possibile ricavare la posizione. Chiedigli in quale quartiere o Municipio vive." });
+      if (!r.municipio || !uffici.municipi[r.municipio])
+        return out({
+          stato: "fuori_roma",
+          istruzione: "La posizione non risulta in un Municipio di Roma. Dillo con gentilezza e chiedi in quale quartiere o Municipio vive o lavora.",
+        });
+      return out({
+        stato: "ok",
+        municipio: r.municipio,
+        istruzione:
+          "Di' in UNA frase che dalla posizione risulta il Municipio indicato (stima da OpenStreetMap: l'utente la conferma o la corregge), poi usa questo Municipio per find_office senza chiederlo ancora. La posizione non è stata salvata da Primo Passo: è stata inviata, arrotondata, a OpenStreetMap solo per trovare il Municipio. Non dire mai la posizione o l'indirizzo.",
+      });
     },
 
     handoff({ motivo, municipio }) {

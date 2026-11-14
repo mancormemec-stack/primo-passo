@@ -235,6 +235,48 @@
     const nota = $("installa-nota");
     if (nota && !nota.hidden) nota.textContent = eIOS() ? testiInstalla()[1] : testiInstalla()[2];
   }
+
+  // ---------- Dove andare: link alla mappa dell'ufficio (arriva da find_office) ----------
+  const T_MAPPA = {
+    it: ["Dove andare", "Apri nella mappa"], en: ["Where to go", "Open in maps"], es: ["D\u00F3nde ir", "Abrir en el mapa"],
+    fr: ["O\u00F9 aller", "Ouvrir dans la carte"], ro: ["Unde s\u0103 mergi", "Deschide pe hart\u0103"],
+    ar: ["\u0623\u064A\u0646 \u062A\u0630\u0647\u0628", "\u0627\u0641\u062A\u062D \u0641\u064A \u0627\u0644\u062E\u0631\u064A\u0637\u0629"],
+    uk: ["\u041A\u0443\u0434\u0438 \u0439\u0442\u0438", "\u0412\u0456\u0434\u043A\u0440\u0438\u0442\u0438 \u043D\u0430 \u043C\u0430\u043F\u0456"],
+  };
+  let uffici = [];
+  const testiMappa = () => T_MAPPA[(document.documentElement.lang || "en").toLowerCase().split("-")[0]] || T_MAPPA.en;
+  function disegnaUfficio() {
+    const app = $("app"), main = app && app.querySelector("main");
+    if (!main || !uffici.length) return;
+    let sec = $("ufficio");
+    if (!sec) {
+      sec = document.createElement("section");
+      sec.id = "ufficio"; sec.className = "card";
+      main.insertBefore(sec, $("steps") ? $("steps").nextSibling : null);
+    }
+    const [titolo, bottone] = testiMappa();
+    const chiave = JSON.stringify(uffici) + titolo;
+    if (sec.dataset.chiave === chiave) return;
+    sec.dataset.chiave = chiave;
+    sec.replaceChildren();
+    const h = document.createElement("h2"); h.textContent = titolo; sec.appendChild(h);
+    for (const u of uffici) {
+      const a = document.createElement("a");
+      a.className = "mappa press"; a.href = u.link; a.target = "_blank"; a.rel = "noopener noreferrer";
+      a.innerHTML = SVG('<path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11Z"/><circle cx="12" cy="10" r="2.4"/>') +
+        '<span class="testo"><strong></strong><small></small></span>';
+      a.querySelector("strong").textContent = u.nome;
+      a.querySelector("small").textContent = bottone;
+      sec.appendChild(a);
+    }
+    const nav = $("tabbar"), b = nav && nav.querySelector('[data-voce="percorso"]');
+    if (b && app.dataset.vista !== "percorso") b.classList.add("novita");
+  }
+  globalThis.addEventListener("pp:ufficio", (e) => {
+    const d = e.detail || {};
+    uffici = (d.mappe || []).filter((m) => m && /^https:\/\/www\.google\.com\/maps\//.test(m.link));
+    disegnaUfficio();
+  });
   function barra() {
     const app = $("app");
     if (!app || app.hidden) return;
@@ -263,6 +305,7 @@
     }
     etichette();
     installaTesti();
+    disegnaUfficio();
     if ($("fumetto")) casaAggiorna();
   }
 
