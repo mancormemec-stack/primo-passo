@@ -47,3 +47,13 @@
     box-shadow: 0 30px 60px -20px rgb(32 43 48 / .35), 0 0 100px 0 color-mix(in oklab, var(--primary) 12%, transparent); }
 }
 @media (prefers-reduced-motion: reduce) { #steps li { transition: none; } }
+
+/* Barra in basso: Pino, Percorso, Lingua (creata da tema-demo.js) */
+#tabbar { position: sticky; bottom: 8px; z-index: 5; display: flex; gap: 4px; margin: 18px 2px 0; padding: 6px; border-radius: 22px;
+  background: color-mix(in oklab, var(--card) 92%, transparent); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  border: 1px solid var(--line); box-shadow: var(--shadow); }
+#tabbar button { flex: 1; min-width: 0; min-height: 54px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border: 0; border-radius: 16px; background: none; color: var(--muted); font-size: 12px; font-weight: 800; }
+#tabbar button span { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 0 4px; }
+#tabbar button svg { width: 22px; height: 22px; }
+#tabbar button:hover, #tabbar button:focus-visible { background: var(--peach); color: var(--primary-text); }
