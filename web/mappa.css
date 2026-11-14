@@ -73,3 +73,11 @@ path.mp-poligono { cursor: pointer; transition: fill-opacity .2s; }
 .mp-det summary { cursor: pointer; font-weight: 800; color: var(--primary-text); min-height: 32px; display: flex; align-items: center; }
 .mp-det p { margin: 6px 0 0; line-height: 1.4; }
 #mp-pie { margin: 2px 0 0; text-align: center; color: var(--muted); font-size: 12px; line-height: 1.4; }
+
+/* Punto blu: dove sei adesso */
+.mp-tu { background: none; border: 0; }
+.mp-tu span { position: relative; display: block; width: 24px; height: 24px; border-radius: 50%; background: #1E6FD9; border: 3px solid #fff; box-sizing: border-box; box-shadow: 0 0 0 1px rgb(30 111 217 / .5), 0 2px 8px rgb(0 0 0 / .45); }
+.mp-tu span::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 2px solid rgb(30 111 217 / .55); animation: mp-pulsa 2s ease-out infinite; }
+@keyframes mp-pulsa { from { transform: scale(.6); opacity: .9; } to { transform: scale(1.5); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .mp-tu span::after { animation: none; opacity: .5; } }
+.mp-gps.attivo { background: #1E6FD9; box-shadow: 0 6px 18px rgb(30 111 217 / .35); }

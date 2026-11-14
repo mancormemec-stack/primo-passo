@@ -7,7 +7,7 @@
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
-  const V = "11";
+  const V = "12";
   const CHIAVE = "primoPasso.municipio";
 
   // ---------- Testi (le altre lingue ricadono sull'inglese) ----------
@@ -38,6 +38,17 @@
       "Показати на мапі", "Як дістатися", "Зателефонувати", "Мапа © OpenStreetMap", "Дані автоматично перевірені за офіційними джерелами {date}, ще не людиною.", "Завантажую мапу…", "Не можу завантажити мапу (потрібне з'єднання). Картки нижче працюють і так.", "Офіс указано як приклад", "Ти тут", "Мапа Рима з 15 Municipi", "Плитки мапи завантажуються з OpenStreetMap.", "Торкнись Municipio на мапі або обери зі списку.", "Офіційні деталі"],
   };
   const TESTI = Object.fromEntries(Object.entries(RIGHE).map(([l, r]) => [l, Object.fromEntries(CHIAVI.map((k, i) => [k, r[i]]))]));
+  // Posizione in tempo reale (punto blu)
+  const POS = {
+    it: ["Posizione attiva: il punto blu si aggiorna mentre ti muovi.", "Smetti di seguire la posizione"],
+    en: ["Location on: the blue dot updates as you move.", "Stop following my location"],
+    es: ["Ubicación activa: el punto azul se actualiza mientras te mueves.", "Dejar de seguir mi ubicación"],
+    fr: ["Position active : le point bleu se met à jour pendant que vous bougez.", "Arrêter de suivre ma position"],
+    ro: ["Locație activă: punctul albastru se actualizează cât te miști.", "Nu mai urmări locația"],
+    ar: ["الموقع مفعّل: تتحدث النقطة الزرقاء أثناء تحركك.", "أوقف تتبع موقعي"],
+    uk: ["Місцезнаходження ввімкнено: синя крапка оновлюється, поки ти рухаєшся.", "Припинити стеження за місцезнаходженням"],
+  };
+  for (const [l, [a, b]] of Object.entries(POS)) Object.assign(TESTI[l], { posAttiva: a, fermaPos: b });
   const lingua = () => (document.documentElement.lang || "en").toLowerCase().split("-")[0];
   const t = (k, p = {}) => {
     const s = (TESTI[lingua()] || TESTI.en)[k] ?? TESTI.en[k] ?? k;
@@ -139,8 +150,8 @@
     el.replaceChildren(h("div", { class: "mp-guida" }, pino, h("div", {},
       h("h2", {}, t("titolo")),
       h("p", { class: "mp-bolla", lang: lingua(), "aria-live": "polite" }, testo),
-      h("button", { type: "button", class: "mp-gps press", onclick: usaPosizione }, h("span", { html: ICONE.gps }), t("posizione")),
-      st.nota && st.nota !== "errore" ? h("p", { class: "mp-nota", role: "status" }, t(st.nota)) : h("p", { class: "mp-nota" }, t("posNota")))));
+      h("button", { type: "button", class: "mp-gps press" + (st.watch != null ? " attivo" : ""), "aria-pressed": String(st.watch != null), onclick: usaPosizione }, h("span", { html: ICONE.gps }), st.watch != null ? t("fermaPos") : t("posizione")),
+      st.nota && st.nota !== "errore" ? h("p", { class: "mp-nota", role: "status" }, t(st.nota)) : h("p", { class: "mp-nota" }, st.watch != null ? t("posAttiva") : t("posNota")))));
   }
 
   const VOCI = [["mun", "dMun", "mun"], ["ana", "dAna", "ana"], ["asl", "dAsl", "asl"], ["que", "dQue", "que"], ["aiu", "dAiu", "aiu"]];
@@ -242,7 +253,7 @@
         st.marker[l.id] = mk;
       }
       st.caricata = true;
-      stili(); disegna();
+      stili(); disegna(); mostraPunto();
       setTimeout(() => { m.invalidateSize(); focus(); }, 60);
     } catch (e) {
       st.caricamento = false; st.nota = "errore"; disegna();
@@ -283,18 +294,41 @@
     if (daElenco) $("mp-box").scrollIntoView({ block: "nearest", behavior: "smooth" });
   }
 
-  // ---------- Posizione: resta sul dispositivo ----------
+  // ---------- Posizione in tempo reale: il punto blu. Resta sul dispositivo, non viene inviata a nessuno ----------
+  function mostraPunto() {
+    if (!st.caricata || !st.ultimaPos) return;
+    const { la, lo, acc } = st.ultimaPos, L = st.L, m = st.mappa;
+    if (!st.utente) {
+      st.cerchio = L.circle([la, lo], { radius: acc || 30, color: "#1E6FD9", weight: 1, fillColor: "#1E6FD9", fillOpacity: 0.12, interactive: false }).addTo(m);
+      st.utente = L.marker([la, lo], { keyboard: false, zIndexOffset: 1000, title: t("seiQui"), icon: L.divIcon({ className: "mp-tu", html: "<span></span>", iconSize: [24, 24], iconAnchor: [12, 12] }) }).addTo(m);
+      st.utente.bindTooltip(t("seiQui"), { direction: "top", offset: [0, -12] });
+    } else { st.utente.setLatLng([la, lo]); st.cerchio.setLatLng([la, lo]); st.cerchio.setRadius(acc || 30); }
+  }
+  function nuovaPosizione(pos) {
+    const { latitude: la, longitude: lo, accuracy: acc } = pos.coords;
+    st.ultimaPos = { la, lo, acc };
+    mostraPunto();
+    const id = municipioDi(la, lo);
+    if (!st.primoFix) {
+      st.primoFix = true;
+      if (id) { seleziona(id, false); if (st.caricata) st.mappa.setView([la, lo], Math.max(st.mappa.getZoom(), 14)); }
+      else { st.nota = "posFuori"; disegna(); }
+    }
+  }
+  function fermaPosizione() {
+    if (st.watch != null) { navigator.geolocation.clearWatch(st.watch); st.watch = null; }
+    if (st.utente) { st.utente.remove(); st.utente = null; }
+    if (st.cerchio) { st.cerchio.remove(); st.cerchio = null; }
+    st.primoFix = false; st.ultimaPos = null;
+  }
   function usaPosizione() {
+    if (st.watch != null) { fermaPosizione(); st.nota = ""; disegna(); return; }
     if (!navigator.geolocation || !dati.geo) { st.nota = "posNegata"; disegna(); return; }
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const { latitude: la, longitude: lo } = pos.coords;
-      const id = municipioDi(la, lo);
-      if (st.caricata) {
-        if (st.utente) st.utente.remove();
-        st.utente = st.L.circleMarker([la, lo], { radius: 8, color: "#fff", weight: 3, fillColor: "#1E6FD9", fillOpacity: 1 }).addTo(st.mappa).bindTooltip(t("seiQui"));
-      }
-      if (id) seleziona(id, false); else { st.nota = "posFuori"; disegna(); }
-    }, () => { st.nota = "posNegata"; disegna(); }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 });
+    st.nota = ""; st.primoFix = false;
+    st.watch = navigator.geolocation.watchPosition(nuovaPosizione,
+      () => { fermaPosizione(); st.nota = "posNegata"; disegna(); },
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 });
+    disegna();
   }
 
   // Etichetta della scheda per la barra in basso (la legge tema-demo.js)
@@ -305,6 +339,7 @@
     prepara();
     const a = $("app"), v = a && a.dataset.vista;
     if (v !== ultima) {
+      if (ultima === "mappa" && v !== "mappa" && st.watch != null) { fermaPosizione(); disegna(); }
       ultima = v;
       if (v === "mappa") { if (st.mappa) setTimeout(() => { st.mappa.invalidateSize(); focus(); }, 80); else avviaMappa(); }
     }
